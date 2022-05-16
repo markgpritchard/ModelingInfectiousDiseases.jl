@@ -1,0 +1,26 @@
+name = "ModelingInfectiousDiseases"
+uuid = "f781dabf-c6d9-4d5d-8c6d-8371671e0f9d"
+authors = ["Mark Pritchard <mark.pritchard@ndm.ox.ac.uk>"]
+version = "0.1.0"
+
+[deps]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+
+[compat]
+CairoMakie = "0.7, 0.8"
+DifferentialEquations = "7.1"
+Documenter = "0.27"
+Reexport = "1.2"
+StaticArrays = "1.4"
+julia = "1.6"
+
+[extras]
+SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test", "SafeTestsets"]
