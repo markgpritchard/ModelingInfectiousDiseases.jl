@@ -51,9 +51,9 @@ function run_sir_21(; beta = 520 / 365, gamma = 1 / 7, S0 = 1 - 1e-6, I0 = 1e-6,
     if S0 + I0 > 1 @warn "Values of S0 ($S0) and I0 ($I0) sum to more than 1" end 
     if beta < gamma @info "R₀ < 1 ($(beta / gamma))" end
 
-    u0 = @SVector [S0, I0, R_at_time0]
-    tspan = ( 0., Float64(duration) )
-    p = [beta, gamma]
+    u0::SVector{3, Float64} = @SVector [S0, I0, R_at_time0]
+    tspan::Tuple{Float64, Float64} = ( 0., Float64(duration) )
+    p::Vector{Float64} = [beta, gamma]
     prob = ODEProblem(sir_21, u0, tspan, p)
     sol = solve(prob; saveat)
 
@@ -82,7 +82,7 @@ Plot the results of running the model `sir_21`. Keyword arguments are those of
 """
 function plot_sir_21(; duration = 70, kwargs...)
     saveat = duration / 500 # to give a smoother line for plotting
-    sol = run_sir_21!(; duration, saveat, kwargs...)
+    sol = run_sir_21(; duration, saveat, kwargs...)
     xs = sol.t ./ 7 # to plot time in weeks
     S = Float64[]; I = Float64[]; R = Float64[]
     for i in eachindex(sol.u)
