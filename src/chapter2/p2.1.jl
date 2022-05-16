@@ -8,7 +8,8 @@ export sir_21, run_sir_21, print_sir_21, plot_sir_21
 """
     sir_21(u, p, t) 
 
-The ordinary differential equations function for programme 2.1 in 
+A simple compartmental susceptible--infectious--resistant model with a constant 
+    population. This is the ordinary differential equations function for programme 2.1 in 
     `Modeling Infectious Diseases in Humans and Animals`
 """
 function sir_21(u, p, t)

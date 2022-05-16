@@ -8,7 +8,8 @@ export sir_22, run_sir_22, print_sir_22, plot_sir_22
 """
     sir_22(u, p, t) 
 
-The ordinary differential equations function for programme 2.2 in 
+A compartmental susceptible--infectious--resistant model with a variable 
+    population. This is the ordinary differential equations function for programme 2.2 in 
     `Modeling Infectious Diseases in Humans and Animals`
 """
 function sir_22(u, p, t)
