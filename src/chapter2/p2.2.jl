@@ -119,4 +119,4 @@ function plot_sir_22(sol)
   return fig
 end 
 
-end # module MID_2_1
+end # module MID_2_2
