@@ -1,7 +1,9 @@
 
 module ModelingInfectiousDiseases
 
-using Reexport
+using DifferentialEquations, Reexport
+
+@reexport using DifferentialEquations
 
 # Programmes are grouped by chapter. Each chapter includes a @reexport for each 
 # component programme.
