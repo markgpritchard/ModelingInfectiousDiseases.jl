@@ -6,7 +6,7 @@ The code is presented in a package. You may install the whole package and use fu
 
 Plots of model outputs are produced within this package in `CairoMakie`. Numerical outputs are available for the user to produce plots using any package of their choice. 
 
-So far, programmes up to chapter 2, programme 2.2 have been added.
+So far, programmes up to chapter 2, programme 2.3 have been added.
 
 ## Installation 
 ``` julia 
