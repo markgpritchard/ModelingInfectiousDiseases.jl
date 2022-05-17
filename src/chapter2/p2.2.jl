@@ -50,7 +50,7 @@ function run_sir_22(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), S0 =
     @assert mu >= 0 "Input mu = $mu: cannot run with negative parameter mu"
     @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
     @assert S0 + I0 <= 1 "Initial proportions susceptible ($S0) and infectious ($I0) must not sum to more than 1" 
-    if beta < gamma @info "R₀ < 1 ($(beta / gamma))" end
+    if beta < gamma + mu @info "R₀ < 1 ($(beta / gamma + mu))" end
 
     R_at_time0 = 1 - S0 - I0 # given a long name to ensure distinction between proportion 
         # resistant at time = 0 (R(0)) and the basic reproduction number (R₀)
