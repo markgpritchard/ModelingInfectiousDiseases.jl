@@ -11,6 +11,20 @@ export sir_21, run_sir_21, print_sir_21, plot_sir_21
 A simple compartmental susceptible--infectious--resistant model with a constant 
     population. This is the ordinary differential equations function for programme 2.1 in 
     `Modeling Infectious Diseases in Humans and Animals`
+
+# Arguments 
+
+* `u` represents u₀, and takes initial conditions of `S`, `I` and `R`.
+* `p` represents the parameters, and takes values for `beta` and `gamma`.
+* `t` represents the timespan of the model. It must be a tuple of Floats `(start, stop)`. 
+
+# Example 
+
+    julia> u0 = [.999, .001, .0] # S, I, R
+    julia> p = [1., .2] # beta, gamma
+    julia> tspan = (0., 100.)
+    julia> prob = ODEProblem(sir_21, u0, tspan, p)
+    julia> sol = solve(prob)
 """
 function sir_21(u, p, t)
     # compartments 
@@ -41,10 +55,13 @@ All keyword arguments are optional with default values supplied for each.
     name to avoid confusion with the basic reproduction number R₀. Default value is 0.
 * `duration`: How long the model will run (time units are interpretted as days). Default is 70.
 * `saveat`: How frequently the model should save values. Default is 1 (day).
+
+# Examples 
+    julia> run_sir_21()
+
+    julia> run_sir_21(beta = .8, gamma = .6, duration = 1000)
 """
-function run_sir_21(; beta = 520 / 365, gamma = 1 / 7, S0 = 1 - 1e-6, I0 = 1e-6, 
-        R_at_time0 = 0, duration = 70, saveat = 1)
-  
+function run_sir_21(; beta = 520 / 365, gamma = 1 / 7, S0 = 1 - 1e-6, I0 = 1e-6, duration = 70, saveat = 1)
     @assert S0 >= 0 "Input S0 = $S0: cannot run with negative initial proportion susceptible"
     @assert I0 >= 0 "Input I0 = $I0: cannot run with negative initial proportion resistant"
     @assert beta >= 0 "Input beta = $beta: cannot run with negative parameter beta"
@@ -90,6 +107,11 @@ Can take optional keyword arguments, `run_sir_21` (see that function for details
     of the arguments and their default values), or the solution from an ODE model. 
     The advantage of allowing the plot function to run the ODE is that `saveat` 
     is selected to provide a smooth line on the plot.
+
+# Examples
+    julia> plot_sir_21()
+
+    julia> plot_sir_21(beta = .8, gamma = .6, duration = 100) 
 """
 function plot_sir_21(; duration = 70, kwargs...)
     saveat = duration / 500 # to give a smoother line for plotting
