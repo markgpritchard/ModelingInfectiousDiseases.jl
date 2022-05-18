@@ -17,7 +17,7 @@ julia> using ModelingInfectiousDiseases
 
 ## Use
 ### Chapter 2
-Each programme takes the same form, with the last two digits indicating the programme number. For example, for Programme 2.2, the function `sir_22!` holds the ordinary differential equations, `run_sir_21` runs the model, `print_sir_21` displays the output in the REPL, and `plot_sir_21` plots the output. (Note that for simplicity, all functions are named `sir` even if they are not strictly SIR [susceptible--infectious--recovered models].)
+Each programme takes the same form, with the last two digits indicating the programme number. For example, for Programme 2.2, the function `sir_22!` holds the ordinary differential equations, `run_sir_21` runs the model, `print_sir_21` displays the output in the REPL, and `plot_sir_21` plots the output. (Note that for simplicity, all functions are named `sir` even if they are not strictly SIR [susceptible--infectious--recovered] models.)
 
 Programmes 2.3 and 2.4 both present pathogen-related mortality. 2.3 uses density-dependent transmission and 2.4 uses frequency dependent transmission. Their outputs can be seen side-by-side using the function `plot_sirs_23_24`.
 
