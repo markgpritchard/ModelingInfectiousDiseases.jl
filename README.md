@@ -17,8 +17,11 @@ julia> using ModelingInfectiousDiseases
 
 ## Use
 ### Chapter 2
-Each programme takes the same form, with the last two digits indicating the programme number. For example, for Programme 2.2, the function `sir_22!` holds the ordinary differential equations. `run_sir_21` runs the model, `print_sir_21` displays the output in the REPL, and `plot_sir_21` plots the output.
+Each programme takes the same form, with the last two digits indicating the programme number. For example, for Programme 2.2, the function `sir_22!` holds the ordinary differential equations, `run_sir_21` runs the model, `print_sir_21` displays the output in the REPL, and `plot_sir_21` plots the output.
 
-Programmes 2.3 and 2.4 both have pathogen-related mortality. 2.3 uses density-dependent transmission and 2.4 uses frequency dependent transmission. Their outputs can be seen side-by-side using the function `plot_sirs_23_24`.
+Programmes 2.3 and 2.4 both present pathogen-related mortality. 2.3 uses density-dependent transmission and 2.4 uses frequency dependent transmission. Their outputs can be seen side-by-side using the function `plot_sirs_23_24`.
+
+![Outputs of programmes 2.3 and 2.4 side-by-side, showing damped oscilation toward an equilibrium for numbers infectious, but a difference in numbers susceptible, with density-dependent transmission showing an equilibrium and frequency-dependent transmission showing a moving trend](https://github.com/markgpritchard/ModelingInfectiousDiseases.jl/blob/main/plt_2324.png)
+
 
 Documentation is not yet complete but each function has help text available, which can be accessed with `?` then the function name.
