@@ -116,12 +116,17 @@ function plot_sir_22(sol)
     lines!(ax1, xs, S)
     lines!(ax2, xs, I)
     lines!(ax3, xs, R)
+    Label(
+        fig[0, :], 
+        "p2.2.jl: Susceptible--infectious--resistant model with a variable population"
+    )
     ax3.xlabel = "Time, years"
     ax1.ylabel = "Fraction susceptible"
     ax2.ylabel = "Fraction infectious"
     ax3.ylabel = "Fraction resistant"
     hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
-
+    resize_to_layout!(fig)
+    
     return fig
 end 
 

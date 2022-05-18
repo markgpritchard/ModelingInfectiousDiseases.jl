@@ -1,11 +1,6 @@
 
-#using ModelingInfectiousDiseases
 using Test, SafeTestsets
 
-@safetestset "Chapter 2" begin 
-    @safetestset "Programme 2.1" begin include("test2_1.jl") end
-    @safetestset "Programme 2.2" begin include("test2_2.jl") end
-    @safetestset "Programme 2.3" begin include("test2_3.jl") end
-end 
+@safetestset "Chapter 2" begin include("chapter2tests/testchapter2.jl") end 
 
 # To test: using ModelingInfectiousDiseases, Pkg; Pkg.test("ModelingInfectiousDiseases")

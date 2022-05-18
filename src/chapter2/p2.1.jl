@@ -3,7 +3,7 @@ module MID_2_1
   
 using CairoMakie, DifferentialEquations
 
-export sir_21, sir_21!, run_sir_21, print_sir_21, plot_sir_21
+export sir_21!, run_sir_21, print_sir_21, plot_sir_21
 
 """
     sir_21!(du, u, p, t) 
@@ -131,9 +131,14 @@ function plot_sir_21(sol)
     lines!(ax, xs, S, label = "Susceptible")
     lines!(ax, xs, I, label = "Infectious")
     lines!(ax, xs, R, label = "Recovered")
+    Label(
+        fig[0, :], 
+        "p2.1.jl: Susceptible--infectious--resistant model with a constant population"
+    )
     ax.xlabel = "Time, weeks"
     ax.ylabel = "Fraction of population"
     fig[1, 2] = Legend(fig, ax)
+    resize_to_layout!(fig)
 
     return fig
 end 

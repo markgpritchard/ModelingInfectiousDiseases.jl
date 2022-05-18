@@ -1,36 +1,39 @@
 
-module MID_2_3
+module MID_2_4
   
 using CairoMakie, DifferentialEquations
 
-export sir_23!, run_sir_23, print_sir_23, plot_sir_23
+export plot_sir_24, print_sir_24, run_sir_24, sir_24!
 
 """
-    sir_23!(du, u, p, t) 
+    sir_24!(du, u, p, t) 
 
 A compartmental susceptible--infectious--resistant model with infection-induced
-    mortality. This model uses density-dependent (pseudo mass action) transmission,
-    and so compartments are labelled X, Y and Z rather than S, I and R.
+    mortality. This model uses frequency-dependent (mass action) transmission. As 
+    N is not constant, the compartments are still labelled X, Y and Z.
     
-This is the ordinary differential equations function for programme 2.3 in 
+This is the ordinary differential equations function for programme 2.4 in 
     `Modeling Infectious Diseases in Humans and Animals`
 """
-function sir_23!(du, u, p, t)
+function sir_24!(du, u, p, t)
     # compartments 
     X, Y, Z = u # following convention in book, {S, I, R} refer to proportions and {X, Y, Z} refer to numbers
     # parameters 
     beta, gamma, mu, nu, rho = p 
 
+    # total population size 
+    N = X + Y + Z
+
     # the ODEs
-    du[1] = dX = nu - beta * X * Y - mu * X 
-    du[2] = dY = beta * X * Y - (gamma + mu) * Y / (1 - rho)
+    du[1] = dX = nu - beta * X * Y / N - mu * X 
+    du[2] = dY = beta * X * Y / N - (gamma + mu) * Y / (1 - rho)
     du[3] = dZ = gamma * Y - mu * Z
 end 
 
 """
-    run_sir_23([; beta, gamma, mu, nu, rho, X0, Y0, N0, duration, saveat])
+    run_sir_24([; beta, gamma, mu, nu, rho, X0, Y0, N0, duration, saveat])
 
-Run the model `sir_23`
+Run the model `sir_24`
 
 # Keyword arguments 
 
@@ -48,12 +51,11 @@ All keyword arguments are optional with default values supplied for each.
 * `Y0`: Number infectious at time = 0. Default is 1e-6.
 * `N0`: The initial total population size. Default is 1.
 * `duration`: How long the model will run (time units are interpretted as days). 
-    Default is 100 years. (The default differs between the programmes in different 
-    languages -- 100 years appears to give a reasonable illustration of the results.)
+    Default is 1e5 days (273 years)
 * `saveat`: How frequently the model should save values. Default is 1 (day).
 """
-function run_sir_23(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu = 1 / (70 * 365), 
-        rho = .5, X0 = .2, Y0 = 1e-6, N0 = 1, duration = 100 * 365, saveat = 1)
+function run_sir_24(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu = 1 / (70 * 365), 
+        rho = .5, X0 = .2, Y0 = 1e-6, N0 = 1, duration = 1e5, saveat = 1)
   
     @assert X0 >= 0 "Input X0 = $X0: cannot run with negative initial number susceptible"
     @assert Y0 >= 0 "Input Y0 = $Y0: cannot run with negative initial number resistant"
@@ -64,13 +66,13 @@ function run_sir_23(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu =
     @assert rho >= 0 && rho <= 1 "Input rho = $rho: rho is a probability and cannot be <0 or >1"
     @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
     @assert X0 + Y0 <= N0 "Initial numbers susceptible ($X0) and infectious ($Y0) must not sum to more than the total population size ($N0)" 
-    if beta * (1 - rho) * nu < (gamma + nu) * mu @info "R₀ < 1 ($( beta * (1 - rho) * nu / ( (gamma + nu) * mu ) )" end
+    if beta * (1 - rho) * nu < gamma + nu @info "R₀ < 1 ($(beta * (1 - rho) * nu / (gamma + nu) ))" end
 
     Z0 = N0 - X0 - Y0 
     u0 = [X0, Y0, Z0]
     tspan = ( 0., Float64(duration) )
     p = [beta, gamma, mu, nu, rho]
-    prob = ODEProblem(sir_23!, u0, tspan, p)
+    prob = ODEProblem(sir_24!, u0, tspan, p)
     # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
     sol = solve(prob; saveat, abstol = 1e-12, reltol = 1e-12)
 
@@ -78,18 +80,18 @@ function run_sir_23(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu =
 end 
 
 """
-    print_sir_23([; kwargs...])
+    print_sir_24([; kwargs...])
 
-Print the saved values after running the model `sir_23`. 
+Print the saved values after running the model `sir_24`. 
 
-Keyword arguments are all optional. See `run_sir_23` for details of the arguments and their default values.
+Keyword arguments are all optional. See `run_sir_24` for details of the arguments and their default values.
 """
-function print_sir_23(; kwargs...)
-    sol = run_sir_23(; kwargs...)
-    print_sir_23(sol)
+function print_sir_24(; kwargs...)
+    sol = run_sir_24(; kwargs...)
+    print_sir_24(sol)
 end 
 
-function print_sir_23(sol)
+function print_sir_24(sol)
     for i ∈ eachindex(sol.u)
         println("t = $(sol.t[i]): $(sol.u[i])")
     end 
@@ -97,32 +99,32 @@ function print_sir_23(sol)
 end 
 
 """
-    plot_sir_23([; kwargs...])
-    plot_sir_23(sol)
+    plot_sir_24([; kwargs...])
+    plot_sir_24(sol)
 
-Plot the results of running the model `sir_23`. 
+Plot the results of running the model `sir_24`. 
 
-Can take optional keyword arguments, `run_sir_23` (see that function for details 
+Can take optional keyword arguments, `run_sir_24` (see that function for details 
     of the arguments and their default values), or the solution from an ODE model. 
     The advantage of allowing the plot function to run the ODE is that `saveat` 
     is selected to provide a smooth line on the plot.
 """
-function plot_sir_23(; kwargs...)
-    sol = run_sir_23(; kwargs...)
-    return plot_sir_23(sol)
+function plot_sir_24(; kwargs...)
+    sol = run_sir_24(; kwargs...)
+    return plot_sir_24(sol)
 end 
 
-function plot_sir_23(sol)
+function plot_sir_24(sol)
     # Split out the plotting function here to allow an additional function that 
     # will plot the results of programmes 2.3 and 2.4 side-by-side
-    xs, X, Y, Z, N = plot_sir_23_vals(sol)
+    xs, X, Y, Z, N = plot_sir_24_vals(sol)
 
     fig = Figure()
     ax1 = Axis(fig[1, 1]); ax2 = Axis(fig[2, 1]); ax3 = Axis(fig[3, 1])
-    plot_sir_23!(ax1, ax2, ax3, xs, X, Y, Z, N)
+    plot_sir_24!(ax1, ax2, ax3, xs, X, Y, Z, N)
     Label(
         fig[0, :], 
-        "p2.3.jl: SIR model with infection-induced mortality and density-dependent transmission"
+        "p2.4.jl: SIR model with infection-induced mortality and frequency-dependent transmission"
     )
     fig[3, 2] = Legend(fig, ax3)
     resize_to_layout!(fig)
@@ -130,7 +132,7 @@ function plot_sir_23(sol)
     return fig
 end 
 
-function plot_sir_23_vals(sol)
+function plot_sir_24_vals(sol)
     xs = sol.t ./ 365 # to plot time in years
     X = Float64[]; Y = Float64[]; Z = Float64[]; N = Float64[]
     for i ∈ eachindex(sol.u)
@@ -143,7 +145,7 @@ function plot_sir_23_vals(sol)
     return xs, X, Y, Z, N
 end 
 
-function plot_sir_23!(ax1, ax2, ax3, xs, X, Y, Z, N)
+function plot_sir_24!(ax1, ax2, ax3, xs, X, Y, Z, N)
     lines!(ax1, xs, X)
     lines!(ax2, xs, Y)
     lines!(ax3, xs, Z, label = "Recovered")
@@ -156,4 +158,4 @@ function plot_sir_23!(ax1, ax2, ax3, xs, X, Y, Z, N)
     hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
 end 
 
-end # module MID_2_3
+end # module MID_2_4
