@@ -16,7 +16,7 @@ julia> using ModelingInfectiousDiseases
 ```
 
 ## Use
-###Chapter 2
+### Chapter 2
 Each programme takes the same form, with the last two digits indicating the programme number. For example, for Programme 2.2, the function `sir_22!` holds the ordinary differential equations. `run_sir_21` runs the model, `print_sir_21` displays the output in the REPL, and `plot_sir_21` plots the output.
 
 Programmes 2.3 and 2.4 both have pathogen-related mortality. 2.3 uses density-dependent transmission and 2.4 uses frequency dependent transmission. Their outputs can be seen side-by-side using the function `plot_sirs_23_24`.
@@ -36,7 +36,7 @@ search: run_sir_21 run_sir_27 run_sir_26 run_sir_25 run_sir_24 run_sir_23 run_si
 
   All keyword arguments are optional with default values supplied for each.
 
-    •  `beta`: The beta parameter in the model (infectiousness of infectives). Default is 520 / 365
+    •  beta: The beta parameter in the model (infectiousness of infectives). Default is 520 / 365
        (520 per year).
 
     •  gamma: The gamma parameter in the model (recovery rate). Default is 1 / 7.
