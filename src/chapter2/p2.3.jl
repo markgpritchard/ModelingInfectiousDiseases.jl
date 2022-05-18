@@ -1,25 +1,27 @@
 
 module MID_2_3
   
-using CairoMakie, DifferentialEquations, StaticArrays
+using CairoMakie, DifferentialEquations
 
-export sir_23, run_sir_23, print_sir_23, plot_sir_23
+export sir_23!, run_sir_23, print_sir_23, plot_sir_23
 
 """
-    sir_23(u, p, t) 
+    sir_23!(du, u, p, t) 
 
 A compartmental susceptible--infectious--resistant model with infection-induced
     mortality. This is the ordinary differential equations function for programme 2.3 in 
     `Modeling Infectious Diseases in Humans and Animals`
 """
-function sir_23(u, p, t)
+function sir_23!(du, u, p, t)
+    # compartments 
     X, Y, Z = u # following convention in book, {S, I, R} refer to proportions and {X, Y, Z} refer to numbers
+    # parameters 
     beta, gamma, mu, nu, rho = p 
 
-    dX = nu - beta * X * Y - mu * X 
-    dY = beta * X * Y - (gamma + mu) * Y / (1 - rho)
-    dZ = gamma * Y - mu * Z
-    return @SVector [dX, dY, dZ]
+    # the ODEs
+    du[1] = dX = nu - beta * X * Y - mu * X 
+    du[2] = dY = beta * X * Y - (gamma + mu) * Y / (1 - rho)
+    du[3] = dZ = gamma * Y - mu * Z
 end 
 
 """
@@ -64,10 +66,10 @@ function run_sir_23(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu =
     Z0 = N0 - X0 - Y0 # given a long name to ensure distinction between proportion 
         # resistant at time = 0 (R(0)) and the basic reproduction number (R₀)
 
-    u0 = @SVector [X0, Y0, Z0]
+    u0 = [X0, Y0, Z0]
     tspan = ( 0., Float64(duration) )
     p = [beta, gamma, mu, nu, rho]
-    prob = ODEProblem(sir_23, u0, tspan, p)
+    prob = ODEProblem(sir_23!, u0, tspan, p)
     # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
     sol = solve(prob; saveat, abstol = 1e-12, reltol = 1e-12)
 
@@ -83,10 +85,14 @@ Keyword arguments are all optional. See `run_sir_23` for details of the argument
 """
 function print_sir_23(; kwargs...)
     sol = run_sir_23(; kwargs...)
-    for i in eachindex(sol.u)
-        println(sol.u[i])
+    print_sir_23(sol)
+end 
+
+function print_sir_23(sol)
+    for i ∈ eachindex(sol.u)
+        println("t = $(sol.t[i]): $(sol.u[i])")
     end 
-    return sol 
+    return nothing 
 end 
 
 """
@@ -106,30 +112,30 @@ function plot_sir_23(; kwargs...)
 end 
 
 function plot_sir_23(sol)
-  xs = sol.t ./ 365 # to plot time in years
-  X = Float64[]; Y = Float64[]; Z = Float64[]; N = Float64[]
-  for i in eachindex(sol.u)
-      push!(X, sol.u[i][1])
-      push!(Y, sol.u[i][2])
-      push!(Z, sol.u[i][3])
-      push!(N, (X[i] + Y[i] + Z[i]))
-  end 
+    xs = sol.t ./ 365 # to plot time in years
+    X = Float64[]; Y = Float64[]; Z = Float64[]; N = Float64[]
+    for i ∈ eachindex(sol.u)
+        push!(X, sol.u[i][1])
+        push!(Y, sol.u[i][2])
+        push!(Z, sol.u[i][3])
+        push!(N, (X[i] + Y[i] + Z[i]))
+    end 
 
-  fig = Figure()
-  ax1 = Axis(fig[1, 1]); ax2 = Axis(fig[2, 1]); ax3 = Axis(fig[3, 1])
-  lines!(ax1, xs, X)
-  lines!(ax2, xs, Y)
-  lines!(ax3, xs, Z, label = "Recovered")
-  lines!(ax3, xs, N, label = "Total population")
-  ax3.xlabel = "Time, years"
-  ax1.ylabel = "Number susceptible"
-  ax2.ylabel = "Number infectious"
-  ax3.ylabel = "Numbers"
-  fig[3, 2] = Legend(fig, ax3)
-  linkxaxes!(ax1, ax2, ax3)
-  hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
+    fig = Figure()
+    ax1 = Axis(fig[1, 1]); ax2 = Axis(fig[2, 1]); ax3 = Axis(fig[3, 1])
+    lines!(ax1, xs, X)
+    lines!(ax2, xs, Y)
+    lines!(ax3, xs, Z, label = "Recovered")
+    lines!(ax3, xs, N, label = "Total population")
+    ax3.xlabel = "Time, years"
+    ax1.ylabel = "Number susceptible"
+    ax2.ylabel = "Number infectious"
+    ax3.ylabel = "Numbers"
+    fig[3, 2] = Legend(fig, ax3)
+    linkxaxes!(ax1, ax2, ax3)
+    hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
 
-  return fig
+    return fig
 end 
 
 end # module MID_2_3

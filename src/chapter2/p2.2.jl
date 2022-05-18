@@ -1,25 +1,27 @@
 
 module MID_2_2
   
-using CairoMakie, DifferentialEquations, StaticArrays
+using CairoMakie, DifferentialEquations
 
-export sir_22, run_sir_22, print_sir_22, plot_sir_22
+export sir_22!, run_sir_22, print_sir_22, plot_sir_22
 
 """
-    sir_22(u, p, t) 
+    sir_22!(du, u, p, t) 
 
 A compartmental susceptible--infectious--resistant model with a variable 
     population. This is the ordinary differential equations function for programme 2.2 in 
     `Modeling Infectious Diseases in Humans and Animals`
 """
-function sir_22(u, p, t)
+function sir_22!(du, u, p, t) 
+    # Compartments 
     S, I, R = u
+    # Parameters
     beta, gamma, mu = p 
 
-    dS = mu - beta * S * I - mu * S 
-    dI = beta * S * I - gamma * I - mu * I
-    dR = gamma * I - mu * R
-    return @SVector [dS, dI, dR]
+    # The ODEs
+    du[1] = dS = mu - beta * S * I - mu * S 
+    du[2] = dI = beta * S * I - gamma * I - mu * I
+    du[3] = dR = gamma * I - mu * R
 end 
 
 """
@@ -55,10 +57,10 @@ function run_sir_22(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), S0 =
     R_at_time0 = 1 - S0 - I0 # given a long name to ensure distinction between proportion 
         # resistant at time = 0 (R(0)) and the basic reproduction number (R₀)
 
-    u0 = @SVector [S0, I0, R_at_time0]
+    u0 = [S0, I0, R_at_time0]
     tspan = ( 0., Float64(duration) )
     p = [beta, gamma, mu]
-    prob = ODEProblem(sir_22, u0, tspan, p)
+    prob = ODEProblem(sir_22!, u0, tspan, p)
     # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
     sol = solve(prob; saveat, abstol = 1e-12, reltol = 1e-12)
 
@@ -74,10 +76,14 @@ Keyword arguments are all optional. See `run_sir_22` for details of the argument
 """
 function print_sir_22(; kwargs...)
     sol = run_sir_22(; kwargs...)
-    for i in eachindex(sol.u)
-        println(sol.u[i])
+    print_sir_22(sol) 
+end 
+
+function print_sir_22(sol)
+    for i ∈ eachindex(sol.u)
+        println("t = $(sol.t[i]): $(sol.u[i])")
     end 
-    return sol 
+    return nothing 
 end 
 
 """
@@ -97,26 +103,26 @@ function plot_sir_22(; kwargs...)
 end 
 
 function plot_sir_22(sol)
-  xs = sol.t ./ 365 # to plot time in years
-  S = Float64[]; I = Float64[]; R = Float64[]
-  for i in eachindex(sol.u)
-      push!(S, sol.u[i][1])
-      push!(I, sol.u[i][2])
-      push!(R, sol.u[i][3])
-  end 
+    xs = sol.t ./ 365 # to plot time in years
+    S = Float64[]; I = Float64[]; R = Float64[]
+    for i ∈ eachindex(sol.u)
+        push!(S, sol.u[i][1])
+        push!(I, sol.u[i][2])
+        push!(R, sol.u[i][3])
+    end 
 
-  fig = Figure()
-  ax1 = Axis(fig[1, 1]); ax2 = Axis(fig[2, 1]); ax3 = Axis(fig[3, 1])
-  lines!(ax1, xs, S)
-  lines!(ax2, xs, I)
-  lines!(ax3, xs, R)
-  ax3.xlabel = "Time, years"
-  ax1.ylabel = "Fraction susceptible"
-  ax2.ylabel = "Fraction infectious"
-  ax3.ylabel = "Fraction resistant"
-  hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
+    fig = Figure()
+    ax1 = Axis(fig[1, 1]); ax2 = Axis(fig[2, 1]); ax3 = Axis(fig[3, 1])
+    lines!(ax1, xs, S)
+    lines!(ax2, xs, I)
+    lines!(ax3, xs, R)
+    ax3.xlabel = "Time, years"
+    ax1.ylabel = "Fraction susceptible"
+    ax2.ylabel = "Fraction infectious"
+    ax3.ylabel = "Fraction resistant"
+    hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
 
-  return fig
+    return fig
 end 
 
 end # module MID_2_2

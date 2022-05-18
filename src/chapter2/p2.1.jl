@@ -1,41 +1,35 @@
 
 module MID_2_1
   
-using CairoMakie, DifferentialEquations, StaticArrays
+using CairoMakie, DifferentialEquations
 
-export sir_21, run_sir_21, print_sir_21, plot_sir_21
+export sir_21, sir_21!, run_sir_21, print_sir_21, plot_sir_21
 
 """
-    sir_21(u, p, t) 
+    sir_21!(du, u, p, t) 
 
 A simple compartmental susceptible--infectious--resistant model with a constant 
     population. This is the ordinary differential equations function for programme 2.1 in 
     `Modeling Infectious Diseases in Humans and Animals`
-
-# Arguments 
-
-* `u` represents u₀, and takes initial conditions of `S`, `I` and `R`.
-* `p` represents the parameters, and takes values for `beta` and `gamma`.
-* `t` represents the timespan of the model. It must be a tuple of Floats `(start, stop)`. 
 
 # Example 
 
     julia> u0 = [.999, .001, .0] # S, I, R
     julia> p = [1., .2] # beta, gamma
     julia> tspan = (0., 100.)
-    julia> prob = ODEProblem(sir_21, u0, tspan, p)
+    julia> prob = ODEProblem(sir_21!, u0, tspan, p)
     julia> sol = solve(prob)
 """
-function sir_21(u, p, t)
+function sir_21!(du, u, p, t) 
     # compartments 
     S, I, R = u
     # parameters
     beta, gamma = p 
 
-    dS = -beta * S * I 
-    dI = beta * S * I - gamma * I 
-    dR = gamma * I 
-    return @SVector [dS, dI, dR]
+    # the ODEs
+    du[1] = dS = -beta * S * I 
+    du[2] = dI = beta * S * I - gamma * I 
+    du[3] = dR = gamma * I 
 end 
 
 """
@@ -73,10 +67,10 @@ function run_sir_21(; beta = 520 / 365, gamma = 1 / 7, S0 = 1 - 1e-6, I0 = 1e-6,
     R_at_time0 = 1 - S0 - I0 # given a long name to ensure distinction between proportion 
         # resistant at time = 0 (R(0)) and the basic reproduction number (R₀)
 
-    u0::SVector{3, Float64} = @SVector [S0, I0, R_at_time0]
-    tspan::Tuple{Float64, Float64} = ( 0., Float64(duration) )
-    p::Vector{Float64} = [beta, gamma]
-    prob = ODEProblem(sir_21, u0, tspan, p)
+    u0 = [S0, I0, R_at_time0]
+    tspan = ( 0., Float64(duration) )
+    p = [beta, gamma]
+    prob = ODEProblem(sir_21!, u0, tspan, p)
     sol = solve(prob; saveat)
 
     return sol
@@ -91,10 +85,14 @@ Keyword arguments are all optional. See `run_sir_21` for details of the argument
 """
 function print_sir_21(; kwargs...)
     sol = run_sir_21(; kwargs...)
-    for i in eachindex(sol.u)
-        println(sol.u[i])
+    print_sir_21(sol)
+end 
+
+function print_sir_21(sol)
+    for i ∈ eachindex(sol.u)
+        println("t = $(sol.t[i]): $(sol.u[i])")
     end 
-    return sol 
+    return nothing 
 end 
 
 """
@@ -120,24 +118,24 @@ function plot_sir_21(; duration = 70, kwargs...)
 end 
 
 function plot_sir_21(sol)
-  xs = sol.t ./ 7 # to plot time in weeks
-  S = Float64[]; I = Float64[]; R = Float64[]
-  for i in eachindex(sol.u)
-      push!(S, sol.u[i][1])
-      push!(I, sol.u[i][2])
-      push!(R, sol.u[i][3])
-  end 
+    xs = sol.t ./ 7 # to plot time in weeks
+    S = Float64[]; I = Float64[]; R = Float64[]
+    for i ∈ eachindex(sol.u)
+        push!(S, sol.u[i][1])
+        push!(I, sol.u[i][2])
+        push!(R, sol.u[i][3])
+    end 
 
-  fig = Figure()
-  ax = Axis(fig[1, 1])
-  lines!(ax, xs, S, label = "Susceptible")
-  lines!(ax, xs, I, label = "Infectious")
-  lines!(ax, xs, R, label = "Recovered")
-  ax.xlabel = "Time, weeks"
-  ax.ylabel = "Fraction of population"
-  fig[1, 2] = Legend(fig, ax)
+    fig = Figure()
+    ax = Axis(fig[1, 1])
+    lines!(ax, xs, S, label = "Susceptible")
+    lines!(ax, xs, I, label = "Infectious")
+    lines!(ax, xs, R, label = "Recovered")
+    ax.xlabel = "Time, weeks"
+    ax.ylabel = "Fraction of population"
+    fig[1, 2] = Legend(fig, ax)
 
-  return fig
+    return fig
 end 
 
 end # module MID_2_1
