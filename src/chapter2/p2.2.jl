@@ -62,7 +62,7 @@ function run_sir_22(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), S0 =
     p = [beta, gamma, mu]
     prob = ODEProblem(sir_22!, u0, tspan, p)
     # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
-    sol = solve(prob; saveat, abstol = 1e-12, reltol = 1e-12)
+    sol = solve(prob; saveat, reltol = 1e-12)
 
     return sol
 end 
