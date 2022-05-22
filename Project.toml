@@ -14,11 +14,14 @@ CairoMakie = "0.7, 0.8"
 DifferentialEquations = "7.1"
 Documenter = "0.27"
 Reexport = "1"
+SafeTestsets = "0.0.1"
+Suppressor = "0.2"
 julia = "1"
 
 [extras]
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
+Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "SafeTestsets"]
+test = ["Test", "SafeTestsets", "Suppressor"]

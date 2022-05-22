@@ -8,6 +8,8 @@ Plots of model outputs are produced within this package in `CairoMakie`. Numeric
 
 So far, programmes up to the end of chapter 2 (programme 2.7) have been added.
 
+Documentation is not yet complete but each function has help text available, which can be accessed with `?` then the function name.
+
 ## Installation 
 ``` julia 
 julia> ]
@@ -21,7 +23,4 @@ Each programme takes the same form, with the last two digits indicating the prog
 
 Programmes 2.3 and 2.4 both present pathogen-related mortality. 2.3 uses density-dependent transmission and 2.4 uses frequency dependent transmission. Their outputs can be seen side-by-side using the function `plot_sirs_23_24`.
 
-![Outputs of programmes 2.3 and 2.4 side-by-side, showing damped oscilation toward an equilibrium for numbers infectious, but a difference in numbers susceptible, with density-dependent transmission showing an equilibrium and frequency-dependent transmission showing a moving trend](https://github.com/markgpritchard/ModelingInfectiousDiseases.jl/blob/main/blob/plt_2324.png)
-
-
-Documentation is not yet complete but each function has help text available, which can be accessed with `?` then the function name.
+![Outputs of programmes 2.3 and 2.4 side-by-side, showing damped oscilation toward an equilibrium for numbers infectious, but a difference in numbers susceptible, with density-dependent transmission showing an equilibrium and frequency-dependent transmission showing a moving trend](https://github.com/markgpritchard/ModelingInfectiousDiseases.jl/assets/main/assets/plt_2324.png)

@@ -1,6 +1,6 @@
 
 using ModelingInfectiousDiseases.MID_2_6
-using Test
+using Suppressor, Test
 using DifferentialEquations
 
 # macro isinferred(ex) suggested by Andras Niedermayer on 
@@ -8,6 +8,17 @@ using DifferentialEquations
 macro isinferred(ex)
     quote try
         @inferred $ex
+            true
+        catch err
+            println(err)
+            false
+        end
+    end
+end
+
+macro noerrors(ex)
+    quote try
+            @suppress $ex
             true
         catch err
             println(err)
@@ -45,6 +56,6 @@ const sol4 = run_sir_26(beta = .9, gamma = .1, mu = .7, sigma = .1,
 @test maximum(sol4) <= 1.00001
 @test last(sol4) ≈ last(sol2)
 
-# no tests of print_sir_26
-
-@test @isinferred plot_sir_26() 
+# these bottom tests are only to make sure that the functions run without an error 
+@test @noerrors print_sir_26()
+@test @noerrors plot_sir_26() 
