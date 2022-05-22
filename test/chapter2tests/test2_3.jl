@@ -42,7 +42,7 @@ const p2 = [.33, .1, 1/12_000, 1/10_000, .8]
 du02 = deepcopy(u01) # du will never be integer so not testing that here
 @test @isinferred sir_23!(du02, u02, p2, tspan)
 const prob2 = ODEProblem(sir_23!, u02, tspan, p2)
-const sol2 = solve(prob2; abstol = 1e-12, reltol = 1e-12)
+const sol2 = solve(prob2; reltol = 1e-12)
 @test minimum(sol2) >= 0
 
 # not using @test @isinferred run_sir_23()
