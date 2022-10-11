@@ -1,18 +1,18 @@
 
-module MID_2_2
+module MID_22
   
 using CairoMakie, DifferentialEquations
 
-export sir_22!, run_sir_22, print_sir_22, plot_sir_22
+export sir22!, run_sir22, print_sir22, plot_sir22
 
 """
-    sir_22!(du, u, p, t) 
+    sir22!(du, u, p, t) 
 
 A compartmental susceptible--infectious--resistant model with a variable 
     population. This is the ordinary differential equations function for programme 2.2 in 
     `Modeling Infectious Diseases in Humans and Animals`
 """
-function sir_22!(du, u, p, t) 
+function sir22!(du, u, p, t) 
     # Compartments 
     S, I, R = u
     # Parameters
@@ -25,9 +25,9 @@ function sir_22!(du, u, p, t)
 end 
 
 """
-    run_sir_22([; beta, gamma, mu, S0, I0, duration, saveat])
+    run_sir22([; beta, gamma, mu, S0, I0, duration, saveat])
 
-Run the model `sir_22`
+Run the model `sir22`
 
 # Keyword arguments 
 
@@ -42,7 +42,7 @@ All keyword arguments are optional with default values supplied for each.
 * `duration`: How long the model will run (time units are interpretted as days). Default is 60 years.
 * `saveat`: How frequently the model should save values. Default is 1 (day).
 """
-function run_sir_22(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), S0 = .1, I0 = 1e-4, 
+function run_sir22(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), S0 = .1, I0 = 1e-4, 
         duration = 60 * 365, saveat = 1)
   
     @assert S0 >= 0 "Input S0 = $S0: cannot run with negative initial proportion susceptible"
@@ -60,7 +60,7 @@ function run_sir_22(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), S0 =
     u0 = [S0, I0, R_at_time0]
     tspan = ( 0., Float64(duration) )
     p = [beta, gamma, mu]
-    prob = ODEProblem(sir_22!, u0, tspan, p)
+    prob = ODEProblem(sir22!, u0, tspan, p)
     # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
     sol = solve(prob; saveat, reltol = 1e-12)
 
@@ -68,18 +68,18 @@ function run_sir_22(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), S0 =
 end 
 
 """
-    print_sir_22([; kwargs...])
+    print_sir22([; kwargs...])
 
-Print the saved values after running the model `sir_22`. 
+Print the saved values after running the model `sir22`. 
 
-Keyword arguments are all optional. See `run_sir_22` for details of the arguments and their default values.
+Keyword arguments are all optional. See `run_sir22` for details of the arguments and their default values.
 """
-function print_sir_22(; kwargs...)
-    sol = run_sir_22(; kwargs...)
-    print_sir_22(sol) 
+function print_sir22(; kwargs...)
+    sol = run_sir22(; kwargs...)
+    print_sir22(sol) 
 end 
 
-function print_sir_22(sol)
+function print_sir22(sol)
     for i ∈ eachindex(sol.u)
         println("t = $(sol.t[i]): $(sol.u[i])")
     end 
@@ -87,22 +87,22 @@ function print_sir_22(sol)
 end 
 
 """
-    plot_sir_22([; kwargs...])
-    plot_sir_22(sol)
+    plot_sir22([; kwargs...])
+    plot_sir22(sol)
 
-Plot the results of running the model `sir_22`. 
+Plot the results of running the model `sir22`. 
 
-Can take optional keyword arguments, `run_sir_22` (see that function for details 
+Can take optional keyword arguments, `run_sir22` (see that function for details 
     of the arguments and their default values), or the solution from an ODE model. 
     The advantage of allowing the plot function to run the ODE is that `saveat` 
     is selected to provide a smooth line on the plot.
 """
-function plot_sir_22(; kwargs...)
-    sol = run_sir_22(; kwargs...)
-    return plot_sir_22(sol)
+function plot_sir22(; kwargs...)
+    sol = run_sir22(; kwargs...)
+    return plot_sir22(sol)
 end 
 
-function plot_sir_22(sol)
+function plot_sir22(sol)
     xs = sol.t ./ 365 # to plot time in years
     S = Float64[]; I = Float64[]; R = Float64[]
     for i ∈ eachindex(sol.u)
@@ -130,4 +130,4 @@ function plot_sir_22(sol)
     return fig
 end 
 
-end # module MID_2_2
+end # module MID_22

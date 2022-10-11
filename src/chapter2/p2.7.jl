@@ -1,19 +1,19 @@
 
-module MID_2_7
+module MID_27
 
 using CairoMakie, DifferentialEquations
 
-export plot_sir_27, print_sir_27, run_sir_27, sir_27!
+export plot_sir27, print_sir27, run_sir27, sir27!
 
 """
-    sir_27!(du, u, p, t) 
+    sir27!(du, u, p, t) 
 
 A compartmental susceptible--infectious--resistant model with a carrier state.
     
 This is the ordinary differential equations function for programme 2.7 in 
     `Modeling Infectious Diseases in Humans and Animals`
 """
-function sir_27!(du, u, p, t)
+function sir27!(du, u, p, t)
     # compartments 
     S, I, C = u 
     # parameters 
@@ -26,9 +26,9 @@ function sir_27!(du, u, p, t)
 end 
 
 """
-    run_sir_27([; beta, gamma, I0, duration, saveat])
+    run_sir27([; beta, gamma, I0, duration, saveat])
 
-Run the model `sir_27`
+Run the model `sir27`
 
 # Keyword arguments 
 
@@ -48,7 +48,7 @@ All keyword arguments are optional with default values supplied for each.
     Default is 60 years
 * `saveat`: How frequently the model should save values. Default is 1 (day).
 """
-function run_sir_27(; beta = 0.2, gamma = 1 / 100, Gamma = 1 / 1000, epsilon = 0.1, mu = 1 / (50 * 365), q = .4, 
+function run_sir27(; beta = 0.2, gamma = 1 / 100, Gamma = 1 / 1000, epsilon = 0.1, mu = 1 / (50 * 365), q = .4, 
         S0 = .1, I0 = 1e-4, C0 = 1e-3, duration = 60 * 365, saveat = 1)
     
     @assert S0 >= 0 "Input S0 = $S0: cannot run with negative initial proportion susceptible"
@@ -69,7 +69,7 @@ function run_sir_27(; beta = 0.2, gamma = 1 / 100, Gamma = 1 / 1000, epsilon = 0
     u0 = [S0, I0, C0]
     tspan = ( 0., Float64(duration) )
     p = [beta, gamma, Gamma, epsilon, mu, q]
-    prob = ODEProblem(sir_27!, u0, tspan, p)
+    prob = ODEProblem(sir27!, u0, tspan, p)
     # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
     sol = solve(prob; saveat)
 
@@ -77,18 +77,18 @@ function run_sir_27(; beta = 0.2, gamma = 1 / 100, Gamma = 1 / 1000, epsilon = 0
 end 
 
 """
-    print_sir_27([; kwargs...])
+    print_sir27([; kwargs...])
 
-Print the saved values after running the model `sir_27`. 
+Print the saved values after running the model `sir27`. 
 
-Keyword arguments are all optional. See `run_sir_27` for details of the arguments and their default values.
+Keyword arguments are all optional. See `run_sir27` for details of the arguments and their default values.
 """
-function print_sir_27(; kwargs...)
-    sol = run_sir_27(; kwargs...)
-    print_sir_27(sol)
+function print_sir27(; kwargs...)
+    sol = run_sir27(; kwargs...)
+    print_sir27(sol)
 end 
 
-function print_sir_27(sol)
+function print_sir27(sol)
     for i ∈ eachindex(sol.u)
         println("t = $(sol.t[i]): $(sol.u[i])")
     end 
@@ -96,22 +96,22 @@ function print_sir_27(sol)
 end 
 
 """
-    plot_sir_27([; kwargs...])
-    plot_sir_27(sol)
+    plot_sir27([; kwargs...])
+    plot_sir27(sol)
 
-Plot the results of running the model `sir_27`. 
+Plot the results of running the model `sir27`. 
 
-Can take optional keyword arguments, `run_sir_27` (see that function for details 
+Can take optional keyword arguments, `run_sir27` (see that function for details 
     of the arguments and their default values), or the solution from an ODE model. 
     The advantage of allowing the plot function to run the ODE is that `saveat` 
     is selected to provide a smooth line on the plot.
 """
-function plot_sir_27(; kwargs...)
-    sol = run_sir_27(; kwargs...)
-    return plot_sir_27(sol)
+function plot_sir27(; kwargs...)
+    sol = run_sir27(; kwargs...)
+    return plot_sir27(sol)
 end 
 
-function plot_sir_27(sol)
+function plot_sir27(sol)
     xs = sol.t ./ 365 # to plot time in years
     S = Float64[]; I = Float64[]; C = Float64[]; R = Float64[]
     for i ∈ eachindex(sol.u)
@@ -141,4 +141,4 @@ function plot_sir_27(sol)
     return fig
 end 
 
-end # module MID_2_7
+end # module MID_27

@@ -1,12 +1,12 @@
 
-module MID_2_1
+module MID_21
   
 using CairoMakie, DifferentialEquations
 
-export sir_21!, run_sir_21, print_sir_21, plot_sir_21
+export sir21!, run_sir21, print_sir21, plot_sir21
 
 """
-    sir_21!(du, u, p, t) 
+    sir21!(du, u, p, t) 
 
 A simple compartmental susceptible--infectious--resistant model with a constant 
     population. This is the ordinary differential equations function for programme 2.1 in 
@@ -17,10 +17,10 @@ A simple compartmental susceptible--infectious--resistant model with a constant
     julia> u0 = [.999, .001, .0] # S, I, R
     julia> p = [1., .2] # beta, gamma
     julia> tspan = (0., 100.)
-    julia> prob = ODEProblem(sir_21!, u0, tspan, p)
+    julia> prob = ODEProblem(sir21!, u0, tspan, p)
     julia> sol = solve(prob)
 """
-function sir_21!(du, u, p, t) 
+function sir21!(du, u, p, t) 
     # compartments 
     S, I, R = u
     # parameters
@@ -33,9 +33,9 @@ function sir_21!(du, u, p, t)
 end 
 
 """
-    run_sir_21([; beta, gamma, S0, I0, duration, saveat])
+    run_sir21([; beta, gamma, S0, I0, duration, saveat])
 
-Run the model `sir_21`
+Run the model `sir21`
 
 # Keyword arguments 
 
@@ -45,17 +45,15 @@ All keyword arguments are optional with default values supplied for each.
 * `gamma`: The gamma parameter in the model (recovery rate). Default is 1 / 7.
 * `S0`: Proportion of the population susceptible at time = 0. Default is 1 - 1e-6.
 * `I0`: Proportion of the population infectious at time = 0. Default is 1e-6.
-* `R_at_time0`: Proportion of the population resistant at time = 0. Has a long 
-    name to avoid confusion with the basic reproduction number R₀. Default value is 0.
 * `duration`: How long the model will run (time units are interpretted as days). Default is 70.
 * `saveat`: How frequently the model should save values. Default is 1 (day).
 
 # Examples 
-    julia> run_sir_21()
+    julia> run_sir21()
 
-    julia> run_sir_21(beta = .8, gamma = .6, duration = 1000)
+    julia> run_sir21(beta = .8, gamma = .6, duration = 1000)
 """
-function run_sir_21(; beta = 520 / 365, gamma = 1 / 7, S0 = 1 - 1e-6, I0 = 1e-6, duration = 70, saveat = 1)
+function run_sir21(; beta = 520 / 365, gamma = 1 / 7, S0 = 1 - 1e-6, I0 = 1e-6, duration = 70, saveat = 1)
     @assert S0 >= 0 "Input S0 = $S0: cannot run with negative initial proportion susceptible"
     @assert I0 >= 0 "Input I0 = $I0: cannot run with negative initial proportion resistant"
     @assert beta >= 0 "Input beta = $beta: cannot run with negative parameter beta"
@@ -70,25 +68,25 @@ function run_sir_21(; beta = 520 / 365, gamma = 1 / 7, S0 = 1 - 1e-6, I0 = 1e-6,
     u0 = [S0, I0, R_at_time0]
     tspan = ( 0., Float64(duration) )
     p = [beta, gamma]
-    prob = ODEProblem(sir_21!, u0, tspan, p)
+    prob = ODEProblem(sir21!, u0, tspan, p)
     sol = solve(prob; saveat)
 
     return sol
 end 
 
 """
-    print_sir_21([; kwargs...])
+    print_sir21([; kwargs...])
 
-Print the saved values after running the model `sir_21`. 
+Print the saved values after running the model `sir21`. 
 
-Keyword arguments are all optional. See `run_sir_21` for details of the arguments and their default values.
+Keyword arguments are all optional. See `run_sir21` for details of the arguments and their default values.
 """
-function print_sir_21(; kwargs...)
-    sol = run_sir_21(; kwargs...)
-    print_sir_21(sol)
+function print_sir21(; kwargs...)
+    sol = run_sir21(; kwargs...)
+    print_sir21(sol)
 end 
 
-function print_sir_21(sol)
+function print_sir21(sol)
     for i ∈ eachindex(sol.u)
         println("t = $(sol.t[i]): $(sol.u[i])")
     end 
@@ -96,28 +94,28 @@ function print_sir_21(sol)
 end 
 
 """
-    plot_sir_21([; kwargs...])
-    plot_sir_21(sol)
+    plot_sir21([; kwargs...])
+    plot_sir21(sol)
 
-Plot the results of running the model `sir_21`. 
+Plot the results of running the model `sir21`. 
 
-Can take optional keyword arguments, `run_sir_21` (see that function for details 
+Can take optional keyword arguments, `run_sir21` (see that function for details 
     of the arguments and their default values), or the solution from an ODE model. 
     The advantage of allowing the plot function to run the ODE is that `saveat` 
     is selected to provide a smooth line on the plot.
 
 # Examples
-    julia> plot_sir_21()
+    julia> plot_sir21()
 
-    julia> plot_sir_21(beta = .8, gamma = .6, duration = 100) 
+    julia> plot_sir21(beta = .8, gamma = .6, duration = 100) 
 """
-function plot_sir_21(; duration = 70, kwargs...)
+function plot_sir21(; duration = 70, kwargs...)
     saveat = duration / 500 # to give a smoother line for plotting
-    sol = run_sir_21(; duration, saveat, kwargs...)
-    return plot_sir_21(sol)
+    sol = run_sir21(; duration, saveat, kwargs...)
+    return plot_sir21(sol)
 end 
 
-function plot_sir_21(sol)
+function plot_sir21(sol)
     xs = sol.t ./ 7 # to plot time in weeks
     S = Float64[]; I = Float64[]; R = Float64[]
     for i ∈ eachindex(sol.u)
@@ -143,4 +141,4 @@ function plot_sir_21(sol)
     return fig
 end 
 
-end # module MID_2_1
+end # module MID_21

@@ -1,12 +1,12 @@
 
-module MID_2_4
+module MID_24
   
 using CairoMakie, DifferentialEquations
 
-export plot_sir_24, print_sir_24, run_sir_24, sir_24!
+export plot_sir24, print_sir24, run_sir24, sir24!
 
 """
-    sir_24!(du, u, p, t) 
+    sir24!(du, u, p, t) 
 
 A compartmental susceptible--infectious--resistant model with infection-induced
     mortality. This model uses frequency-dependent (mass action) transmission. As 
@@ -15,7 +15,7 @@ A compartmental susceptible--infectious--resistant model with infection-induced
 This is the ordinary differential equations function for programme 2.4 in 
     `Modeling Infectious Diseases in Humans and Animals`
 """
-function sir_24!(du, u, p, t)
+function sir24!(du, u, p, t)
     # compartments 
     X, Y, Z = u # following convention in book, {S, I, R} refer to proportions and {X, Y, Z} refer to numbers
     # parameters 
@@ -31,9 +31,9 @@ function sir_24!(du, u, p, t)
 end 
 
 """
-    run_sir_24([; beta, gamma, mu, nu, rho, X0, Y0, N0, duration, saveat])
+    run_sir24([; beta, gamma, mu, nu, rho, X0, Y0, N0, duration, saveat])
 
-Run the model `sir_24`
+Run the model `sir24`
 
 # Keyword arguments 
 
@@ -54,7 +54,7 @@ All keyword arguments are optional with default values supplied for each.
     Default is 1e5 days (273 years)
 * `saveat`: How frequently the model should save values. Default is 1 (day).
 """
-function run_sir_24(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu = 1 / (70 * 365), 
+function run_sir24(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu = 1 / (70 * 365), 
         rho = .5, X0 = .2, Y0 = 1e-6, N0 = 1, duration = 1e5, saveat = 1)
   
     @assert X0 >= 0 "Input X0 = $X0: cannot run with negative initial number susceptible"
@@ -72,7 +72,7 @@ function run_sir_24(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu =
     u0 = [X0, Y0, Z0]
     tspan = ( 0., Float64(duration) )
     p = [beta, gamma, mu, nu, rho]
-    prob = ODEProblem(sir_24!, u0, tspan, p)
+    prob = ODEProblem(sir24!, u0, tspan, p)
     # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
     sol = solve(prob; saveat, reltol = 1e-12)
 
@@ -80,18 +80,18 @@ function run_sir_24(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu =
 end 
 
 """
-    print_sir_24([; kwargs...])
+    print_sir24([; kwargs...])
 
-Print the saved values after running the model `sir_24`. 
+Print the saved values after running the model `sir24`. 
 
-Keyword arguments are all optional. See `run_sir_24` for details of the arguments and their default values.
+Keyword arguments are all optional. See `run_sir24` for details of the arguments and their default values.
 """
-function print_sir_24(; kwargs...)
-    sol = run_sir_24(; kwargs...)
-    print_sir_24(sol)
+function print_sir24(; kwargs...)
+    sol = run_sir24(; kwargs...)
+    print_sir24(sol)
 end 
 
-function print_sir_24(sol)
+function print_sir24(sol)
     for i ∈ eachindex(sol.u)
         println("t = $(sol.t[i]): $(sol.u[i])")
     end 
@@ -99,29 +99,29 @@ function print_sir_24(sol)
 end 
 
 """
-    plot_sir_24([; kwargs...])
-    plot_sir_24(sol)
+    plot_sir24([; kwargs...])
+    plot_sir24(sol)
 
-Plot the results of running the model `sir_24`. 
+Plot the results of running the model `sir24`. 
 
-Can take optional keyword arguments, `run_sir_24` (see that function for details 
+Can take optional keyword arguments, `run_sir24` (see that function for details 
     of the arguments and their default values), or the solution from an ODE model. 
     The advantage of allowing the plot function to run the ODE is that `saveat` 
     is selected to provide a smooth line on the plot.
 """
-function plot_sir_24(; kwargs...)
-    sol = run_sir_24(; kwargs...)
-    return plot_sir_24(sol)
+function plot_sir24(; kwargs...)
+    sol = run_sir24(; kwargs...)
+    return plot_sir24(sol)
 end 
 
-function plot_sir_24(sol)
+function plot_sir24(sol)
     # Split out the plotting function here to allow an additional function that 
     # will plot the results of programmes 2.3 and 2.4 side-by-side
-    xs, X, Y, Z, N = plot_sir_24_vals(sol)
+    xs, X, Y, Z, N = plot_sir24_vals(sol)
 
     fig = Figure()
     ax1 = Axis(fig[1, 1]); ax2 = Axis(fig[2, 1]); ax3 = Axis(fig[3, 1])
-    plot_sir_24!(ax1, ax2, ax3, xs, X, Y, Z, N)
+    plot_sir24!(ax1, ax2, ax3, xs, X, Y, Z, N)
     Label(
         fig[0, :], 
         "p2.4.jl: SIR model with infection-induced mortality and frequency-dependent transmission"
@@ -132,7 +132,7 @@ function plot_sir_24(sol)
     return fig
 end 
 
-function plot_sir_24_vals(sol)
+function plot_sir24_vals(sol)
     xs = sol.t ./ 365 # to plot time in years
     X = Float64[]; Y = Float64[]; Z = Float64[]; N = Float64[]
     for i ∈ eachindex(sol.u)
@@ -145,7 +145,7 @@ function plot_sir_24_vals(sol)
     return xs, X, Y, Z, N
 end 
 
-function plot_sir_24!(ax1, ax2, ax3, xs, X, Y, Z, N)
+function plot_sir24!(ax1, ax2, ax3, xs, X, Y, Z, N)
     lines!(ax1, xs, X)
     lines!(ax2, xs, Y)
     lines!(ax3, xs, Z, label = "Recovered")
@@ -158,4 +158,4 @@ function plot_sir_24!(ax1, ax2, ax3, xs, X, Y, Z, N)
     hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
 end 
 
-end # module MID_2_4
+end # module MID_24

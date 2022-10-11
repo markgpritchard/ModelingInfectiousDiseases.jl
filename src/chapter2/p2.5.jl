@@ -1,19 +1,19 @@
 
-module MID_2_5
+module MID_25
   
 using CairoMakie, DifferentialEquations
 
-export plot_sir_25, print_sir_25, run_sir_25, sir_25!
+export plot_sis25, print_sis25, run_sis25, sis25!
 
 """
-    sir_25!(du, u, p, t) 
+    sis25!(du, u, p, t) 
 
 A compartmental susceptible--infectious--susceptible model.
     
 This is the ordinary differential equations function for programme 2.5 in 
     `Modeling Infectious Diseases in Humans and Animals`
 """
-function sir_25!(du, u, p, t)
+function sis25!(du, u, p, t)
     # compartments 
     S, I = u 
     # parameters 
@@ -25,9 +25,9 @@ function sir_25!(du, u, p, t)
 end 
 
 """
-    run_sir_25([; beta, gamma, I0, duration, saveat])
+    run_sis25([; beta, gamma, I0, duration, saveat])
 
-Run the model `sir_25`
+Run the model `sis25`
 
 # Keyword arguments 
 
@@ -40,7 +40,7 @@ All keyword arguments are optional with default values supplied for each.
     Default is 70 days
 * `saveat`: How frequently the model should save values. Default is 1 (day).
 """
-function run_sir_25(; beta = 520 / 365, gamma = 1 / 7, I0 = 1e-6, duration = 70, saveat = 1)
+function run_sis25(; beta = 520 / 365, gamma = 1 / 7, I0 = 1e-6, duration = 70, saveat = 1)
     @assert I0 >= 0 "Input Y0 = $I0: cannot run with negative initial proportion infectious"
     @assert beta >= 0 "Input beta = $beta: cannot run with negative parameter beta"
     @assert gamma >= 0 "Input gamma = $gamma: cannot run with negative parameter gamma"
@@ -52,7 +52,7 @@ function run_sir_25(; beta = 520 / 365, gamma = 1 / 7, I0 = 1e-6, duration = 70,
     u0 = [S0, I0]
     tspan = ( 0., Float64(duration) )
     p = [beta, gamma]
-    prob = ODEProblem(sir_25!, u0, tspan, p)
+    prob = ODEProblem(sis25!, u0, tspan, p)
     # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
     sol = solve(prob; saveat)
 
@@ -60,18 +60,18 @@ function run_sir_25(; beta = 520 / 365, gamma = 1 / 7, I0 = 1e-6, duration = 70,
 end 
 
 """
-    print_sir_25([; kwargs...])
+    print_sis25([; kwargs...])
 
-Print the saved values after running the model `sir_25`. 
+Print the saved values after running the model `sis25`. 
 
-Keyword arguments are all optional. See `run_sir_25` for details of the arguments and their default values.
+Keyword arguments are all optional. See `run_sis25` for details of the arguments and their default values.
 """
-function print_sir_25(; kwargs...)
-    sol = run_sir_25(; kwargs...)
-    print_sir_25(sol)
+function print_sis25(; kwargs...)
+    sol = run_sis25(; kwargs...)
+    print_sis25(sol)
 end 
 
-function print_sir_25(sol)
+function print_sis25(sol)
     for i ∈ eachindex(sol.u)
         println("t = $(sol.t[i]): $(sol.u[i])")
     end 
@@ -79,23 +79,23 @@ function print_sir_25(sol)
 end 
 
 """
-    plot_sir_25([; kwargs...])
-    plot_sir_25(sol)
+    plot_sis25([; kwargs...])
+    plot_sis25(sol)
 
-Plot the results of running the model `sir_25`. 
+Plot the results of running the model `sis25`. 
 
-Can take optional keyword arguments, `run_sir_25` (see that function for details 
+Can take optional keyword arguments, `run_sis25` (see that function for details 
     of the arguments and their default values), or the solution from an ODE model. 
     The advantage of allowing the plot function to run the ODE is that `saveat` 
     is selected to provide a smooth line on the plot.
 """
-function plot_sir_25(; duration = 70, kwargs...)
+function plot_sis25(; duration = 70, kwargs...)
     saveat = duration / 500 # to give a smoother line for plotting
-    sol = run_sir_25(; duration, saveat, kwargs...)
-    return plot_sir_25(sol)
+    sol = run_sis25(; duration, saveat, kwargs...)
+    return plot_sis25(sol)
 end 
 
-function plot_sir_25(sol)
+function plot_sis25(sol)
     xs = sol.t ./ 7 # to plot time in weeks
     S = Float64[]; I = Float64[]
     for i ∈ eachindex(sol.u)
@@ -116,4 +116,4 @@ function plot_sir_25(sol)
     return fig
 end 
 
-end # module MID_2_5
+end # module MID_25
