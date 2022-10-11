@@ -180,7 +180,7 @@ using .MID_61
 u0 = [
     1e5,                # X0
     500,                # Y0
-    1e6                 # Z0
+    1e6 - (1e5 + 500)   # Z0
 ]
 
 # Run with no noise
@@ -206,3 +206,38 @@ p = Parameters61(
 
 results61 = run_sir61(u0, p, 5 * 365; seed = 61)
 plot_sir61(results61)
+
+
+## Programme 6.2 
+
+using .MID_62
+
+u0 = [
+    1e5,                # X0
+    500,                # Y0
+    1e6 - (1e5 + 500)   # Z0
+]
+
+# Run with no noise
+p_nonoise = Parameters62(
+    1.,                 # beta 
+    .1,                 # gamma 
+    1 / (50 * 365),     # mu 
+    1 / (50 * 365),     # nu 
+    0.                  # xi
+)
+
+results62_nonoise = run_sir62(u0, p_nonoise, 5 * 365)
+plot_sir62(results62_nonoise)
+
+# Run with noise parameter
+p = Parameters62(
+    1.,                 # beta 
+    .1,                 # gamma 
+    1 / (50 * 365),     # mu 
+    1 / (50 * 365),     # nu 
+    1.                  # xi
+)
+
+results62 = run_sir62(u0, p, 5 * 365; seed = 62)
+plot_sir62(results62)
