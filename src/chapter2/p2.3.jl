@@ -1,12 +1,12 @@
 
-module MID_2_3
+module MID_23
   
 using CairoMakie, DifferentialEquations
 
-export sir_23!, run_sir_23, print_sir_23, plot_sir_23
+export sir23!, run_sir23, print_sir23, plot_sir23
 
 """
-    sir_23!(du, u, p, t) 
+    sir23!(du, u, p, t) 
 
 A compartmental susceptible--infectious--resistant model with infection-induced
     mortality. This model uses density-dependent (pseudo mass action) transmission,
@@ -15,7 +15,7 @@ A compartmental susceptible--infectious--resistant model with infection-induced
 This is the ordinary differential equations function for programme 2.3 in 
     `Modeling Infectious Diseases in Humans and Animals`
 """
-function sir_23!(du, u, p, t)
+function sir23!(du, u, p, t)
     # compartments 
     X, Y, Z = u # following convention in book, {S, I, R} refer to proportions and {X, Y, Z} refer to numbers
     # parameters 
@@ -28,9 +28,9 @@ function sir_23!(du, u, p, t)
 end 
 
 """
-    run_sir_23([; beta, gamma, mu, nu, rho, X0, Y0, N0, duration, saveat])
+    run_sir23([; beta, gamma, mu, nu, rho, X0, Y0, N0, duration, saveat])
 
-Run the model `sir_23`
+Run the model `sir23`
 
 # Keyword arguments 
 
@@ -52,7 +52,7 @@ All keyword arguments are optional with default values supplied for each.
     languages -- 100 years appears to give a reasonable illustration of the results.)
 * `saveat`: How frequently the model should save values. Default is 1 (day).
 """
-function run_sir_23(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu = 1 / (70 * 365), 
+function run_sir23(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu = 1 / (70 * 365), 
         rho = .5, X0 = .2, Y0 = 1e-6, N0 = 1, duration = 100 * 365, saveat = 1)
   
     @assert X0 >= 0 "Input X0 = $X0: cannot run with negative initial number susceptible"
@@ -70,7 +70,7 @@ function run_sir_23(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu =
     u0 = [X0, Y0, Z0]
     tspan = ( 0., Float64(duration) )
     p = [beta, gamma, mu, nu, rho]
-    prob = ODEProblem(sir_23!, u0, tspan, p)
+    prob = ODEProblem(sir23!, u0, tspan, p)
     # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
     sol = solve(prob; saveat, reltol = 1e-12)
 
@@ -78,18 +78,18 @@ function run_sir_23(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu =
 end 
 
 """
-    print_sir_23([; kwargs...])
+    print_sir23([; kwargs...])
 
-Print the saved values after running the model `sir_23`. 
+Print the saved values after running the model `sir23`. 
 
-Keyword arguments are all optional. See `run_sir_23` for details of the arguments and their default values.
+Keyword arguments are all optional. See `run_sir23` for details of the arguments and their default values.
 """
-function print_sir_23(; kwargs...)
-    sol = run_sir_23(; kwargs...)
-    print_sir_23(sol)
+function print_sir23(; kwargs...)
+    sol = run_sir23(; kwargs...)
+    print_sir23(sol)
 end 
 
-function print_sir_23(sol)
+function print_sir23(sol)
     for i ∈ eachindex(sol.u)
         println("t = $(sol.t[i]): $(sol.u[i])")
     end 
@@ -97,29 +97,29 @@ function print_sir_23(sol)
 end 
 
 """
-    plot_sir_23([; kwargs...])
-    plot_sir_23(sol)
+    plot_sir23([; kwargs...])
+    plot_sir23(sol)
 
-Plot the results of running the model `sir_23`. 
+Plot the results of running the model `sir23`. 
 
-Can take optional keyword arguments, `run_sir_23` (see that function for details 
+Can take optional keyword arguments, `run_sir23` (see that function for details 
     of the arguments and their default values), or the solution from an ODE model. 
     The advantage of allowing the plot function to run the ODE is that `saveat` 
     is selected to provide a smooth line on the plot.
 """
-function plot_sir_23(; kwargs...)
-    sol = run_sir_23(; kwargs...)
-    return plot_sir_23(sol)
+function plot_sir23(; kwargs...)
+    sol = run_sir23(; kwargs...)
+    return plot_sir23(sol)
 end 
 
-function plot_sir_23(sol)
+function plot_sir23(sol)
     # Split out the plotting function here to allow an additional function that 
     # will plot the results of programmes 2.3 and 2.4 side-by-side
-    xs, X, Y, Z, N = plot_sir_23_vals(sol)
+    xs, X, Y, Z, N = plot_sir23_vals(sol)
 
     fig = Figure()
     ax1 = Axis(fig[1, 1]); ax2 = Axis(fig[2, 1]); ax3 = Axis(fig[3, 1])
-    plot_sir_23!(ax1, ax2, ax3, xs, X, Y, Z, N)
+    plot_sir23!(ax1, ax2, ax3, xs, X, Y, Z, N)
     Label(
         fig[0, :], 
         "p2.3.jl: SIR model with infection-induced mortality and density-dependent transmission"
@@ -130,7 +130,7 @@ function plot_sir_23(sol)
     return fig
 end 
 
-function plot_sir_23_vals(sol)
+function plot_sir23_vals(sol)
     xs = sol.t ./ 365 # to plot time in years
     X = Float64[]; Y = Float64[]; Z = Float64[]; N = Float64[]
     for i ∈ eachindex(sol.u)
@@ -143,7 +143,7 @@ function plot_sir_23_vals(sol)
     return xs, X, Y, Z, N
 end 
 
-function plot_sir_23!(ax1, ax2, ax3, xs, X, Y, Z, N)
+function plot_sir23!(ax1, ax2, ax3, xs, X, Y, Z, N)
     lines!(ax1, xs, X)
     lines!(ax2, xs, Y)
     lines!(ax3, xs, Z, label = "Recovered")
@@ -156,4 +156,4 @@ function plot_sir_23!(ax1, ax2, ax3, xs, X, Y, Z, N)
     hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
 end 
 
-end # module MID_2_3
+end # module MID_23

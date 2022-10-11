@@ -1,27 +1,14 @@
 name = "ModelingInfectiousDiseases"
 uuid = "f781dabf-c6d9-4d5d-8c6d-8371671e0f9d"
 authors = ["Mark Pritchard <mark.pritchard@ndm.ox.ac.uk>"]
-version = "0.1.6"
+version = "0.2.0"
 
 [deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
-Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
-
-[compat]
-CairoMakie = "0.7, 0.8"
-DifferentialEquations = "7.1"
-Documenter = "0.27"
-Reexport = "1"
-SafeTestsets = "0.0.1"
-Suppressor = "0.2"
-julia = "1"
-
-[extras]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
-Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test", "SafeTestsets", "Suppressor"]

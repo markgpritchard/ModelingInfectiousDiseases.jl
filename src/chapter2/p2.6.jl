@@ -1,19 +1,19 @@
 
-module MID_2_6
+module MID_26
   
 using CairoMakie, DifferentialEquations
 
-export plot_sir_26, print_sir_26, run_sir_26, sir_26!
+export plot_seir26, print_seir26, run_seir26, seir26!
 
 """
-    sir_26!(du, u, p, t) 
+    seir26!(du, u, p, t) 
 
 A compartmental susceptible--exposed--infectious--resistant model.
     
 This is the ordinary differential equations function for programme 2.6 in 
     `Modeling Infectious Diseases in Humans and Animals`
 """
-function sir_26!(du, u, p, t)
+function seir26!(du, u, p, t)
     # compartments 
     S, E, I = u 
     # parameters 
@@ -26,9 +26,9 @@ function sir_26!(du, u, p, t)
 end 
 
 """
-    run_sir_26([; beta, gamma, I0, duration, saveat])
+    run_seir26([; beta, gamma, I0, duration, saveat])
 
-Run the model `sir_26`
+Run the model `seir26`
 
 # Keyword arguments 
 
@@ -37,7 +37,7 @@ All keyword arguments are optional with default values supplied for each.
 * `beta`: The beta parameter in the model (infectiousness of infectives). Default is 520 / 365 (520 per year).
 * `gamma`: The gamma parameter in the model (recovery rate). Default is 1 / 7.
 * `mu`: Per capita birth and death rate. Default is 1 / 70 years.
-* `sigma`: The rate at which exposed individuals before infectious. Default is 1 / 14.
+* `sigma`: The rate at which exposed individuals become infectious. Default is 1 / 14.
 * `S0`: Proportion susceptible at time = 0. Default is 0.1.
 * `E0`: Proportion exposed at time = 0. Default is 1e-4.
 * `I0`: Proportion infectious at time = 0. Default is 1e-4.
@@ -45,7 +45,7 @@ All keyword arguments are optional with default values supplied for each.
     Default is 60 years
 * `saveat`: How frequently the model should save values. Default is 1 (day).
 """
-function run_sir_26(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), sigma = 1 / 14, 
+function run_seir26(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), sigma = 1 / 14, 
         S0 = .1, E0 = 1e-4, I0 = 1e-4, duration = 60 * 365, saveat = 1)
     
     @assert S0 >= 0 "Input S0 = $S0: cannot run with negative initial proportion susceptible"
@@ -64,7 +64,7 @@ function run_sir_26(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), sigm
     u0 = [S0, E0, I0]
     tspan = ( 0., Float64(duration) )
     p = [beta, gamma, mu, sigma]
-    prob = ODEProblem(sir_26!, u0, tspan, p)
+    prob = ODEProblem(seir26!, u0, tspan, p)
     # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
     sol = solve(prob; saveat, reltol = 1e-6)
 
@@ -72,18 +72,18 @@ function run_sir_26(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), sigm
 end 
 
 """
-    print_sir_26([; kwargs...])
+    print_seir26([; kwargs...])
 
-Print the saved values after running the model `sir_26`. 
+Print the saved values after running the model `seir26`. 
 
-Keyword arguments are all optional. See `run_sir_26` for details of the arguments and their default values.
+Keyword arguments are all optional. See `run_seir26` for details of the arguments and their default values.
 """
-function print_sir_26(; kwargs...)
-    sol = run_sir_26(; kwargs...)
-    print_sir_26(sol)
+function print_seir26(; kwargs...)
+    sol = run_seir26(; kwargs...)
+    print_seir26(sol)
 end 
 
-function print_sir_26(sol)
+function print_seir26(sol)
     for i ∈ eachindex(sol.u)
         println("t = $(sol.t[i]): $(sol.u[i])")
     end 
@@ -91,22 +91,22 @@ function print_sir_26(sol)
 end 
 
 """
-    plot_sir_26([; kwargs...])
-    plot_sir_26(sol)
+    plot_seir26([; kwargs...])
+    plot_seir26(sol)
 
-Plot the results of running the model `sir_26`. 
+Plot the results of running the model `seir26`. 
 
-Can take optional keyword arguments, `run_sir_26` (see that function for details 
+Can take optional keyword arguments, `run_seir26` (see that function for details 
     of the arguments and their default values), or the solution from an ODE model. 
     The advantage of allowing the plot function to run the ODE is that `saveat` 
     is selected to provide a smooth line on the plot.
 """
-function plot_sir_26(; kwargs...)
-    sol = run_sir_26(; kwargs...)
-    return plot_sir_26(sol)
+function plot_seir26(; kwargs...)
+    sol = run_seir26(; kwargs...)
+    return plot_seir26(sol)
 end 
 
-function plot_sir_26(sol)
+function plot_seir26(sol)
     xs = sol.t ./ 365 # to plot time in years
     S = Float64[]; E = Float64[]; I = Float64[]; R = Float64[]
     for i ∈ eachindex(sol.u)
@@ -135,4 +135,4 @@ function plot_sir_26(sol)
     return fig
 end 
 
-end # module MID_2_6
+end # module MID_26
