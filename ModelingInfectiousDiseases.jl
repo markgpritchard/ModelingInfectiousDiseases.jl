@@ -262,7 +262,7 @@ plot_sis63(results63)
 
 ## Programme 6.4 
 
-using .MID_63
+using .MID_64
 
 p = [
     1.,                 # beta -- infection parameter  
