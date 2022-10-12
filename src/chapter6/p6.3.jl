@@ -110,9 +110,9 @@ function plot_sis63(results)
     axs = [ Axis(fig[i, 1]) for i ∈ 1:2 ]
     for i ∈ 1:2
         stairs!(axs[i], results.t ./ 365, results[:, i+1]; step = :post)
-        if i == 1 hidexdecorations!(axs[i]; ticks = false) end
     end 
     linkxaxes!(axs...)
+    hidexdecorations!(axs[1]; ticks = false)
     axs[2].xlabel = "Time, years"
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
