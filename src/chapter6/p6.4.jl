@@ -108,7 +108,9 @@ function _run_sir64(u0, p, duration, seed::Int)
     return _run_sir64(u0, p, duration, nothing)
 end 
 
-function _run_sir64(u0, p, duration, seed::Nothing)
+_run_sir64(u0::Int, p, duration, seed::Nothing) = _run_sir64(u0_sir64(N0::Int, p), p, duration, seed::Nothing)
+
+function _run_sir64(u0::Vector{<:Real}, p, duration, seed::Nothing)
     @assert minimum(u0) >= 0 "Model cannot run with negative starting values in `u0`. Model supplied u0 = $u0."
     if minimum(p) < 0 @warn "Model may be unreliable with negative parameters. Running with p = $p." end
     @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
