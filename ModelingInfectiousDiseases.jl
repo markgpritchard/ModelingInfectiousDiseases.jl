@@ -178,18 +178,18 @@ plot_sir31(sol31)
 using .MID_61
 
 u0 = [
-    1e5,                # X0
-    500,                # Y0
-    1e6 - (1e5 + 500)   # Z0
+    1e5,                # X0 -- initial number susceptible
+    500,                # Y0 -- initial number infectious
+    1e6 - (1e5 + 500)   # Z0 -- initial number recovered
 ]
 
 # Run with no noise
 p_nonoise = Parameters61(
-    1.,                 # beta 
-    .1,                 # gamma 
-    1 / (50 * 365),     # mu 
-    1 / (50 * 365),     # nu 
-    0.                  # xi
+    1.,                 # beta -- infection parameter 
+    .1,                 # gamma -- recovery rate 
+    1 / (50 * 365),     # mu -- birth rate 
+    1 / (50 * 365),     # nu -- death rate (recommended to equal birth rate)
+    0.                  # xi -- magnitude of the noise that will be added 
 )
 
 results61_nonoise = run_sir61(u0, p_nonoise, 5 * 365)
@@ -197,11 +197,11 @@ plot_sir61(results61_nonoise)
 
 # Run with noise parameter
 p = Parameters61(
-    1.,                 # beta 
-    .1,                 # gamma 
-    1 / (50 * 365),     # mu 
-    1 / (50 * 365),     # nu 
-    10.                 # xi
+    1.,                 # beta -- infection parameter  
+    .1,                 # gamma -- recovery rate 
+    1 / (50 * 365),     # mu -- birth rate 
+    1 / (50 * 365),     # nu -- death rate 
+    10.                 # xi -- magnitude of the noise that will be added 
 )
 
 results61 = run_sir61(u0, p, 5 * 365; seed = 61)
@@ -213,18 +213,18 @@ plot_sir61(results61)
 using .MID_62
 
 u0 = [
-    1e5,                # X0
-    500,                # Y0
-    1e6 - (1e5 + 500)   # Z0
+    1e5,                # X0 -- initial number susceptible
+    500,                # Y0 -- initial number infectious
+    1e6 - (1e5 + 500)   # Z0 -- initial number recovered
 ]
 
 # Run with no noise
 p_nonoise = Parameters62(
-    1.,                 # beta 
-    .1,                 # gamma 
-    1 / (50 * 365),     # mu 
-    1 / (50 * 365),     # nu 
-    0.                  # xi
+    1.,                 # beta -- infection parameter 
+    .1,                 # gamma -- recovery rate 
+    1 / (50 * 365),     # mu -- birth rate 
+    1 / (50 * 365),     # nu -- death rate (recommended to equal birth rate)
+    0.                  # xi -- magnitude of the noise that will be added 
 )
 
 results62_nonoise = run_sir62(u0, p_nonoise, 5 * 365)
@@ -232,11 +232,11 @@ plot_sir62(results62_nonoise)
 
 # Run with noise parameter
 p = Parameters62(
-    1.,                 # beta 
-    .1,                 # gamma 
-    1 / (50 * 365),     # mu 
-    1 / (50 * 365),     # nu 
-    1.                  # xi
+    1.,                 # beta -- infection parameter 
+    .1,                 # gamma -- recovery rate 
+    1 / (50 * 365),     # mu -- birth rate 
+    1 / (50 * 365),     # nu -- death rate
+    1.                  # xi -- magnitude of the noise that will be added 
 )
 
 results62 = run_sir62(u0, p, 5 * 365; seed = 62)
@@ -248,12 +248,12 @@ plot_sir62(results62)
 using .MID_63
 
 u0 = [
-    30,                 # X0 
-    70                  # Y0
+    30,                 # X0 -- initial number susceptible 
+    70                  # Y0 -- initial number infectious
 ]
 p = [
-    .03,                # beta 
-    .01                 # gamma 
+    .03,                # beta -- infection parameter  
+    .01                 # gamma -- recovery rate  
 ]
 
 results63 = run_sis63(u0, p, 10 * 365; seed = 63)
