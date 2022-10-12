@@ -258,3 +258,26 @@ p = [
 
 results63 = run_sis63(u0, p, 10 * 365; seed = 63)
 plot_sis63(results63)
+
+
+## Programme 6.4 
+
+#using .MID_63
+
+p = [
+    1.,                 # beta -- infection parameter  
+    .01,                # gamma -- recovery rate  
+    5e-4                # mu -- birth and death rate
+]
+
+# Examine model with small population
+u0_50 = u0_sir64(50, p)
+
+results64_50 = run_sir64(u0_50, p, 2 * 365; seed = 64)
+plot_sir64(results64_50)
+
+# and with a larger population
+u0 = u0_sir64(5000, p)
+
+results64 = run_sir64(u0, p, 2 * 365; seed = 64)
+plot_sir64(results64)
