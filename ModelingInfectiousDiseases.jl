@@ -198,7 +198,7 @@ plot_sir61(results61_nonoise)
 # Run with noise parameter
 p = Parameters61(
     1.,                 # beta 
-    .1,                # gamma 
+    .1,                 # gamma 
     1 / (50 * 365),     # mu 
     1 / (50 * 365),     # nu 
     10.                 # xi
@@ -241,3 +241,20 @@ p = Parameters62(
 
 results62 = run_sir62(u0, p, 5 * 365; seed = 62)
 plot_sir62(results62)
+
+
+## Programme 6.3 
+
+using .MID_63
+
+u0 = [
+    30,                 # X0 
+    70                  # Y0
+]
+p = [
+    .03,                # beta 
+    .01                 # gamma 
+]
+
+results63 = run_sis63(u0, p, 10 * 365; seed = 63)
+plot_sis63(results63)
