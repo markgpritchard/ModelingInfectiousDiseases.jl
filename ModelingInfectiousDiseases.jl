@@ -266,7 +266,7 @@ using .MID_64
 
 p = [
     1.,                 # beta -- infection parameter  
-    .01,                # gamma -- recovery rate  
+    .1,                 # gamma -- recovery rate  
     5e-4                # mu -- birth and death rate
 ]
 
