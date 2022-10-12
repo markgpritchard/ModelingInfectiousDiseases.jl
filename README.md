@@ -4,9 +4,9 @@ This code recreates the programmes from http://www.modelinginfectiousdiseases.or
 
 ## Use
 
-You are recommended to clone this git. 
+You are recommended to clone this git on to your machine. 
 
-Then open the file `ModelingInfectiousDiseases.jl`. You should replace the string on line 7 with the path to your local copy, for example
+Then open the file `ModelingInfectiousDiseases.jl`. You should replace the string on line 7 with the path to your local copy,
 ``` julia 
 loc = "C:\\Users\\yourname\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
 ```
