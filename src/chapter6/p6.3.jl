@@ -84,7 +84,7 @@ end
 
 function _run_sis63(u0, p, duration, seed::Nothing)
     @assert minimum(u0) >= 0 "Model cannot run with negative starting values in `u0`. Model supplied u0 = $u0."
-    if minimum(p) < 0 @warn "Model may be unreliable with negative parameters. Running with p = $p." end
+    @assert minimum(p) < 0 "Model cannot run with negative parameters. Running with p = $p."
     @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
 
     t = .0 
