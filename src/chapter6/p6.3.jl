@@ -75,7 +75,7 @@ julia> run_sir61(u0, p, 5; seed = 61)
    6 │     5.0       1.00056e5  471.756       9.99972e5
 ```
 """
-run_sis63(u0, p, duration; seed = nothing) = _run_sis63(u0, p, duration, seed)
+run_sis63(u0::Vector{<:Int}, p, duration; seed = nothing) = _run_sis63(u0, p, duration, seed)
 
 function _run_sis63(u0, p, duration, seed::Int)
     Random.seed!(seed)
