@@ -48,7 +48,7 @@ Run the model `sir61!`.
 intended to introduce stochastic noise. It does this by introducing a stochastic 
 parameter, which is inversely proportional to the square root of `δt`. The model 
 runs for a duration `δt` before calculating a new, independent, noise parameter. 
-    This continues until `duration` has been reached.
+This continues until `duration` has been reached.
 
 ## Parameters 
 * `u0`: The starting conditions for the model, a vector of 3 values.

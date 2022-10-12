@@ -50,46 +50,45 @@ recovery(gamma, Y, p) = addnoise(gamma * Y, p)
 death(mu, A, p) = addnoise(mu * A, p)
 
 """
-    run_sir61(u0, p, duration[; δt, seed])
+    run_sir62(u0, p, duration[; δt, seed])
 
-Run the model `sir61!`.
+Run the model `sir62!`.
 
-`sir61!` is an ordinary differential equations (ODE) model, but this function is 
+`sir62!` is an ordinary differential equations (ODE) model, but this function is 
 intended to introduce stochastic noise. It does this by introducing a stochastic 
-parameter, which is inversely proportional to the square root of `δt`. The model 
-runs for a duration `δt` before calculating a new, independent, noise parameter. 
-    This continues until `duration` has been reached.
+parameter to each variable, each inversely proportional to the square root of `δt`. 
+The model runs for a duration `δt` before calculating a new, independent, noise 
+parameter. This continues until `duration` has been reached.
 
 ## Parameters 
 * `u0`: The starting conditions for the model, a vector of 3 values.
 * `p`: Parameters for the model, including a term `xi` that represents the magnitude 
-    of the random noise. Should be supplied as a `Parameters61` structure.
+    of the random noise. Should be supplied as a `Parameters62` structure.
 * `duration`: The time that the model should run for
 * `δt`: How often the random noise parameter should update. Default value is 1.
 * `seed`: Seed for the random number generator. Default is not to supply a seed.
 
 ## Example 
 ```
-julia> u0 = [1e5, 500, 1e6]
+julia> u0 = [1e5, 500, 1e6 - (1e5 + 500)]
 3-element Vector{Float64}:
  100000.0
     500.0
-      1.0e6
 
-julia> p = Parameters61(1., .1, 1 / (50 * 365), 1 / (50 * 365), 10.)
-Parameters61(1.0, 0.1, 5.479452054794521e-5, 5.479452054794521e-5, 10.0)
+julia> p = Parameters62(1., .1, 1 / (50 * 365), 1 / (50 * 365), 1.)
+Parameters62(1.0, 0.1, 5.479452054794521e-5, 5.479452054794521e-5, 1.0)
 
-julia> run_sir61(u0, p, 5; seed = 61)
+julia> run_sir62(u0, p, 5; seed = 62)
 6×4 DataFrame
  Row │ t        X               Y        Z
-     │ Float64  Float64         Float64  Float64
+     │ Float64  Float64         Float64  Float64        
 ─────┼──────────────────────────────────────────────────
-   1 │     0.0  100000.0        500.0         1.0e6
-   2 │     1.0       1.00008e5  497.192       9.99995e5
-   3 │     2.0       1.00006e5  503.268       9.9999e5
-   4 │     3.0       1.00024e5  491.14        9.99985e5
-   5 │     4.0       1.00041e5  480.24   999979.0
-   6 │     5.0       1.00056e5  471.756       9.99972e5
+   1 │     0.0  100000.0        500.0    899500.0       
+   2 │     1.0  100014.0        489.124       8.99508e5 
+   3 │     2.0       1.0001e5   482.236  899509.0       
+   4 │     3.0       1.00028e5  471.35        8.99519e5 
+   5 │     4.0       1.00041e5  466.103       8.99523e5 
+   6 │     5.0       1.00038e5  458.071       8.9953e5
 ```
 """
 run_sir62(u0, p, duration; δt = 1, seed = nothing) = _run_sir62(u0, p, duration, seed; δt)
@@ -148,9 +147,9 @@ end
 
 
 """
-    plot_sir61(results)
+    plot_sir62(results)
 
-Plot the `results` DataFrame output from the function `run_sir61` 
+Plot the `results` DataFrame output from the function `run_sir62` 
 """
 function plot_sir62(results)
     fig = Figure()
