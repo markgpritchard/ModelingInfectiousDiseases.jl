@@ -108,7 +108,7 @@ function _run_sir64(u0, p, duration, seed::Int)
     return _run_sir64(u0, p, duration, nothing)
 end 
 
-_run_sir64(N0::Int, p, duration, seed::Nothing) = _run_sir64(u0_sir64(N0::Int, p), p, duration, seed::Nothing)
+_run_sir64(N0::Int, p, duration, seed::Nothing) = _run_sir64(u0_sir64(N0, p), p, duration, seed)
 
 function _run_sir64(u0::Vector{<:Int}, p, duration, seed::Nothing)
     @assert minimum(u0) >= 0 "Model cannot run with negative starting values in `u0`. Model supplied u0 = $u0."
