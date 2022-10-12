@@ -27,7 +27,7 @@ mutable struct InputParameters62
 end
 
 # Define the Base function minimum for Parameters61
-minimum(p::Parameters62) = min(p.beta, p.gamma, p.mu, p.nu, minimum(p.xi))
+minimum(p::Parameters62) = min(p.beta, p.gamma, p.mu, p.nu, p.xi)
 
 function sir62!(du, u, p, t) 
     # compartments 
