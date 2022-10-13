@@ -93,11 +93,18 @@ The number of infectious and susceptible individuals will always be integer, and
 the model has the potential for all infectious individuals to recover and the epidemic 
 ends.
 
-## Parameters 
-* `u0`: The starting conditions for the model, a vector of 3 values, or a single 
-    integer that will be interpretted as `N0`.
-* `p`: Parameters for the model: a vector of the `β`, `γ` and `μ` parameters.
+## Model parameters 
+Parameters can be entered as a vector in this order
+* `β`: infection parameter
+* `γ`: recovery rate
+* `μ`: birth and death rate 
+
+## Function arguments
+* `u0`: The starting conditions for the model, a vector of 3 integers (`X0`, `Y0`, `Z0`),
+    or a single integer that will be interpretted as `N0`.
+* `p`: Parameters for the model, expected as a vector
 * `duration`: The time that the model should run for
+### Optional keyword arguments
 * `seed`: Seed for the random number generator. Default is not to supply a seed.
 * `pop`: Whether the final value of the DataFrame should be removed. Default is `true`
 

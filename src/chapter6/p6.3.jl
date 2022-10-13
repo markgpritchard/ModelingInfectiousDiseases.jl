@@ -48,10 +48,16 @@ ends. In this case, the final time step value will be `Inf` and the final value
 of `Y` will be `-1`. Therefore, by default the final value from the DataFrame is 
 removed. To avoid this, set `pop = false`
 
-## Parameters 
-* `u0`: The starting conditions for the model, a vector of 2 values.
-* `p`: Parameters for the model: a vector of the `β` and `γ` parameters.
+## Model parameters 
+Parameters can be entered as a vector in this order
+* `β`: infection parameter
+* `γ`: recovery rate
+
+## Function arguments
+* `u0`: The starting conditions for the model, a vector of 2 integers  (`X0`, `Y0`)
+* `p`: Parameters for the model, expected as a vector
 * `duration`: The time that the model should run for
+### Optional keyword arguments
 * `seed`: Seed for the random number generator. Default is not to supply a seed.
 * `pop`: Whether the final value of the DataFrame should be removed. Default is `true`
 

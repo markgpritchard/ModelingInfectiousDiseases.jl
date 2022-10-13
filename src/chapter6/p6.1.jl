@@ -50,11 +50,19 @@ parameter, which is inversely proportional to the square root of `δt`. The mode
 runs for a duration `δt` before calculating a new, independent, noise parameter. 
 This continues until `duration` has been reached.
 
-## Parameters 
-* `u0`: The starting conditions for the model, a vector of 3 values.
-* `p`: Parameters for the model, including a term `xi` that represents the magnitude 
-    of the random noise. Should be supplied as a `Parameters61` structure.
+## Model parameters 
+Parameters are expected in a `Parameters61` type
+* `beta`: infection parameter
+* `gamma`: recovery rate
+* `mu`: birth rate 
+* `nu`: death rate 
+* `xi`: magnitude of noise to be added
+
+## Function arguments
+* `u0`: The starting conditions for the model, a vector of 3 values (`X0`, `Y0`, `Z0`)
+* `p`: Parameters for the model, expected in a `Parameters61` type
 * `duration`: The time that the model should run for
+### Optional keyword arguments
 * `δt`: How often the random noise parameter should update. Default value is 1.
 * `seed`: Seed for the random number generator. Default is not to supply a seed.
 

@@ -86,51 +86,55 @@ function sir65(u, p, t, δt, N0)
 end 
 
 """
-    run_sir64(N0::Int, p, duration[; seed, pop])
-    run_sir64(u0::Vector{<:Int}, p, duration[; seed, pop])
+    run_sir65(N0::Int, p, duration[; δt, seed])
+    run_sir65(u0::Vector{<:Int}, p, duration[; δt, seed])
 
-Run the model `sis64`.
+Run the model `sir65`.
 
 This is a susceptible--infectious--recovered model. It calculates rates of infection, 
-recovery, births and deaths. It has random step intervals, proportional to these 
-rates. The model keeps running until one time step has been taken after `duration` 
-has been reached.
+recovery, births and deaths. It has defined step intervals and estimates the number 
+of each event that will occur during each step interval from a Poisson distribution.
 
-The number of infectious and susceptible individuals will always be integer, and 
-the model has the potential for all infectious individuals to recover and the epidemic 
-ends.
+## Model parameters 
+Parameters can be entered as a vector in this order
+* `β`: infection parameter
+* `γ`: recovery rate
+* `μ`: birth and death rate 
 
-## Parameters 
-* `u0`: The starting conditions for the model, a vector of 3 values, or a single 
-    integer that will be interpretted as `N0`.
-* `p`: Parameters for the model: a vector of the `β`, `γ` and `μ` parameters.
+## Function arguments
+* `u0`: The starting conditions for the model, a vector of 3 integers (`X0`, `Y0`, `Z0`), 
+    or a single integer that will be interpretted as `N0`.
+* `p`: Parameters for the model, expected as a vector.
 * `duration`: The time that the model should run for
+### Optional keyword arguments
+* `δt`: Time interval between calculations. Default is 1.
 * `seed`: Seed for the random number generator. Default is not to supply a seed.
-* `pop`: Whether the final value of the DataFrame should be removed. Default is `true`
 
 ## Example 
 ```
+julia> u0 = [50, 50, 400]
+3-element Vector{Int64}:
+  50
+  50
+ 400
+
 julia> p = [1., .1, 5e-4]
 3-element Vector{Float64}:
  1.0
  0.1
  0.0005
 
-julia> u0 = u0_sir64(50, p)
-3-element Vector{Int64}:
-  5
-  1
- 44
-
-julia> run_sir64(u0, p, 10; seed = 64)
-4×4 DataFrame
- Row │ t        X      Y      Z     
-     │ Float64  Int64  Int64  Int64 
-─────┼──────────────────────────────
-   1 │ 0.0          5      1     44
-   2 │ 4.3724       4      2     44
-   3 │ 6.44244      4      1     45
-   4 │ 7.86218      3      2     45
+julia> run_sir65(u0, p, 5; seed = 65)
+6×4 DataFrame
+ Row │ t      X      Y      Z     
+     │ Int64  Int64  Int64  Int64 
+─────┼────────────────────────────
+   1 │     0     50     50    400
+   2 │     1     46     52    401
+   3 │     2     42     47    410
+   4 │     3     37     48    415
+   5 │     4     36     43    423
+   6 │     5     35     43    424
 ```
 """
 run_sir65(u0, p, duration; δt = 1, seed = nothing) = _run_sir65(u0, p, duration, seed; δt)
@@ -156,7 +160,7 @@ function _run_sir65(u0::Vector{<:Int}, p, duration, seed::Nothing; δt)
         t = typeof(t)[], X = typeof(u0[1])[], Y = typeof(u0[2])[], Z = typeof(u0[3])[]
     )
     push!( results, Dict(:t => t, :X => u[1], :Y => u[2], :Z => u[3]) )
-    while t <= duration 
+    while t < duration 
         t, u = sir65(u, p, t, δt, N0) 
         push!( results, Dict(:t => t, :X => u[1], :Y => u[2], :Z => u[3]) )
     end
@@ -166,9 +170,9 @@ end
 
 
 """
-    plot_sir64(results)
+    plot_sir65(results)
 
-Plot the `results` DataFrame output from the function `run_sir64` 
+Plot the `results` DataFrame output from the function `run_sir65` 
 """
 function plot_sir65(results)
     fig = Figure()

@@ -3,8 +3,11 @@
 # Set up 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+###############################################################################
 # Enter the path to this file here 
 loc = "C:\\Users\\yourname\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
+###############################################################################
+
 cd(loc)
 
 using Pkg 
@@ -30,7 +33,7 @@ S0 = 1 - 1e-6           # initial proportion susceptible
 I0 = 1e-6               # initial proportion resistant
 duration = 70           # duration of model
 
-sol21 = run_sir21(; beta, gamma, S0, I0, duration, saveat = .125) # more frequent saveat to give smooth plot
+sol21 = run_sir21(; beta, gamma, S0, I0, duration, saveat = .125) # frequent saveat to give smooth plot
 plot_sir21(sol21)
 
 
@@ -111,7 +114,7 @@ gamma = 1 / 7           # recovery rate
 I0 = 1e-6               # initial proportion infectious
 duration = 70           # duration of model
 
-sol25 = run_sis25(; beta, gamma, I0, duration, saveat = .125) # more frequent saveat to give a smooth plot
+sol25 = run_sis25(; beta, gamma, I0, duration, saveat = .125) # frequent saveat to give a smooth plot
 plot_sis25(sol25)
 
 
@@ -166,8 +169,9 @@ Ih = 1e-5               # initial proportion of infectious high-risk individuals
 Il = 1e-3               # initial proportion of infectious low-risk individuals
 duration = 15           # duration of model
 
-sol31 = run_sir31(; beta, gamma, nh, Ih, Il, duration, saveat = .025) # more frequent saveat to give a smooth plot
+sol31 = run_sir31(; beta, gamma, nh, Ih, Il, duration, saveat = .025) # frequent saveat to give a smooth plot
 plot_sir31(sol31)
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Chapter 6 
