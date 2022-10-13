@@ -13,7 +13,7 @@ loc = "C:\\Users\\yourname\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
 ###############################################################################
 ```
 
-The following lines of that file allow you to activate and instantiate the project so you will be using the same versions of each package as the programmes were written with. (The first time this may take a while.)
+The following lines of that file allow you to activate and instantiate the project so you will be using the same versions of each package as the programmes were written with. (The first time you do this it may take a while, depending on how many packages need to be downloaded and precompiled.)
 
 This project is very much a work in progress, with new programmes added when available. None of the programmes is intended or expected to be the quickest or most efficient solution. Rather, they are intended to make clear how the model can be coded in *Julia*.
 
