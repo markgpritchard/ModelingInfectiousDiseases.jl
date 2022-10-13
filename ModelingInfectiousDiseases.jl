@@ -3,14 +3,20 @@
 # Set up 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+###############################################################################
 # Enter the path to this file here 
 loc = "C:\\Users\\yourname\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
+###############################################################################
+
 cd(loc)
 
 using Pkg 
 Pkg.activate(loc)
 Pkg.instantiate()
 
+# If you want to modify functions it may be easier to 'remove' them from their module 
+# before running the next line. To do this simply, comment out the `module`, `export` 
+# and final `end` lines in the relevant file. 
 include("src/ModelingInfectiousDiseases.jl")
 
 using BenchmarkTools
@@ -30,7 +36,7 @@ S0 = 1 - 1e-6           # initial proportion susceptible
 I0 = 1e-6               # initial proportion resistant
 duration = 70           # duration of model
 
-sol21 = run_sir21(; beta, gamma, S0, I0, duration, saveat = .125) # more frequent saveat to give smooth plot
+sol21 = run_sir21(; beta, gamma, S0, I0, duration, saveat = .125) # frequent saveat to give smooth plot
 plot_sir21(sol21)
 
 
@@ -111,7 +117,7 @@ gamma = 1 / 7           # recovery rate
 I0 = 1e-6               # initial proportion infectious
 duration = 70           # duration of model
 
-sol25 = run_sis25(; beta, gamma, I0, duration, saveat = .125) # more frequent saveat to give a smooth plot
+sol25 = run_sis25(; beta, gamma, I0, duration, saveat = .125) # frequent saveat to give a smooth plot
 plot_sis25(sol25)
 
 
@@ -166,8 +172,9 @@ Ih = 1e-5               # initial proportion of infectious high-risk individuals
 Il = 1e-3               # initial proportion of infectious low-risk individuals
 duration = 15           # duration of model
 
-sol31 = run_sir31(; beta, gamma, nh, Ih, Il, duration, saveat = .025) # more frequent saveat to give a smooth plot
+sol31 = run_sir31(; beta, gamma, nh, Ih, Il, duration, saveat = .025) # frequent saveat to give a smooth plot
 plot_sir31(sol31)
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Chapter 6 
@@ -178,18 +185,18 @@ plot_sir31(sol31)
 using .MID_61
 
 u0 = [
-    1e5,                # X0
-    500,                # Y0
-    1e6                 # Z0
+    1e5,                # X0 -- initial number susceptible
+    500,                # Y0 -- initial number infectious
+    1e6 - (1e5 + 500)   # Z0 -- initial number recovered
 ]
 
 # Run with no noise
 p_nonoise = Parameters61(
-    1.,                 # beta 
-    .1,                 # gamma 
-    1 / (50 * 365),     # mu 
-    1 / (50 * 365),     # nu 
-    0.                  # xi
+    1.,                 # beta -- infection parameter 
+    .1,                 # gamma -- recovery rate 
+    1 / (50 * 365),     # mu -- birth rate 
+    1 / (50 * 365),     # nu -- death rate (recommended to equal birth rate)
+    0.                  # xi -- magnitude of the noise that will be added 
 )
 
 results61_nonoise = run_sir61(u0, p_nonoise, 5 * 365)
@@ -197,12 +204,148 @@ plot_sir61(results61_nonoise)
 
 # Run with noise parameter
 p = Parameters61(
-    1.,                 # beta 
-    .1,                # gamma 
-    1 / (50 * 365),     # mu 
-    1 / (50 * 365),     # nu 
-    10.                 # xi
+    1.,                 # beta -- infection parameter  
+    .1,                 # gamma -- recovery rate 
+    1 / (50 * 365),     # mu -- birth rate 
+    1 / (50 * 365),     # nu -- death rate 
+    10.                 # xi -- magnitude of the noise that will be added 
 )
 
 results61 = run_sir61(u0, p, 5 * 365; seed = 61)
 plot_sir61(results61)
+
+
+## Programme 6.2 
+
+using .MID_62
+
+u0 = [
+    1e5,                # X0 -- initial number susceptible
+    500,                # Y0 -- initial number infectious
+    1e6 - (1e5 + 500)   # Z0 -- initial number recovered
+]
+
+# Run with no noise
+p_nonoise = Parameters62(
+    1.,                 # beta -- infection parameter 
+    .1,                 # gamma -- recovery rate 
+    1 / (50 * 365),     # mu -- birth rate 
+    1 / (50 * 365),     # nu -- death rate (recommended to equal birth rate)
+    0.                  # xi -- magnitude of the noise that will be added 
+)
+
+results62_nonoise = run_sir62(u0, p_nonoise, 5 * 365)
+plot_sir62(results62_nonoise)
+
+# Run with noise parameter
+p = Parameters62(
+    1.,                 # beta -- infection parameter 
+    .1,                 # gamma -- recovery rate 
+    1 / (50 * 365),     # mu -- birth rate 
+    1 / (50 * 365),     # nu -- death rate
+    1.                  # xi -- magnitude of the noise that will be added 
+)
+
+results62 = run_sir62(u0, p, 5 * 365; seed = 62)
+plot_sir62(results62)
+
+
+## Programme 6.3 
+
+using .MID_63
+
+u0 = [
+    30,                 # X0 -- initial number susceptible 
+    70                  # Y0 -- initial number infectious
+]
+p = [
+    .03,                # beta -- infection parameter  
+    .01                 # gamma -- recovery rate  
+]
+
+results63 = run_sis63(u0, p, 10 * 365; seed = 63)
+plot_sis63(results63)
+
+
+## Programme 6.4 
+
+using .MID_64
+
+p = [
+    1.,                 # beta -- infection parameter  
+    .1,                 # gamma -- recovery rate  
+    5e-4                # mu -- birth and death rate
+]
+
+# Examine model with small population
+u0_50 = u0_sir64(50, p)
+results64_50 = run_sir64(u0_50, p, 2 * 365; seed = 64)
+plot_sir64(results64_50)
+
+# and with a larger population
+u0 = u0_sir64(5000, p)
+results64 = run_sir64(u0, p, 2 * 365; seed = 64)
+plot_sir64(results64)
+
+
+## Programme 6.5
+
+using .MID_65
+
+p = [
+    1.,                 # beta -- infection parameter  
+    .1,                 # gamma -- recovery rate  
+    5e-4                # mu -- birth and death rate
+]
+
+# Examine model with small population
+u0_50 = u0_sir65(50, p)
+results65_50 = run_sir65(u0_50, p, 2 * 365; seed = 65)
+plot_sir65(results65_50)
+
+# and with a larger population
+u0 = u0_sir65(5000, p)
+results65 = run_sir65(u0, p, 2 * 365; seed = 65)
+plot_sir65(results65)
+
+
+## Programme 6.6
+
+using .MID_66
+
+# Examine model with small population
+# Recommended that ε parameter is adjusted with inverse population size
+p_50 = [
+    1.,                 # beta -- infection parameter  
+    .1,                 # gamma -- recovery rate  
+    .01,                # delta -- rate of infectious immigration 
+    .002,               # epsilon -- force of external infection
+    5e-4                # mu -- birth and death rate
+]
+u0_50 = u0_sir66(50, p_50)
+results66_50 = run_sir66(u0_50, p_50, 2 * 365; seed = 66)
+plot_sir66(results66_50)
+
+# and with a larger population
+p = [
+    1.,                 # beta -- infection parameter  
+    .1,                 # gamma -- recovery rate  
+    .01,                # delta -- rate of infectious immigration 
+    .00002,             # epsilon -- force of external infection
+    5e-4                # mu -- birth and death rate
+]
+u0 = u0_sir66(5000, p)
+results66 = run_sir66(u0, p, 2 * 365; seed = 66)
+plot_sir66(results66)
+
+# This plot looks interesting -- what happens over 10 years?
+results66_10y = run_sir66(u0, p, 10 * 365; seed = 66)
+plot_sir66(results66_10y)
+
+# And what happens if we change δt? 
+
+results66_10y_d10 = run_sir66(u0, p, 10 * 365; seed = 66, δt = 10)
+plot_sir66(results66_10y_d10)
+
+results66_10y_d01 = run_sir66(u0, p, 10 * 365; seed = 66, δt = .1)
+plot_sir66(results66_10y_d01)

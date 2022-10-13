@@ -4,19 +4,23 @@ This code recreates the programmes from http://www.modelinginfectiousdiseases.or
 
 ## Use
 
-You are recommended to clone this git on to your machine. 
+You are recommended to _clone_ this git repository (see [instructions here](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)). Then open the file `ModelingInfectiousDiseases.jl`. You should replace the string on line 8 with the path to your local copy,
 
-Then open the file `ModelingInfectiousDiseases.jl`. You should replace the string on line 7 with the path to your local copy,
 ``` julia 
+###############################################################################
+# Enter the path to this file here 
 loc = "C:\\Users\\yourname\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
+###############################################################################
 ```
 
-The following lines allow you to activate and instantiate the project so you will be using the same versions of each package as the programmes were written with. (The first time this may take a while.)
+The following lines of that file allow you to activate and instantiate the project so you will be using the same versions of each package as the programmes were written with. (The first time this may take a while.)
 
-This project is very much a work in progress, with new programmes added when available. 
+This project is very much a work in progress, with new programmes added when available. None of the programmes is intended or expected to be the quickest or most efficient solution. Rather, they are intended to make clear how the model can be coded in *Julia*.
 
-It is intended that you will be able to access all the programmes from within that file. Example parameters and starting conditions are supplied for each model, and you can explore the effects of changing these.
+## Layout of code
 
-The code for each programme is located in the `src` folder, subdivided by chapter. You can read (and modify) the code there.
+It is intended that you will be able to access all the programmes from within the main `ModelingInfectiousDiseases.jl` file. Example parameters and starting conditions are supplied for each model, and you can explore the effects of changing these.
+
+The code for each programme is located in the `src` folder, subdivided by chapter. You can read (and modify) the code there. Each programme is stored in its own _Module_ so any functions or constants defined for one programme will not interfere with any others. 
 
 Dividing the code and parameters into different files allows them to be viewed side-by-side in a split screen, and also makes clear the difference between changing the input and changing the model.
