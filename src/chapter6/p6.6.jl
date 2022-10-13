@@ -72,18 +72,9 @@ function sir66(u, p, t, δt, N0)
     for (i, event) ∈ enumerate(events) 
         u += event * changematrix[i, :] 
         if minimum(u) < 0 # then this cycle has made more events than it could have 
-            u += -event * changematrix[i, :] # undo what you just did 
-            reduction = 1 # how many events we are reducing by to prevent a negative number
-            solved = false 
-            while !solved 
-                proposedu = u + ( event - reduction ) * changematrix[i, :] 
-                if minimum(proposedu) >= 0
-                    u = proposedu 
-                    solved = true
-                else 
-                    reduction += 1 
-                end 
-            end 
+            reduction = -minimum(u)                         # how many events were too many 
+            u += -event * changematrix[i, :]                # undo what you just did 
+            u += ( event - reduction ) * changematrix[i, :] # re-do it with the reduced number of events
         end 
     end 
 

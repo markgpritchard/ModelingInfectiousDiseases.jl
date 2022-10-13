@@ -14,6 +14,9 @@ using Pkg
 Pkg.activate(loc)
 Pkg.instantiate()
 
+# If you want to modify functions it may be easier to 'remove' them from their module 
+# before running the next line. To do this simply, comment out the `module`, `export` 
+# and final `end` lines in the relevant file. 
 include("src/ModelingInfectiousDiseases.jl")
 
 using BenchmarkTools
