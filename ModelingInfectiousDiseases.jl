@@ -272,12 +272,73 @@ p = [
 
 # Examine model with small population
 u0_50 = u0_sir64(50, p)
-
 results64_50 = run_sir64(u0_50, p, 2 * 365; seed = 64)
 plot_sir64(results64_50)
 
 # and with a larger population
 u0 = u0_sir64(5000, p)
-
 results64 = run_sir64(u0, p, 2 * 365; seed = 64)
 plot_sir64(results64)
+
+
+## Programme 6.5
+
+using .MID_65
+
+p = [
+    1.,                 # beta -- infection parameter  
+    .1,                 # gamma -- recovery rate  
+    5e-4                # mu -- birth and death rate
+]
+
+# Examine model with small population
+u0_50 = u0_sir65(50, p)
+results65_50 = run_sir65(u0_50, p, 2 * 365; seed = 65)
+plot_sir65(results65_50)
+
+# and with a larger population
+u0 = u0_sir65(5000, p)
+results65 = run_sir65(u0, p, 2 * 365; seed = 65)
+plot_sir65(results65)
+
+
+## Programme 6.6
+
+using .MID_66
+
+# Examine model with small population
+# Recommended that ε parameter is adjusted with inverse population size
+p_50 = [
+    1.,                 # beta -- infection parameter  
+    .1,                 # gamma -- recovery rate  
+    .01,                # delta -- rate of infectious immigration 
+    .002,               # epsilon -- force of external infection
+    5e-4                # mu -- birth and death rate
+]
+u0_50 = u0_sir66(50, p_50)
+results66_50 = run_sir66(u0_50, p_50, 2 * 365; seed = 66)
+plot_sir66(results66_50)
+
+# and with a larger population
+p = [
+    1.,                 # beta -- infection parameter  
+    .1,                 # gamma -- recovery rate  
+    .01,                # delta -- rate of infectious immigration 
+    .00002,             # epsilon -- force of external infection
+    5e-4                # mu -- birth and death rate
+]
+u0 = u0_sir66(5000, p)
+results66 = run_sir66(u0, p, 2 * 365; seed = 66)
+plot_sir66(results66)
+
+# This plot looks interesting -- what happens over 10 years?
+results66_10y = run_sir66(u0, p, 10 * 365; seed = 66)
+plot_sir66(results66_10y)
+
+# And what happens if we change δt? 
+
+results66_10y_d10 = run_sir66(u0, p, 10 * 365; seed = 66, δt = 10)
+plot_sir66(results66_10y_d10)
+
+results66_10y_d01 = run_sir66(u0, p, 10 * 365; seed = 66, δt = .1)
+plot_sir66(results66_10y_d01)
