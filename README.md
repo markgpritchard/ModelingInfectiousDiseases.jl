@@ -5,6 +5,7 @@ This code recreates the programmes from http://www.modelinginfectiousdiseases.or
 ## Use
 
 You are recommended to _clone_ this git repository (see [instructions here](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)). Then open the file `ModelingInfectiousDiseases.jl`. You should replace the string on line 8 with the path to your local copy,
+
 ``` julia 
 ###############################################################################
 # Enter the path to this file here 
