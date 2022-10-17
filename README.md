@@ -6,7 +6,7 @@ This code recreates the programmes from http://www.modelinginfectiousdiseases.or
 
 The code has been written in Julia, version 1.8.1. 
 
-To find your current version, use the simple command 
+To find your current version, use the simple command, 
 ``` julia 
 julia> VERSION
 v"1.8.2"
