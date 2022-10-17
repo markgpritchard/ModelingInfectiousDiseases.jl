@@ -61,7 +61,7 @@ function sir65(u, p, t, δt, N0)
         μ * Z           # recovered death
     ]
 
-    events = [ rand(Poisson(rate * δt)) for (i, rate) ∈ enumerate(rates) ]
+    events = [ rand(Poisson(rate * δt)) for rate ∈ rates ]
 
     for (i, event) ∈ enumerate(events) 
         u += event * changematrix[i, :] 
@@ -159,13 +159,26 @@ function _run_sir65(u0::Vector{<:Int}, p, duration, seed::Nothing; δt)
     return results
 end 
 
-
 """
-    plot_sir65(results)
+    plot_sir65(results[, population])
+    plot_sir65(results, label::String)
 
 Plot the `results` DataFrame output from the function `run_sir65` 
+
+A `label` term can be added which will be printed at the top of the figure. If a 
+`population` term is included, the size of the population is printed on the plot.
 """
-function plot_sir65(results)
+plot_sir65(results) = plot_sir65(results, "p6.5.jl: SIR model with τ-leap method stochasticity")
+
+function plot_sir65(results, population::Real)
+    return plot_sir65(
+        results, 
+        "p6.5.jl: SIR model with τ-leap method stochasticity
+        Initial population = $population"
+    )
+end 
+
+function plot_sir65(results, label::String)
     fig = Figure()
     axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
     for i ∈ 1:3
@@ -178,6 +191,7 @@ function plot_sir65(results)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
+    Label(fig[0, :], label)
     
     return fig
 end 

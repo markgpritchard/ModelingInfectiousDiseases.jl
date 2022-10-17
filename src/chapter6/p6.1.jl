@@ -6,6 +6,8 @@ import Base: minimum
 
 export Parameters61, sir61!, run_sir61, plot_sir61
 
+## Structures that pass the model parameters to the relevant functions
+
 struct Parameters61 
     beta    :: Float64
     gamma   :: Float64
@@ -28,6 +30,8 @@ end
 # Define the Base function minimum for Parameters61
 minimum(p::Parameters61) = min(p.beta, p.gamma, p.mu, p.nu, p.xi)
 
+## The function that is passed to the DifferentialEquations solver 
+
 function sir61!(du, u, p, t) 
     # compartments 
     X, Y, Z = u
@@ -38,6 +42,13 @@ function sir61!(du, u, p, t)
     du[2] = p.beta * X * Y / N + p.Noise - ( p.gamma + p.mu ) * Y   # dY
     du[3] = p.gamma * Y - p.mu * Z                                  # dZ
 end 
+
+## Functions that calculate the appropriate `noise` value
+
+noise(p, δt) = p.xi * rand(Normal(0, 1)) / sqrt(δt)
+noise!(parameters, p, δt) = parameters.Noise = noise(p, δt)
+
+## Function to run the whole model
 
 """
     run_sir61(u0, p, duration[; δt, seed])
@@ -137,15 +148,33 @@ function __run_sir61(u0, p, duration, δt::Float64)
     return results
 end 
 
-noise(p, δt) = p.xi * rand(Normal(0, 1)) / sqrt(δt)
-noise!(parameters, p, δt) = parameters.Noise = noise(p, δt)
-
 """
-    plot_sir61(results)
+    plot_sir61(results[, noise])
+    plot_sir61(results, label::String)
 
-Plot the `results` DataFrame output from the function `run_sir61` 
+Plot the `results` DataFrame output from the function `run_sir61`.
+    
+A `label` term can be added which will be printed at the top of the figure. If a 
+`noise` term is included, the magnitude of the noise is printed on the plot. `noise` 
+can be a value or a `Parameters61` structure.
 """
 function plot_sir61(results)
+    return plot_sir61(
+        results, 
+        "p6.1.jl: SIR model with random noise added to the transmission term"
+    )
+end
+
+function plot_sir61(results, noise::Real)
+    return plot_sir61(
+        results, 
+        "p6.1.jl: SIR model with random noise added to the transmission term\nNoise magnitude = $noise"
+    )
+end
+
+plot_sir61(results, p::Parameters61) = plot_sir61(results, p.xi) 
+
+function plot_sir61(results, label::String)
     fig = Figure()
     axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
     for i ∈ 1:3
@@ -157,7 +186,8 @@ function plot_sir61(results)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
-    
+    Label(fig[0, :], label)
+
     return fig
 end 
 

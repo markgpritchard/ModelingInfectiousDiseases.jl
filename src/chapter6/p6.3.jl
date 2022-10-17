@@ -31,7 +31,6 @@ function sis63(u, p, t)
     return t, [X, Y]
 end 
 
-
 """
     run_sis63(u0::Vector{<:Int}, p, duration[; seed, pop])
 
@@ -112,11 +111,15 @@ function _run_sis63(u0, p, duration, seed::Nothing; pop = true)
 end 
 
 """
-    plot_sis63(results)
+    plot_sis63(results[, label])
 
 Plot the `results` DataFrame output from the function `run_sis63` 
+
+A `label` term can be added which will be printed at the top of the figure.
 """
-function plot_sis63(results)
+plot_sis63(results) = plot_sis63(results, "p6.3.jl: SIS model with demographic stochasticity")
+
+function plot_sis63(results, label::String)
     fig = Figure()
     axs = [ Axis(fig[i, 1]) for i ∈ 1:2 ]
     for i ∈ 1:2
@@ -127,6 +130,7 @@ function plot_sis63(results)
     axs[2].xlabel = "Time, years"
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
+    Label(fig[0, :], label)
     
     return fig
 end 

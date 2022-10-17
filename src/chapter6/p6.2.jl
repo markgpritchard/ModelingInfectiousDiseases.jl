@@ -6,6 +6,8 @@ import Base: minimum
 
 export Parameters62, sir62!, run_sir62, plot_sir62
 
+## Structures that pass the model parameters to the relevant functions
+
 struct Parameters62
     beta    :: Float64
     gamma   :: Float64
@@ -29,6 +31,17 @@ end
 # Define the Base function minimum for Parameters61
 minimum(p::Parameters62) = min(p.beta, p.gamma, p.mu, p.nu, p.xi)
 
+## Functions that calculate the appropriate `noise` values
+
+noise(p, δt) = p.xi * rand(Normal(0, 1)) / sqrt(δt)
+function noise!(parameters, p, δt) 
+    for i ∈ 1:6
+        parameters.p[i] = noise(p, δt)
+    end 
+end 
+
+## The function that is passed to the DifferentialEquations solver 
+
 function sir62!(du, u, p, t) 
     # compartments 
     X, Y, Z = u
@@ -43,11 +56,15 @@ function sir62!(du, u, p, t)
     du[3] = recovery(p.gamma, Y, p.p[4]) - death(p.mu, Z, p.p[6])               # dZ
 end 
 
+## Function that support `sir62!`
+
 addnoise(a, p) = a + p * sqrt(a) 
 birth(nu, N, p) = addnoise(nu * N, p)
 infection(beta, X, Y, N, p) = addnoise(beta * X * Y / N, p)
 recovery(gamma, Y, p) = addnoise(gamma * Y, p)
 death(mu, A, p) = addnoise(mu * A, p)
+
+## Function to run the whole model
 
 """
     run_sir62(u0, p, duration[; δt, seed])
@@ -146,20 +163,33 @@ function __run_sir62(u0, p, duration, δt::Float64)
     return results
 end 
 
-noise(p, δt) = p.xi * rand(Normal(0, 1)) / sqrt(δt)
-function noise!(parameters, p, δt) 
-    for i ∈ 1:6
-        parameters.p[i] = noise(p, δt)
-    end 
-end 
-
-
 """
-    plot_sir62(results)
+    plot_sir62(results[, noise])
+    plot_sir62(results, label::String)
 
 Plot the `results` DataFrame output from the function `run_sir62` 
+        
+A `label` term can be added which will be printed at the top of the figure. If a 
+`noise` term is included, the magnitude of the noise is printed on the plot. `noise` 
+can be a value or a `Parameters62` structure.
 """
 function plot_sir62(results)
+    return plot_sir62(
+        results, 
+        "p6.2.jl: SIR model with random noise added to each parameter"
+    )
+end
+
+function plot_sir62(results, noise::Real)
+    return plot_sir62(
+        results, 
+        "p6.2.jl: SIR model with random noise added to each parameter\nNoise magnitude = $noise"
+    )
+end
+
+plot_sir62(results, p::Parameters62) = plot_sir62(results, p.xi) 
+
+function plot_sir62(results, label::String)
     fig = Figure()
     axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
     for i ∈ 1:3
@@ -171,6 +201,7 @@ function plot_sir62(results)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
+    Label(fig[0, :], label)
     
     return fig
 end 
