@@ -6,12 +6,12 @@ This code recreates the programmes from http://www.modelinginfectiousdiseases.or
 
 The code has been written in Julia, version 1.8.1. 
 
-To find your current version use the simple command 
+To find your current version, use the simple command 
 ``` julia 
 julia> VERSION
 v"1.8.2"
 ```
-If you do not have Julia version 1.8.1 or newer, you can [download it now](https://julialang.org/downloads/). 
+If you do not have version 1.8.1 or newer, you can [download it now](https://julialang.org/downloads/). 
 
 You are recommended to _clone_ this git repository (see [instructions here](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)). Then open the file `ModelingInfectiousDiseases.jl`. You should replace the string on line 8 with the path to your local copy,
 
