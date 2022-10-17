@@ -159,7 +159,6 @@ function _run_sir65(u0::Vector{<:Int}, p, duration, seed::Nothing; δt)
     return results
 end 
 
-
 """
     plot_sir65(results)
 
@@ -178,6 +177,10 @@ function plot_sir65(results)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
+    Label(
+        fig[0, :], 
+        "p6.5.jl: SIR model with τ-leap method stochasticity"
+    )
     
     return fig
 end 

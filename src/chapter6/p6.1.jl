@@ -6,6 +6,8 @@ import Base: minimum
 
 export Parameters61, sir61!, run_sir61, plot_sir61
 
+## Structures that pass the model parameters to the relevant functions
+
 struct Parameters61 
     beta    :: Float64
     gamma   :: Float64
@@ -28,6 +30,8 @@ end
 # Define the Base function minimum for Parameters61
 minimum(p::Parameters61) = min(p.beta, p.gamma, p.mu, p.nu, p.xi)
 
+## The function that is passed to the DifferentialEquations solver 
+
 function sir61!(du, u, p, t) 
     # compartments 
     X, Y, Z = u
@@ -38,6 +42,13 @@ function sir61!(du, u, p, t)
     du[2] = p.beta * X * Y / N + p.Noise - ( p.gamma + p.mu ) * Y   # dY
     du[3] = p.gamma * Y - p.mu * Z                                  # dZ
 end 
+
+## Functions that calculate the appropriate `noise` value
+
+noise(p, δt) = p.xi * rand(Normal(0, 1)) / sqrt(δt)
+noise!(parameters, p, δt) = parameters.Noise = noise(p, δt)
+
+## Function to run the whole model
 
 """
     run_sir61(u0, p, duration[; δt, seed])
@@ -137,9 +148,6 @@ function __run_sir61(u0, p, duration, δt::Float64)
     return results
 end 
 
-noise(p, δt) = p.xi * rand(Normal(0, 1)) / sqrt(δt)
-noise!(parameters, p, δt) = parameters.Noise = noise(p, δt)
-
 """
     plot_sir61(results)
 
@@ -157,6 +165,10 @@ function plot_sir61(results)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
+    Label(
+        fig[0, :], 
+        "p6.1.jl: SIR model with random noise added to the transmission term"
+    )
     
     return fig
 end 

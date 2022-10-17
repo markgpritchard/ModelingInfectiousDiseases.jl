@@ -164,7 +164,6 @@ function _run_sir64(u0::Vector{<:Int}, p, duration, seed::Nothing; pop = true)
     return results
 end 
 
-
 """
     plot_sir64(results)
 
@@ -182,6 +181,10 @@ function plot_sir64(results)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
+    Label(
+        fig[0, :], 
+        "p6.4.jl: SIR model with demographic stochasticity"
+    )
     
     return fig
 end 
