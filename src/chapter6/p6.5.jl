@@ -61,7 +61,7 @@ function sir65(u, p, t, δt, N0)
         μ * Z           # recovered death
     ]
 
-    events = [ rand(Poisson(rate * δt)) for (i, rate) ∈ enumerate(rates) ]
+    events = [ rand(Poisson(rate * δt)) for rate ∈ rates ]
 
     for (i, event) ∈ enumerate(events) 
         u += event * changematrix[i, :] 
