@@ -173,7 +173,8 @@ plot_sir65(results) = plot_sir65(results, "p6.5.jl: SIR model with τ-leap metho
 function plot_sir65(results, population::Real)
     return plot_sir65(
         results, 
-        "p6.5.jl: SIR model with τ-leap method stochasticity\nPopulation = $population"
+        "p6.5.jl: SIR model with τ-leap method stochasticity
+        Initial population = $population"
     )
 end 
 

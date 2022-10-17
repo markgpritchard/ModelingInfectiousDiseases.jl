@@ -178,7 +178,7 @@ plot_sir64(results) = plot_sir64(results, "p6.4.jl: SIR model with demographic s
 function plot_sir64(results, population::Real)
     return plot_sir64(
         results, 
-        "p6.4.jl: SIR model with demographic stochasticity\nPopulation = $population"
+        "p6.4.jl: SIR model with demographic stochasticity\nInitial population = $population"
     )
 end 
 

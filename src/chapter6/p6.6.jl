@@ -190,7 +190,8 @@ end
 function plot_sir66(results, population::Real)
     return plot_sir66(
         results, 
-        "p6.6.jl: SIR model with τ-leap stochasticity and possible disease importation\nPopulation = $population"
+        "p6.6.jl: SIR model with τ-leap stochasticity and possible disease importation
+        Initial population = $population"
     )
 end 
 
@@ -206,7 +207,7 @@ function plot_sir66(results, label::String)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
-    Label(fig[0, :], label)
+    Label(fig[0, 1], label)
     
     return fig
 end 

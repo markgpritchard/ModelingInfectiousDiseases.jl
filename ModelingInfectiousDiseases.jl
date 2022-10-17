@@ -235,7 +235,7 @@ p_nonoise = Parameters62(
 )
 
 results62_nonoise = run_sir62(u0, p_nonoise, 5 * 365)
-plot_sir62(results62_nonoise)
+plot_sir62(results62_nonoise, p_nonoise)
 
 # Run with noise parameter
 p = Parameters62(
@@ -247,7 +247,7 @@ p = Parameters62(
 )
 
 results62 = run_sir62(u0, p, 5 * 365; seed = 62)
-plot_sir62(results62)
+plot_sir62(results62, p)
 
 
 ## Programme 6.3 
@@ -280,12 +280,12 @@ p = [
 # Examine model with small population
 u0_50 = u0_sir64(50, p)
 results64_50 = run_sir64(u0_50, p, 2 * 365; seed = 64)
-plot_sir64(results64_50)
+plot_sir64(results64_50, 50)
 
 # and with a larger population
 u0 = u0_sir64(5000, p)
 results64 = run_sir64(u0, p, 2 * 365; seed = 64)
-plot_sir64(results64)
+plot_sir64(results64, 5000)
 
 
 ## Programme 6.5
@@ -301,12 +301,12 @@ p = [
 # Examine model with small population
 u0_50 = u0_sir65(50, p)
 results65_50 = run_sir65(u0_50, p, 2 * 365; seed = 65)
-plot_sir65(results65_50)
+plot_sir65(results65_50, 50)
 
 # and with a larger population
 u0 = u0_sir65(5000, p)
 results65 = run_sir65(u0, p, 2 * 365; seed = 65)
-plot_sir65(results65)
+plot_sir65(results65, 5000)
 
 
 ## Programme 6.6
@@ -318,13 +318,13 @@ using .MID_66
 p_50 = [
     1.,                 # beta -- infection parameter  
     .1,                 # gamma -- recovery rate  
-    .01,                # delta -- rate of infectious immigration 
+    .0001,              # delta -- rate of infectious immigration 
     .002,               # epsilon -- force of external infection
     5e-4                # mu -- birth and death rate
 ]
 u0_50 = u0_sir66(50, p_50)
 results66_50 = run_sir66(u0_50, p_50, 2 * 365; seed = 66)
-plot_sir66(results66_50)
+plot_sir66(results66_50, 50)
 
 # and with a larger population
 p = [
@@ -336,16 +336,16 @@ p = [
 ]
 u0 = u0_sir66(5000, p)
 results66 = run_sir66(u0, p, 2 * 365; seed = 66)
-plot_sir66(results66)
+plot_sir66(results66, 5000)
 
 # This plot looks interesting -- what happens over 10 years?
 results66_10y = run_sir66(u0, p, 10 * 365; seed = 66)
-plot_sir66(results66_10y)
+plot_sir66(results66_10y, 5000)
 
 # And what happens if we change δt? 
 
 results66_10y_d10 = run_sir66(u0, p, 10 * 365; seed = 66, δt = 10)
-plot_sir66(results66_10y_d10)
+plot_sir66(results66_10y_d10, "p6.6.jl: SIR model with τ-leap stochasticity\nδt = 10")
 
 results66_10y_d01 = run_sir66(u0, p, 10 * 365; seed = 66, δt = .1)
-plot_sir66(results66_10y_d01)
+plot_sir66(results66_10y_d01, "p6.6.jl: SIR model with τ-leap stochasticity\nδt = 0.1")
