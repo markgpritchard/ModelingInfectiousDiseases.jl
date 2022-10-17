@@ -5,7 +5,7 @@
 
 ###############################################################################
 # Enter the path to this file here 
-loc = "C:\\Users\\mpritchard\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
+loc = "C:\\Users\\yourname\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
 ###############################################################################
 
 cd(loc)
