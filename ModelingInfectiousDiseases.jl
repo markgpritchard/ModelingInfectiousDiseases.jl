@@ -5,7 +5,7 @@
 
 ###############################################################################
 # Enter the path to this file here 
-loc = "C:\\Users\\yourname\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
+loc = "C:\\Users\\mpritchard\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
 ###############################################################################
 
 cd(loc)
@@ -200,7 +200,7 @@ p_nonoise = Parameters61(
 )
 
 results61_nonoise = run_sir61(u0, p_nonoise, 5 * 365)
-plot_sir61(results61_nonoise)
+plot_sir61(results61_nonoise, p_nonoise)
 
 # Run with noise parameter
 p = Parameters61(
@@ -212,7 +212,7 @@ p = Parameters61(
 )
 
 results61 = run_sir61(u0, p, 5 * 365; seed = 61)
-plot_sir61(results61)
+plot_sir61(results61, p)
 
 
 ## Programme 6.2 

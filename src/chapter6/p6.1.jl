@@ -149,11 +149,30 @@ function __run_sir61(u0, p, duration, δt::Float64)
 end 
 
 """
-    plot_sir61(results)
+    plot_sir61(results[, noise])
 
-Plot the `results` DataFrame output from the function `run_sir61` 
+Plot the `results` DataFrame output from the function `run_sir61`.
+    
+If a `noise` term is included, the magnitude of the noise is printed on the plot. 
+`noise` can be a value or a `Parameters61` structure.
 """
 function plot_sir61(results)
+    return _plot_sir61(
+        results, 
+        "p6.1.jl: SIR model with random noise added to the transmission term"
+    )
+end
+
+function plot_sir61(results, noise::Real)
+    return _plot_sir61(
+        results, 
+        "p6.1.jl: SIR model with random noise added to the transmission term\nNoise magnitude = $noise"
+    )
+end
+
+plot_sir61(results, p::Parameters61) = plot_sir61(results, p.xi) 
+
+function _plot_sir61(results, label)
     fig = Figure()
     axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
     for i ∈ 1:3
@@ -165,11 +184,8 @@ function plot_sir61(results)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
-    Label(
-        fig[0, :], 
-        "p6.1.jl: SIR model with random noise added to the transmission term"
-    )
-    
+    Label(fig[0, :], label)
+
     return fig
 end 
 
