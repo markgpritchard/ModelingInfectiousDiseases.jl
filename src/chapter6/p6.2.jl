@@ -164,11 +164,30 @@ function __run_sir62(u0, p, duration, δt::Float64)
 end 
 
 """
-    plot_sir62(results)
+    plot_sir62(results[, noise])
 
 Plot the `results` DataFrame output from the function `run_sir62` 
+        
+If a `noise` term is included, the magnitude of the noise is printed on the plot. 
+`noise` can be a value or a `Parameters62` structure.
 """
 function plot_sir62(results)
+    return _plot_sir62(
+        results, 
+        "p6.2.jl: SIR model with random noise added to each parameter"
+    )
+end
+
+function plot_sir62(results, noise::Real)
+    return _plot_sir62(
+        results, 
+        "p6.2.jl: SIR model with random noise added to each parameter\nNoise magnitude = $noise"
+    )
+end
+
+plot_sir62(results, p::Parameters62) = plot_sir62(results, p.xi) 
+
+function _plot_sir62(results, label)
     fig = Figure()
     axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
     for i ∈ 1:3
@@ -180,10 +199,7 @@ function plot_sir62(results)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
-    Label(
-        fig[0, :], 
-        "p6.2.jl: SIR model with random noise added to each parameter"
-    )
+    Label(fig[0, :], label)
     
     return fig
 end 
