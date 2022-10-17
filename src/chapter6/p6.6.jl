@@ -172,11 +172,29 @@ function _run_sir66(u0::Vector{<:Int}, p, duration, seed::Nothing; δt)
 end 
 
 """
-    plot_sir66(results)
+    plot_sir66(results[, population])
+    plot_sir66(results, label::String)
 
 Plot the `results` DataFrame output from the function `run_sir66` 
+
+A `label` term can be added which will be printed at the top of the figure. If a 
+`population` term is included, the size of the population is printed on the plot.
 """
 function plot_sir66(results)
+    return plot_sir66(
+        results, 
+        "p6.6.jl: SIR model with τ-leap stochasticity and possible disease importation"
+    )
+end 
+
+function plot_sir66(results, population::Real)
+    return plot_sir66(
+        results, 
+        "p6.6.jl: SIR model with τ-leap stochasticity and possible disease importation\nPopulation = $population"
+    )
+end 
+
+function plot_sir66(results, label::String)
     fig = Figure()
     axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
     for i ∈ 1:3
@@ -188,10 +206,7 @@ function plot_sir66(results)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
-    Label(
-        fig[0, :], 
-        "p6.6.jl: SIR model with τ-leap stochasticity and possible disease importation"
-    )
+    Label(fig[0, :], label)
     
     return fig
 end 

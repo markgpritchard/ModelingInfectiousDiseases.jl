@@ -150,21 +150,23 @@ end
 
 """
     plot_sir61(results[, noise])
+    plot_sir61(results, label::String)
 
 Plot the `results` DataFrame output from the function `run_sir61`.
     
-If a `noise` term is included, the magnitude of the noise is printed on the plot. 
-`noise` can be a value or a `Parameters61` structure.
+A `label` term can be added which will be printed at the top of the figure. If a 
+`noise` term is included, the magnitude of the noise is printed on the plot. `noise` 
+can be a value or a `Parameters61` structure.
 """
 function plot_sir61(results)
-    return _plot_sir61(
+    return plot_sir61(
         results, 
         "p6.1.jl: SIR model with random noise added to the transmission term"
     )
 end
 
 function plot_sir61(results, noise::Real)
-    return _plot_sir61(
+    return plot_sir61(
         results, 
         "p6.1.jl: SIR model with random noise added to the transmission term\nNoise magnitude = $noise"
     )
@@ -172,7 +174,7 @@ end
 
 plot_sir61(results, p::Parameters61) = plot_sir61(results, p.xi) 
 
-function _plot_sir61(results, label)
+function plot_sir61(results, label::String)
     fig = Figure()
     axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
     for i ∈ 1:3
