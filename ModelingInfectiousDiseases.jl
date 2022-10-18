@@ -249,6 +249,17 @@ p = Parameters62(
 results62 = run_sir62(u0, p, 5 * 365; seed = 62)
 plot_sir62(results62, p)
 
+# Run with a large noise parameter
+p_bignoise = Parameters62(
+    1.,                 # beta -- infection parameter 
+    .1,                 # gamma -- recovery rate 
+    1 / (50 * 365),     # mu -- birth rate 
+    1 / (50 * 365),     # nu -- death rate
+    10.                 # xi -- magnitude of the noise that will be added 
+)
+
+results62_bignoise = run_sir62(u0, p_bignoise, 5 * 365; seed = 62)
+plot_sir62(results62_bignoise, p_bignoise)
 
 ## Programme 6.3 
 
