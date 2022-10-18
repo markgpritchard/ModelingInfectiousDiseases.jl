@@ -59,7 +59,15 @@ end
 ## Function that support `sir62!`
 
 function addnoise(a, p) 
-    # With large magnitudes of noise, negative values can be passed to the 
+    # With large magnitudes of noise, negative values can be passed to the functions, 
+    # such that a negative number of people might be born or might be infected. 
+    # In turn, this can lead to negative numbers of individuals in compartments, 
+    # even when tolerance is set very low. 
+
+    # This function is designed 
+    #   1.  to ensure that a negative value is never passed to the function 
+    #   2.  to ensure that if a compartment ever has a negative value, this does 
+    #       not lead to an attempt to square-root a negative value.
     if a < 0 
         return 0 
     elseif a + p * sqrt(a) < 0 
