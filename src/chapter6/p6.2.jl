@@ -57,7 +57,7 @@ function sir62!(du, u, p, t)
 end 
 
 ## Function that support `sir62!`
-
+ρ
 function addnoise(a, p) 
     # With large magnitudes of noise, negative values can be passed to the functions, 
     # such that a negative number of people might be born or might be infected. 
@@ -159,7 +159,7 @@ __run_sir62(u0, p, duration, δt; kwargs...) = __run_sir62(u0, p, duration, Floa
 
 function __run_sir62(u0, p, duration, δt::Float64; kwargs...)
     @assert minimum(u0) >= 0 "Model cannot run with negative starting values in `u0`. Model supplied u0 = $u0."
-    @assert minimum(p) >= 0 "Model cannot run with negative parameters. Running with p = $p." 
+    @assert minimum(p) >= 0 "Model cannot run with negative parameters. Model supplied with p = $p." 
     @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
     @assert δt > 0 "Model needs δt > 0. Model supplied δt = $δt."
     @assert δt <= duration "Model needs δt <= duration. Model supplied δt = $δt and duration = $duration."
