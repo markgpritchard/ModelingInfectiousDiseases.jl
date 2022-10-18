@@ -58,7 +58,17 @@ end
 
 ## Function that support `sir62!`
 
-addnoise(a, p) = a + p * sqrt(a) 
+function addnoise(a, p) 
+    # With large magnitudes of noise, negative values can be passed to the 
+    if a < 0 
+        return 0 
+    elseif a + p * sqrt(a) < 0 
+        return 0 
+    else 
+        return a + p * sqrt(a) 
+    end 
+end 
+
 birth(nu, N, p) = addnoise(nu * N, p)
 infection(beta, X, Y, N, p) = addnoise(beta * X * Y / N, p)
 recovery(gamma, Y, p) = addnoise(gamma * Y, p)
@@ -67,7 +77,7 @@ death(mu, A, p) = addnoise(mu * A, p)
 ## Function to run the whole model
 
 """
-    run_sir62(u0, p, duration[; δt, seed])
+    run_sir62(u0, p, duration[; δt, seed, kwargs...])
 
 Run the model `sir62!`.
 
@@ -76,6 +86,16 @@ intended to introduce stochastic noise. It does this by introducing a stochastic
 parameter to each variable, each inversely proportional to the square root of `δt`. 
 The model runs for a duration `δt` before calculating a new, independent, noise 
 parameter. This continues until `duration` has been reached.
+
+### Warning 
+
+With large values of `xi` (large magnitudes of noise), the ODE solver can generate 
+negative compartment values. This subsequently leads to an error when this value 
+is square-rooted to add noise in a following step. Solver tolerance can be changed 
+by adding abstol or reltol as keyword arguments, but this does not always prevent 
+the problem. The `addnoise` function is therefore modified such that any attempt 
+to move a negative number of individuals will lead to a movement of `0`, and any 
+negative compartments will be increased to `1e-12`.
 
 ## Model parameters 
 Parameters are expected in a `Parameters62` type
@@ -92,6 +112,7 @@ Parameters are expected in a `Parameters62` type
 ### Optional keyword arguments
 * `δt`: How often the random noise parameter should update. Default value is 1.
 * `seed`: Seed for the random number generator. Default is not to supply a seed.
+* `kwargs...`: Keyword arguments that get passed to `DifferentialEquations.solve`
 
 ## Example 
 ```
@@ -116,21 +137,21 @@ julia> run_sir62(u0, p, 5; seed = 62)
    6 │     5.0       1.00038e5  458.071       8.9953e5
 ```
 """
-run_sir62(u0, p, duration; δt = 1, seed = nothing) = _run_sir62(u0, p, duration, seed; δt)
+run_sir62(u0, p, duration; seed = nothing, kwargs...) = _run_sir62(u0, p, duration, seed; kwargs...)
 
-function _run_sir62(u0, p, duration, seed::Real; δt)
+function _run_sir62(u0, p, duration, seed::Real; kwargs...)
     Random.seed!(seed)
-    return _run_sir62(u0, p, duration, nothing; δt)
+    return _run_sir62(u0, p, duration, nothing; kwargs...)
 end 
 
-_run_sir62(u0, p, duration, seed::Nothing; δt) = __run_sir62(u0, p, duration, δt)
+_run_sir62(u0, p, duration, seed::Nothing; δt = 1, kwargs...) = __run_sir62(u0, p, duration, δt; kwargs...)
 
 # It is much more convenient to ensure at this stage that δt will always be a Float64
-__run_sir62(u0, p, duration, δt) = __run_sir62(u0, p, duration, Float64(δt))
+__run_sir62(u0, p, duration, δt; kwargs...) = __run_sir62(u0, p, duration, Float64(δt); kwargs...)
 
-function __run_sir62(u0, p, duration, δt::Float64)
+function __run_sir62(u0, p, duration, δt::Float64; kwargs...)
     @assert minimum(u0) >= 0 "Model cannot run with negative starting values in `u0`. Model supplied u0 = $u0."
-    if minimum(p) < 0 @warn "Model may be unreliable with negative parameters. Running with p = $p." end
+    @assert minimum(p) >= 0 "Model may be unreliable with negative parameters. Running with p = $p." 
     @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
     @assert δt > 0 "Model needs δt > 0. Model supplied δt = $δt."
     @assert δt <= duration "Model needs δt <= duration. Model supplied δt = $δt and duration = $duration."
@@ -153,8 +174,9 @@ function __run_sir62(u0, p, duration, δt::Float64)
         tspan = ( τ0, τ1 )
         noise!(parameters, p, δt)   # add the noise parameter
         prob = ODEProblem(sir62!, u, tspan, parameters)
-        sol = solve(prob)
-        u = last(sol)
+        sol = solve(prob; kwargs...)
+        us = last(sol)
+        u = [ max(1e-12, uv) for uv ∈ us ]
         τ0 = τ1
         τ1 += δt 
         push!( results, Dict(:t => τ0, :X => u[1], :Y => u[2], :Z => u[3]) )
@@ -201,7 +223,7 @@ function plot_sir62(results, label::String)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
-    Label(fig[0, :], label)
+    Label(fig[0, :], label; justification = :left)
     
     return fig
 end 
