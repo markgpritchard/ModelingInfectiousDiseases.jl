@@ -130,7 +130,7 @@ function plot_sis63(results, label::String)
     axs[2].xlabel = "Time, years"
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
-    Label(fig[0, :], label)
+    Label(fig[0, :], label; justification = :left)
     
     return fig
 end 

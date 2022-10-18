@@ -194,7 +194,7 @@ function plot_sir64(results, label::String)
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
     axs[3].ylabel = "Recovered"
-    Label(fig[0, :], label)
+    Label(fig[0, :], label; justification = :left)
     
     return fig
 end 
