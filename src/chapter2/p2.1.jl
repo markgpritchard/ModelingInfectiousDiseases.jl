@@ -58,13 +58,16 @@ function plot_sir21!(fig::Figure, result::DataFrame; kwargs...)
     plot_sir21!(gl, result; kwargs...)
 end 
 
-function plot_sir21!(gl::GridLayout, result::DataFrame; legend = :right)
+function plot_sir21!(gl::GridLayout, result::DataFrame; 
+        label = "p2.1.jl: Susceptible--infectious--resistant model with a constant population", 
+        legend = :right
+    )
+
     ax = Axis(gl[1, 1])
     plot_sir21!(ax, result)
-    Label(
-        gl[0, :], 
-        "p2.1.jl: Susceptible--infectious--resistant model with a constant population"
-    )
+
+    Label(gl[0, :], label)
+
     if legend == :right
         leg = Legend(gl[1, 2], ax)
     elseif legend == :below 
@@ -146,20 +149,24 @@ u: 6-element Vector{Vector{Float64}}:
 function run_sir21() end 
 
 """
-    plot_sir21(result[; legend])
+    plot_sir21(result[; kwargs...])
 
 Plot the results of the model `sir21!`.
 
 `result` can be either the ODE solver output or a DataFrame produced with `dataframe_sir21`.
 
-`legend` indicates where the plot legend should be positioned relative to the plot. 
-The recognised options are `:right`, `:below` and `:none`.
+## Optional keyword arguments 
+
+* `label`: The label to be placed at the top of the plot. Default is "p2.1.jl: Susceptible--infectious--resistant 
+    model with a constant population"
+* `legend`: where the plot legend should be positioned relative to the plot. Recognised 
+    options are `:right`, `:below` and `:none`.
 """
 function plot_sir21() end 
 
 """
-    plot_sir21!(fig::Figure, result[; legend])
-    plot_sir21!(gl::GridLayout, result[; legend])
+    plot_sir21!(fig::Figure, result[; kwargs...])
+    plot_sir21!(gl::GridLayout, result[; kwargs...])
     plot_sir21!(ax::Axis, result)
 
 Plot the results of the model `sir21!`.
@@ -170,9 +177,14 @@ accepts a `Figure`, `GridLayout` or `Axis` to plot on to.
 
 `result` can be either the ODE solver output or a DataFrame produced with `dataframe_sir21`.
 
-`legend` indicates where the plot legend should be positioned relative to the plot. 
-The recognised options are `:right`, `:below` and `:none`. Note that this option 
-is not available if an `Axis` was provided to the function.
+## Optional keyword arguments 
+
+* `label`: The label to be placed at the top of the plot. Default is "p2.1.jl: Susceptible--infectious--resistant 
+    model with a constant population"
+* `legend`: where the plot legend should be positioned relative to the plot. Recognised 
+    options are `:right`, `:below` and `:none`. 
+
+Note that neither option is available if an `Axis` was provided to the function.
 """
 function plot_sir21!() end 
 
