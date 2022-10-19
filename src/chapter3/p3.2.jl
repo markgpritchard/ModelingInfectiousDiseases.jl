@@ -228,16 +228,4 @@ u: 5-element Vector{Matrix{Float64}}:
 """
 function run_sis32() end
 
-"""
-    plot_sir61(results[, noise])
-    plot_sir61(results, label::String)
-
-Plot the `results` DataFrame output from the function `run_sir61`.
-    
-A `label` term can be added which will be printed at the top of the figure. If a 
-`noise` term is included, the magnitude of the noise is printed on the plot. `noise` 
-can be a value or a `Parameters61` structure.
-"""
-function plot_sir61() end
-
 end # module MID_31
