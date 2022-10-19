@@ -51,7 +51,7 @@ sol21 = run_sir21(u0, p, duration; saveat = .125)
 
 result21 = dataframe_sir21(sol21)
 
-plot_sir21(sol21)
+plot_sir21(result21)
 
 
 ## Programme 2.2
