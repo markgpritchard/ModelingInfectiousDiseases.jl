@@ -21,8 +21,8 @@ function sis32!(du, u, p, t)
     # the ODEs
     for i ∈ axes(u0, 2) # the number of risk groups
         infections = sum( [ β[i, j] * u[1, i] * u[2, j] for j ∈ axes(u0, 2) ] )     
-                                        # = Σ βᵢⱼ Sᵢ Iⱼ
-        recoveries = γ[i] * u[2, i]     # γᵢ Iᵢ
+                                                # = Σ βᵢⱼ Sᵢ Iⱼ
+        recoveries = γ[i] * u[2, i]             # = γᵢ Iᵢ
 
         du[1, i] = -infections + recoveries     # dSᵢ 
         du[2, i] = infections - recoveries      # dIᵢ 
