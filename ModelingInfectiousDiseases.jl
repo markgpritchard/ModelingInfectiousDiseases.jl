@@ -19,7 +19,7 @@ Pkg.instantiate()
 # and final `end` lines in the relevant file. 
 include("src/ModelingInfectiousDiseases.jl")
 
-using BenchmarkTools
+#using BenchmarkTools
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -204,6 +204,31 @@ sum(u0) ≈ 1
 sol32 = run_sis32(u0, p, duration; saveat = .025)
 result32 = dataframe_sis32(sol32; type = :both)
 plot_sis32(sol32; legend = :below)
+
+
+
+## Programme 3.3
+
+using .MID_33
+
+u0 = [                  # Initial conditions for the model
+    .1      .1              # susceptibles 
+    .0001   .0001           # infectious
+    .0999   .6999           # recovered
+]
+p = Parameters33(       # Model parameters
+    [   100.    10.         # beta = matrix of infectiousness parameters 
+        10.     20. ],             
+    10.,                    # gamma = recovery rate
+    1 / 15,                 # lambda = rate that children become adults 
+    [0., 1 / 60],           # mu = vector of mortality rates
+    1 / 60                  # nu = birth rate
+)
+duration = 100          # Duration
+
+sol33 = run_sir33(u0, p, duration; saveat = .001)
+result33 = dataframe_sir33(sol33)
+plot_sir33(sol33; legend = :below)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Chapter 6 
