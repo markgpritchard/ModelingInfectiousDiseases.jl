@@ -57,7 +57,7 @@ function sir62!(du, u, p, t)
 end 
 
 ## Function that support `sir62!`
-ρ
+
 function addnoise(a, p) 
     # With large magnitudes of noise, negative values can be passed to the functions, 
     # such that a negative number of people might be born or might be infected. 
