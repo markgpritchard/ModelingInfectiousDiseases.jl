@@ -30,13 +30,27 @@ using BenchmarkTools
 
 using .MID_21
 
-beta = 520 / 365        # infectiousness parameter
-gamma = 1 / 7           # recovery rate
-S0 = 1 - 1e-6           # initial proportion susceptible 
-I0 = 1e-6               # initial proportion resistant
+u0 = [                  # Initial conditions for the model
+    1 - 1e-6,           # S0 = proportion susceptible 
+    1e-6,               # I0 = proportion resistant
+    0                   # R0 = proportion resistant 
+]
+
+# S0, I0, R0 must sum to 1. Check this is true:
+sum(u0) == 1            
+
+p = [                   # Model parameters
+    520 / 365           # beta = infectiousness parameter 
+    1 / 7               # gamma = recovery rate
+]
+
 duration = 70           # duration of model
 
-sol21 = run_sir21(; beta, gamma, S0, I0, duration, saveat = .125) # frequent saveat to give smooth plot
+# Run the model with frequent saves so that the plot of the outcome will look smooth:
+sol21 = run_sir21(u0, p, duration; saveat = .125) 
+
+result21 = dataframe_sir21(sol21)
+
 plot_sir21(sol21)
 
 
