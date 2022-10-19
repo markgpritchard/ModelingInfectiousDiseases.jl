@@ -44,17 +44,19 @@ function dataframe_sir21(sol)
     return result 
 end 
 
-plot_sir21(sol; kwargs...) = plot_sir21(dataframe_sir21(sol); kwargs...)
-
-function plot_sir21(result::DataFrame; kwargs...)
+function plot_sir21(result; kwargs...)
     fig = Figure()
-    gl = GridLayout(fig[1, 1])
-    plot_sir21!(gl, result; kwargs...)
+    plot_sir21!(fig, result; kwargs...)
     resize_to_layout!(fig)
     return fig 
 end 
 
-plot_sir21!(gl, sol; kwargs...) = plot_sir21!(gl, dataframe_sir21(sol); kwargs...)
+plot_sir21!(any, sol; kwargs...) = plot_sir21!(any, dataframe_sir21(sol); kwargs...)
+
+function plot_sir21!(fig::Figure, result::DataFrame; kwargs...)
+    gl = GridLayout(fig[1, 1])
+    plot_sir21!(gl, result; kwargs...)
+end 
 
 function plot_sir21!(gl::GridLayout, result::DataFrame; legend = :right)
     ax = Axis(gl[1, 1])
@@ -156,20 +158,21 @@ The recognised options are `:right`, `:below` and `:none`.
 function plot_sir21() end 
 
 """
-    plot_sir21!(gl, result[; legend])
-    plot_sir21!(ax, result)
+    plot_sir21!(fig::Figure, result[; legend])
+    plot_sir21!(gl::GridLayout, result[; legend])
+    plot_sir21!(ax::Axis, result)
 
 Plot the results of the model `sir21!`.
 
 This function is provided to give more flexibility than only using `plot_sir21`. 
 It allows the results of the model to be added to an existing figure. The function 
-accepts a `GridLayout` or an `Axis` to plot on to.
+accepts a `Figure`, `GridLayout` or `Axis` to plot on to.
 
 `result` can be either the ODE solver output or a DataFrame produced with `dataframe_sir21`.
 
 `legend` indicates where the plot legend should be positioned relative to the plot. 
 The recognised options are `:right`, `:below` and `:none`. Note that this option 
-is not available if an `Axis` was provided to the function, rather than a `GridLayout`.
+is not available if an `Axis` was provided to the function.
 """
 function plot_sir21!() end 
 
