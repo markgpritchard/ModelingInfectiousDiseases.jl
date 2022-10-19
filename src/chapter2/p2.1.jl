@@ -44,34 +44,44 @@ function dataframe_sir21(sol)
     return result 
 end 
 
-plot_sir21(sol) = plot_sir21(dataframe_sir21(sol))
+plot_sir21(sol; kwargs...) = plot_sir21(dataframe_sir21(sol); kwargs...)
 
-function plot_sir21(result::DataFrame)
+function plot_sir21(result::DataFrame; kwargs...)
     fig = Figure()
     gl = GridLayout(fig[1, 1])
-    plot_sir21!(gl, result)
+    plot_sir21!(gl, result; kwargs...)
     resize_to_layout!(fig)
     return fig 
 end 
 
-plot_sir21!(gl, sol) = plot_sir21!(gl, dataframe_sir21(sol))
+plot_sir21!(gl, sol; kwargs...) = plot_sir21!(gl, dataframe_sir21(sol); kwargs...)
 
-function plot_sir21!(gl::GridLayout, result::DataFrame)
-    xs = result.t ./ 7  # to plot time in weeks
-    
+function plot_sir21!(gl::GridLayout, result::DataFrame; legend = :right)
     ax = Axis(gl[1, 1])
-    lines!(ax, xs, result.S, label = "Susceptible")
-    lines!(ax, xs, result.I, label = "Infectious")
-    lines!(ax, xs, result.R, label = "Recovered")
+    plot_sir21!(ax, result)
     Label(
         gl[0, :], 
         "p2.1.jl: Susceptible--infectious--resistant model with a constant population"
     )
+    if legend == :right
+        leg = Legend(gl[1, 2], ax)
+    elseif legend == :below 
+        leg = Legend(gl[2, 1], ax)
+    elseif legend == :none 
+        # no legend 
+    else 
+        @info "Unrecognised legend position given. Recognised options are `:right`, `:below` and `:none`"
+    end
+end 
+
+function plot_sir21!(ax::Axis, result::DataFrame)
+    xs = result.t ./ 7  # to plot time in weeks
+    
+    lines!(ax, xs, result.S, label = "Susceptible")
+    lines!(ax, xs, result.I, label = "Infectious")
+    lines!(ax, xs, result.R, label = "Recovered")
     ax.xlabel = "Time, weeks"
     ax.ylabel = "Fraction of population"
-    leg = Legend(gl[1, 2], ax)
-
-    return fig
 end 
 
 
@@ -132,5 +142,35 @@ u: 6-element Vector{Vector{Float64}}:
 ```
 """
 function run_sir21() end 
+
+"""
+    plot_sir21(result[; legend])
+
+Plot the results of the model `sir21!`.
+
+`result` can be either the ODE solver output or a DataFrame produced with `dataframe_sir21`.
+
+`legend` indicates where the plot legend should be positioned relative to the plot. 
+The recognised options are `:right`, `:below` and `:none`.
+"""
+function plot_sir21() end 
+
+"""
+    plot_sir21!(gl, result[; legend])
+    plot_sir21!(ax, result)
+
+Plot the results of the model `sir21!`.
+
+This function is provided to give more flexibility than only using `plot_sir21`. 
+It allows the results of the model to be added to an existing figure. The function 
+accepts a `GridLayout` or an `Axis` to plot on to.
+
+`result` can be either the ODE solver output or a DataFrame produced with `dataframe_sir21`.
+
+`legend` indicates where the plot legend should be positioned relative to the plot. 
+The recognised options are `:right`, `:below` and `:none`. Note that this option 
+is not available if an `Axis` was provided to the function, rather than a `GridLayout`.
+"""
+function plot_sir21!() end 
 
 end # module MID_21
