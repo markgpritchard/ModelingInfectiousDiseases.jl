@@ -176,6 +176,35 @@ sol31 = run_sir31(; beta, gamma, nh, Ih, Il, duration, saveat = .025) # frequent
 plot_sir31(sol31)
 
 
+## Programme 3.2
+
+using .MID_32 
+
+# For this example we have five risk groups. 
+
+u0 = [                  # Initial conditions for the model
+    .06 .31 .52 .08 .02999  # susceptibles 
+    .0  .0  .0  .0  1e-5    # infectious
+]
+
+# We use an intermediary step when creating the transmission factor so that all βᵢⱼ == βⱼᵢ 
+betavector = [ 0, 3, 10, 60, 100]
+betamatrix = .0016 .* betavector * betavector'
+p = Parameters32(       # Model parameters
+    betamatrix,             # beta = matrix of infectiousness parameters 
+    [.2, .2, .2, .2, .2]    # gamma = vector of recovery rates
+)
+
+duration = 30           # Duration
+
+# u0 must sum to 1, but because there are many small values there may be rounding 
+# errors, which we allow for
+sum(u0) ≈ 1  
+
+sol32 = run_sis32(u0, p, duration; saveat = .025)
+result32 = dataframe_sis32(sol32; type = :both)
+plot_sis32(sol32; legend = :below)
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Chapter 6 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
