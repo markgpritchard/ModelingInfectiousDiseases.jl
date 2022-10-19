@@ -184,7 +184,7 @@ function __run_sir62(u0, p, duration, δt::Float64; kwargs...)
         prob = ODEProblem(sir62!, u, tspan, parameters)
         sol = solve(prob; kwargs...)
         us = last(sol)
-        u = [ max(1e-12, uv) for uv ∈ us ]
+        u = [ max(1e-12, x) for x ∈ us ]
         τ0 = τ1
         τ1 += δt 
         push!( results, Dict(:t => τ0, :X => u[1], :Y => u[2], :Z => u[3]) )
