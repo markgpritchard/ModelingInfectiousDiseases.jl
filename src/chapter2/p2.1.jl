@@ -3,7 +3,7 @@ module MID_21
   
 using CairoMakie, DataFrames, DifferentialEquations
 
-export sir21!, run_sir21, print_sir21, plot_sir21
+export sir21!, run_sir21, dataframe_sir21, plot_sir21, plot_sir21!
 
 function sir21!(du, u, p, t) 
     # compartments 
