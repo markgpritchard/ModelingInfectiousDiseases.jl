@@ -22,12 +22,16 @@ A compartmental susceptible--infectious--resistant model with a high-risk and lo
 function sir31!(du, u, p, t) 
     # compartments 
     Sh, Ih, Sℓ, Iℓ = u
+
+    # parameters 
+    (βhh, βhl, βlh, βll) = p.beta 
+    γ = p.gamma
     
     # the ODEs
-    du[1] = dSh = -(p.beta[1, 1] * Ih + p.beta[2, 1] * Iℓ) * Sh + p.gamma * Ih
-    du[2] = dIh = (p.beta[1, 1] * Ih + p.beta[2, 1] * Iℓ) * Sh - p.gamma * Ih
-    du[3] = dSℓ = -(p.beta[1, 2] * Ih + p.beta[2, 2] * Iℓ) * Sℓ + p.gamma * Iℓ
-    du[4] = dIℓ = (p.beta[1, 2] * Ih + p.beta[2, 2] * Iℓ) * Sℓ - p.gamma * Iℓ
+    du[1] = -(βhh * Ih + βhl * Iℓ) * Sh + γ * Ih    # dSh
+    du[2] = (βhh * Ih + βhl * Iℓ) * Sh - γ * Ih     # dIh
+    du[3] = -(βlh * Ih + βll * Iℓ) * Sℓ + γ * Iℓ    # dSℓ
+    du[4] = (βlh * Ih + βll * Iℓ) * Sℓ - γ * Iℓ     # dIℓ
 end 
 
 """
