@@ -19,8 +19,8 @@ function sis32!(du, u, p, t)
     γ = p.gamma
     
     # the ODEs
-    for i ∈ axes(u0, 2) # the number of risk groups
-        infections = sum( [ β[i, j] * u[1, i] * u[2, j] for j ∈ axes(u0, 2) ] )     
+    for i ∈ axes(u, 2) # the number of risk groups
+        infections = sum( [ β[i, j] * u[1, i] * u[2, j] for j ∈ axes(u, 2) ] )     
                                                 # = Σ βᵢⱼ Sᵢ Iⱼ
         recoveries = γ[i] * u[2, i]             # = γᵢ Iᵢ
 
