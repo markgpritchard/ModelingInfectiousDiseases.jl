@@ -59,7 +59,15 @@ end
 ## Function that support `sir62!`
 
 function addnoise(a, p) 
-    # With large magnitudes of noise, negative values can be passed to the 
+    # With large magnitudes of noise, negative values can be passed to the functions, 
+    # such that a negative number of people might be born or might be infected. 
+    # In turn, this can lead to negative numbers of individuals in compartments, 
+    # even when tolerance is set very low. 
+
+    # This function is designed 
+    #   1.  to ensure that a negative value is never passed to the function 
+    #   2.  to ensure that if a compartment ever has a negative value, this does 
+    #       not lead to an attempt to square-root a negative value.
     if a < 0 
         return 0 
     elseif a + p * sqrt(a) < 0 
@@ -151,7 +159,7 @@ __run_sir62(u0, p, duration, δt; kwargs...) = __run_sir62(u0, p, duration, Floa
 
 function __run_sir62(u0, p, duration, δt::Float64; kwargs...)
     @assert minimum(u0) >= 0 "Model cannot run with negative starting values in `u0`. Model supplied u0 = $u0."
-    @assert minimum(p) >= 0 "Model may be unreliable with negative parameters. Running with p = $p." 
+    @assert minimum(p) >= 0 "Model cannot run with negative parameters. Model supplied with p = $p." 
     @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
     @assert δt > 0 "Model needs δt > 0. Model supplied δt = $δt."
     @assert δt <= duration "Model needs δt <= duration. Model supplied δt = $δt and duration = $duration."
@@ -176,7 +184,7 @@ function __run_sir62(u0, p, duration, δt::Float64; kwargs...)
         prob = ODEProblem(sir62!, u, tspan, parameters)
         sol = solve(prob; kwargs...)
         us = last(sol)
-        u = [ max(1e-12, uv) for uv ∈ us ]
+        u = [ max(1e-12, x) for x ∈ us ]
         τ0 = τ1
         τ1 += δt 
         push!( results, Dict(:t => τ0, :X => u[1], :Y => u[2], :Z => u[3]) )

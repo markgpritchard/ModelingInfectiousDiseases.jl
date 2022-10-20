@@ -14,12 +14,9 @@ using Pkg
 Pkg.activate(loc)
 Pkg.instantiate()
 
-# If you want to modify functions it may be easier to 'remove' them from their module 
-# before running the next line. To do this simply, comment out the `module`, `export` 
-# and final `end` lines in the relevant file. 
 include("src/ModelingInfectiousDiseases.jl")
 
-using BenchmarkTools
+using CairoMakie
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -174,6 +171,184 @@ duration = 15           # duration of model
 
 sol31 = run_sir31(; beta, gamma, nh, Ih, Il, duration, saveat = .025) # frequent saveat to give a smooth plot
 plot_sir31(sol31)
+
+
+## Programme 3.2
+
+using .MID_32 
+
+# For this example we have five risk groups. 
+
+u0 = [                  # Initial conditions for the model
+    .06 .31 .52 .08 .02999  # susceptibles 
+    .0  .0  .0  .0  1e-5    # infectious
+]
+
+# We use an intermediary step when creating the transmission factor so that all βᵢⱼ == βⱼᵢ 
+betavector = [ 0, 3, 10, 60, 100]
+betamatrix = .0016 .* betavector * betavector'
+p = Parameters32(       # Model parameters
+    betamatrix,             # beta = matrix of infectiousness parameters 
+    [.2, .2, .2, .2, .2]    # gamma = vector of recovery rates
+)
+
+duration = 30           # Duration
+
+# u0 must sum to 1, but because there are many small values there may be rounding 
+# errors, which we allow for
+sum(u0) ≈ 1  
+
+sol32 = run_sis32(u0, p, duration; saveat = .025)
+result32 = dataframe_sis32(sol32; type = :both)
+plot_sis32(sol32; legend = :below)
+
+
+
+## Programme 3.3
+
+using .MID_33
+
+u0 = [                  # Initial conditions for the model
+    .1      .1              # susceptibles 
+    .0001   .0001           # infectious
+    .0999   .6999           # recovered
+]
+p = Parameters33(       # Model parameters
+    [   100.    10.         # beta = matrix of infectiousness parameters 
+        10.     20. ],             
+    10.,                    # gamma = recovery rate
+    1 / 15,                 # lambda = rate that children become adults 
+    [0., 1 / 60],           # mu = vector of mortality rates
+    1 / 60                  # nu = birth rate
+)
+duration = 100          # Duration
+
+sol33 = run_sir33(u0, p, duration; saveat = .001)
+result33 = dataframe_sir33(sol33)
+plot_sir33(sol33; legend = :below)
+
+
+## Programme 3.4
+
+using .MID_34
+
+u0 = [                  # Initial conditions for the model
+    .05     .01         .01         .008        # susceptibles 
+    .0001   .0001       .0001       .0001       # exposed
+    .0001   .0001       .0001       .0001       # infectious
+    .0298   .04313333   .12313333   .72513333   # recovered
+]
+p = Parameters34(       # Model parameters
+    [2.089 2.089 2.086 2.037    # beta = matrix of infectiousness parameters 
+    2.089 9.336 2.086 2.037
+    2.086 2.086 2.086 2.037
+    2.037 2.037 2.037 2.037],
+    1 / 8,                      # sigma = rate of movement into infectious class 
+    1 / 5,                      # gamma = recovery rate 
+    1 / (55 * 365),             # mu = mortality rates 
+    1 / (55 * 365)              # nu = birth rate
+)
+duration = 100 * 365    # Duration
+
+result34 = run_seir34(u0, p, duration)
+plot_seir34(result34; legend = :below)
+
+
+## Programme 3.5
+
+using .MID_35
+
+p_1 = Parameters35(     # Model parameters
+    17 / 5,                 # beta = infectiousness parameter 
+    1 / 13,                 # sigma = rate of movement into infectious class 
+    1 / 13,                 # gamma = recovery rate 
+    1 / (55 * 365),         # mu = mortality rates 
+    1 / (55 * 365),         # nu = birth rate
+    8,                      # m = number of exposed compartments 
+    13                      # n = total number of infected compartments (E + I)
+)
+u0_1 = seir35_u0(.05, 0, .00001, p_1)   # Initial conditions for the model
+duration_1 = 30 * 365   # Duration
+
+sol35_1 = run_seir35(u0_1, p_1, duration_1)
+result35_1 = dataframe_seir35(sol35_1, p_1)
+plot_seir35(result35_1; legend = :below)
+
+# Alternative sets of parameters
+
+p_2 = Parameters35(     # Model parameters
+    1.,                     # beta = infectiousness parameter 
+    .0,                     # sigma = rate of movement into infectious class 
+    .1,                     # gamma = recovery rate 
+    .0,                     # mu = mortality rates 
+    .0,                     # nu = birth rate
+    0,                      # m = number of exposed compartments 
+    10                      # n = total number of infected compartments (E + I)
+)
+u0_2 = seir35_u0(.5, 0, 1e-6, p_2)  # Initial conditions for the model
+duration_2 = 60         # Duration
+
+sol35_2 = run_seir35(u0_2, p_2, duration_2; saveat = .1)
+result35_2 = dataframe_seir35(sol35_2, p_2)
+
+p_3 = Parameters35(     # Model parameters
+    1.,                     # beta = infectiousness parameter 
+    .0,                     # sigma = rate of movement into infectious class 
+    .1,                     # gamma = recovery rate 
+    .0,                     # mu = mortality rates 
+    .0,                     # nu = birth rate
+    0,                      # m = number of exposed compartments 
+    1                       # n = total number of infected compartments (E + I)
+)
+u0_3 = seir35_u0(.5, 0, 1e-6, p_3)  # Initial conditions for the model
+duration_3 = 60         # Duration
+
+sol35_3 = run_seir35(u0_3, p_3, duration_3; saveat = .1)
+result35_3 = dataframe_seir35(sol35_3, p_3)
+
+fig35_1 = Figure()
+ga = GridLayout(fig35_1[1, 1])
+plot_seir35!(ga, result35_2; label = "SIR with 10 I compartments", legend = :none)
+gb = GridLayout(fig35_1[1, 2])
+plot_seir35!(gb, result35_3; label = "SIR with 1 I compartment", legend = :right)
+fig35_1
+
+p_4 = Parameters35(     # Model parameters
+    1.,                     # beta = infectiousness parameter 
+    .1,                     # sigma = rate of movement into infectious class 
+    .1,                     # gamma = recovery rate 
+    .0,                     # mu = mortality rates 
+    .0,                     # nu = birth rate
+    5,                      # m = number of exposed compartments 
+    10                      # n = total number of infected compartments (E + I)
+)
+u0_4 = seir35_u0(.5, 0, 1e-4, p_4)  # Initial conditions for the model
+duration_4 = 150        # Duration
+
+sol35_4 = run_seir35(u0_4, p_4, duration_4; saveat = .2)
+result35_4 = dataframe_seir35(sol35_4, p_4)
+
+p_5 = Parameters35(     # Model parameters
+    1.,                     # beta = infectiousness parameter 
+    .1,                     # sigma = rate of movement into infectious class 
+    .1,                     # gamma = recovery rate 
+    .0,                     # mu = mortality rates 
+    .0,                     # nu = birth rate
+    1,                      # m = number of exposed compartments 
+    2                       # n = total number of infected compartments (E + I)
+)
+u0_5 = seir35_u0(.5, 0, 1e-4, p_5)  # Initial conditions for the model
+duration_5 = 150        # Duration
+
+sol35_5 = run_seir35(u0_5, p_5, duration_5; saveat = .2)
+result35_5 = dataframe_seir35(sol35_5, p_5)
+
+fig35_2 = Figure()
+ga = GridLayout(fig35_2[1, 1])
+plot_seir35!(ga, result35_4; label = "SEIR with 5 E and 5 I", legend = :none)
+gb = GridLayout(fig35_2[1, 2])
+plot_seir35!(gb, result35_5; label = "SEIR with 1 E and 1 I", legend = :right)
+fig35_2
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
