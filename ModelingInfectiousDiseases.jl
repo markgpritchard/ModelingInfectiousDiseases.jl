@@ -535,3 +535,30 @@ plot_sir66(results66_10y_d10, "p6.6.jl: SIR model with τ-leap stochasticity\nδ
 
 results66_10y_d01 = run_sir66(u0, p, 10 * 365; seed = 66, δt = .1)
 plot_sir66(results66_10y_d01, "p6.6.jl: SIR model with τ-leap stochasticity\nδt = 0.1")
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Chapter 7 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## Programme 7.1
+
+using .MID_71
+
+u0 = [                  # Initial conditions for the model
+    .1      .1  .1  .1  .1        # susceptibles 
+    .0001   .0  .0  .0  .0       # infectious
+    .0      .0  .0  .0  .0   # recovered
+]
+p = Parameters71(
+    ones(5),
+    .1 * ones(5),
+    .0001 * ones(5),
+    .0001 * ones(5),
+    .001 * ones(5, 5)
+)
+duration = 2910 
+
+sol71 = run_sir71(u0, p, duration)
+result71 = dataframe_sir71(sol71)
+plot_sir71(result71) 
