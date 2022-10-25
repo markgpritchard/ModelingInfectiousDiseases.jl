@@ -359,14 +359,14 @@ fig35_2
 
 using .MID_61
 
-u0 = [
+u0 = [                  # 
     1e5,                # X0 -- initial number susceptible
     500,                # Y0 -- initial number infectious
     1e6 - (1e5 + 500)   # Z0 -- initial number recovered
 ]
 
 # Run with no noise
-p_nonoise = Parameters61(
+p_nonoise = Parameters61(# Model parameters
     1.,                 # beta -- infection parameter 
     .1,                 # gamma -- recovery rate 
     1 / (50 * 365),     # mu -- birth rate 
@@ -535,3 +535,139 @@ plot_sir66(results66_10y_d10, "p6.6.jl: SIR model with τ-leap stochasticity\nδ
 
 results66_10y_d01 = run_sir66(u0, p, 10 * 365; seed = 66, δt = .1)
 plot_sir66(results66_10y_d01, "p6.6.jl: SIR model with τ-leap stochasticity\nδt = 0.1")
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Chapter 7 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## Programme 7.1
+
+using .MID_71
+
+u0 = [                  # Initial conditions for the model
+    .1      .1  .1  .1  .1  # susceptibles 
+    .0001   .0  .0  .0  .0  # infectious
+    .0      .0  .0  .0  .0  # recovered
+]
+p = Parameters71(       # Model parameters
+    ones(5),                # beta = vector of infection parameters
+    .1 * ones(5),           # gamma = vector of recovery rates 
+    .0001 * ones(5),        # mu = vector of mortality rates
+    .0001 * ones(5),        # nu = vector of birth rates
+    .001 * ones(5, 5)       # m = matrix of migrations between subpopulations
+)
+duration = 2910         # Duration
+
+sol71 = run_sir71(u0, p, duration)
+result71 = dataframe_sir71(sol71)
+plot_sir71(result71) 
+
+
+## Programme 7.2
+
+using .MID_72
+
+X0 = [
+    800 0   0   0   0
+    0   800 0   0   0
+    0   0   800 0   0
+    0   0   0   800 0
+    0   0   0   0   800.
+]
+Y0 = zeros(5, 5); Y0[1, 1] = 1 
+Z0 = [
+    199 0   0   0   0
+    0   200 0   0   0
+    0   0   200 0   0
+    0   0   0   200 0
+    0   0   0   0   200.
+]
+u0 = zeros(5, 5, 3) 
+u0[:, :, 1] = X0; u0[:, :, 2] = Y0; u0[:, :, 3] = Z0
+
+p = Parameters72(       # Model parameters
+    ones(5),                # beta = vector of infection parameters
+    .3 * ones(5),           # gamma = vector of recovery rates 
+    zeros(5),               # mu = vector of mortality rates
+    zeros(5, 5),            # nu = matrix of birth rates for every population--location combination
+    zeros(5, 5),            # l = matrix of movements from home subpopulation 
+    2 * ones(5, 5)          # r = matrix of movements back to home subpopulation 
+)
+# Formula for p.l from the Python code 
+for i ∈ 1:5, j ∈ 1:5 
+    if abs(i - j) == 1 p.l[i, j] = .1 end 
+end 
+
+duration = 60 
+
+sol72 = run_sir72(u0, p, duration; saveat = .125)
+# Note that there are so many compartments in this model we do not display a DataFrame
+# of results
+plot_sir72(sol72) 
+
+# repeat with more varied parameters 
+
+X0 = [
+    999 0   0   0   0
+    0  1000 0   0   0
+    0   0  1000 0   0
+    0   0   0  1000 0
+    0   0   0   0  1000.
+]
+Y0 = zeros(5, 5); Y0[1, 1] = 1 
+Z0 = zeros(5, 5)
+u0 = zeros(5, 5, 3) 
+u0[:, :, 1] = X0; u0[:, :, 2] = Y0; u0[:, :, 3] = Z0
+
+p = Parameters72(       # Model parameters
+    .5 * ones(5),               # beta = vector of infection parameters
+    .2 * ones(5),               # gamma = vector of recovery rates 
+    1 / (70 * 365) * ones(5),   # mu = vector of mortality rates
+    zeros(5, 5),                # nu = matrix of birth rates for every population--location combination
+    [                           # l = matrix of movements from home subpopulation 
+        0   .15 0   0   0
+        .15 0   0   0   0
+        0   0   0   0   0 
+        0   .15 .15 0   .15 
+        0   0   0   0   0
+    ],                
+    3 * ones(5, 5)              # r = matrix of movements back to home subpopulation 
+)
+for i ∈ 1:5, j ∈ 1:5 
+    if i == j p.nu[i, j] = 1000 / (70 * 365) end
+end 
+
+duration = 100 
+
+sol72 = run_sir72(u0, p, duration; saveat = .125)
+# Note that there are so many compartments in this model we do not display a DataFrame
+# of results
+plot_sir72(sol72) 
+
+
+## Programme 7.3
+
+using .MID_73
+
+u0 = sir73_u0(      # Initial conditions for the model
+    25,                 # size of grid 
+    .1,                 # value of x0 in each cell 
+    4,                  # number of cells with non-zero Y0 
+    .001,               # value of Y0 in cells with non-zero Y0
+    1;                  # population size in each cell
+    seed = 73           # seed for random number generator 
+)
+p = [               # Model parameters
+    1.,                 # beta = infectiousness parameter 
+    .1,                 # gamma = recovery rate 
+    .0001,              # mu = mortality rate
+    .1                  # rho = rate at which individuals interact with neighbouring environments
+]
+duration = 2910
+
+sol73 = run_sir73(u0, p, duration; saveat = 4) # saveat = 4 to give approximately 
+    # 30 seconds of video with duration = 2910 and framerate = 24
+
+# This function will save a video in your current working directory as "video73.mp4"
+video_sir73(sol73)
