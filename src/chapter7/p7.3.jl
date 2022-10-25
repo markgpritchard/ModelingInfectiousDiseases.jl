@@ -144,16 +144,29 @@ function plot_sir73(sol, t)
     return fig 
 end 
 
-plot_sir73!(ax::Axis, sol, t) = heatmap!(ax, sol[t][:, :, 2])
+#plot_sir73!(ax::Axis, sol, t) = heatmap!(ax, sol[t][:, :, 2])
 
-function video_sir73(sol; filename = "video73.mp4", colorbar = true, kwargs...)
+function plot_sir73!(ax, sol, t; forcepositive = false)
+    d = sol[t][:, :, 2]
+    if forcepositive 
+        for i ∈ axes(d, 1), j ∈ axes(d, 2)
+            d[i, j] = max(.0, d[i, j])
+        end 
+    end 
+    heatmap!(ax, d)
+end 
+
+function video_sir73(sol; filename = "video73.mp4", colorbar = false, forcepositive = true, kwargs...)
     fig = Figure()
     ax = Axis(fig[1, 1])
-    if colorbar Colorbar(fig[1, 2]) end
+    if colorbar
+        @warn "Colorbar displayed in video may not currently be accurate -- work in progress"
+        Colorbar(fig[1, 2]) 
+    end
     record(fig, filename; kwargs...) do io
-        for i = 1:size(sol, 4) # axes(sol, 4)
-            plot_sir73!(ax, sol, i)     # animate scene
-            recordframe!(io)            # record a new frame
+        for i ∈ axes(sol, 4)
+            plot_sir73!(ax, sol, i; forcepositive)  # animate scene
+            recordframe!(io)                        # record a new frame
         end
     end
 end 
