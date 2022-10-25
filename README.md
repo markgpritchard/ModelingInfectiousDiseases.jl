@@ -6,7 +6,7 @@ Programmes from Chapters 2, 3 and 6 are currently available.
 
 ## Use
 
-The code has been written in Julia, version 1.8.1. 
+The code has been written in Julia, version 1.8.2. 
 
 To find your current version, use the simple command, 
 ``` julia 

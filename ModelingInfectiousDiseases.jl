@@ -644,3 +644,30 @@ sol72 = run_sir72(u0, p, duration; saveat = .125)
 # Note that there are so many compartments in this model we do not display a DataFrame
 # of results
 plot_sir72(sol72) 
+
+
+## Programme 7.3
+
+using .MID_73
+
+u0 = sir73_u0(      # Initial conditions for the model
+    25,                 # size of grid 
+    .1,                 # value of x0 in each cell 
+    4,                  # number of cells with non-zero Y0 
+    .001,               # value of Y0 in cells with non-zero Y0
+    1;                  # population size in each cell
+    seed = 73           # seed for random number generator 
+)
+p = [               # Model parameters
+    1.,                 # beta = infectiousness parameter 
+    .1,                 # gamma = recovery rate 
+    .0001,              # mu = mortality rate
+    .1                  # rho = rate at which individuals interact with neighbouring environments
+]
+duration = 2910
+
+sol73 = run_sir73(u0, p, duration; saveat = 4) # saveat = 4 to give approximately 
+    # 30 seconds of video with duration = 2910 and framerate = 24
+
+# This function will save a video in your current working directory as "video73.mp4"
+video_sir73(sol73)
