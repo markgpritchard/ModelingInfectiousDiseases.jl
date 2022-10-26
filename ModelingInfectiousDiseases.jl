@@ -707,7 +707,7 @@ duration_2 = 500    # Duration
 sol73_2 = run_sir73(u0_2, p_2, duration_2; saveat = 1) 
 video_sir73(sol73_2; filename = "video73_2.mp4", fixmax = false)
 
-### A custom addition with a "firebreak" area with no initial population 
+### A custom addition with a "firebreak" area with resistant population 
 
 u0_3 = sir73_u0(    # Initial conditions for the model
     101,                # size of grid 
