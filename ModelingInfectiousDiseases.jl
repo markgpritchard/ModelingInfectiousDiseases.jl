@@ -610,7 +610,7 @@ for i ∈ 1:5, j ∈ 1:5
     if abs(i - j) == 1 p.l[i, j] = .1 end 
 end 
 
-duration = 60 
+duration = 60           # Duration 
 
 sol72 = run_sir72(u0, p, duration; saveat = .125)
 # Note that there are so many compartments in this model we do not display a DataFrame
@@ -619,19 +619,19 @@ plot_sir72(sol72)
 
 ### repeat with more varied parameters 
 
-X0 = [
+X0_2 = [
     999 0   0   0   0
     0  1000 0   0   0
     0   0  1000 0   0
     0   0   0  1000 0
     0   0   0   0  1000.
 ]
-Y0 = zeros(5, 5); Y0[1, 1] = 1 
-Z0 = zeros(5, 5)
-u0 = zeros(5, 5, 3) 
-u0[:, :, 1] = X0; u0[:, :, 2] = Y0; u0[:, :, 3] = Z0
+Y0_2 = zeros(5, 5); Y0_2[1, 1] = 1 
+Z0_2 = zeros(5, 5)
+u0_2 = zeros(5, 5, 3) 
+u0_2[:, :, 1] = X0_2; u0_2[:, :, 2] = Y0_2; u0_2[:, :, 3] = Z0_2
 
-p = Parameters72(       # Model parameters
+p_2 = Parameters72(     # Model parameters
     .5 * ones(5),               # beta = vector of infection parameters
     .2 * ones(5),               # gamma = vector of recovery rates 
     1 / (70 * 365) * ones(5),   # mu = vector of mortality rates
@@ -646,15 +646,13 @@ p = Parameters72(       # Model parameters
     3 * ones(5, 5)              # r = matrix of movements back to home subpopulation 
 )
 for i ∈ 1:5, j ∈ 1:5 
-    if i == j p.nu[i, j] = 1000 / (70 * 365) end
+    if i == j p_2.nu[i, j] = 1000 / (70 * 365) end
 end 
 
-duration = 100 
+duration_2 = 100        # Duration 
 
-sol72 = run_sir72(u0, p, duration; saveat = .125)
-# Note that there are so many compartments in this model we do not display a DataFrame
-# of results
-plot_sir72(sol72) 
+sol72_2 = run_sir72(u0_2, p_2, duration_2; saveat = .125)
+plot_sir72(sol72_2) 
 
 
 ## Programme 7.3
@@ -680,26 +678,59 @@ duration = 2910     # Duration
 sol73 = run_sir73(u0, p, duration; saveat = 4) # saveat = 4 to give approximately 
     # 30 seconds of video with duration = 2910 and framerate = 24
 
-# This function will save a video in your current working directory as "video73.mp4"
-video_sir73(sol73)
-
-### Repeat with a defined starting point of one infectious individual in the middle 
-
-u0_r = sir73_u0(    # Initial conditions for the model
-    25,                 # size of grid 
-    1000,               # value of x0 in each cell 
-    [313],              # vector of cells with non-zero Y0 
-    1,                  # value of Y0 in cells with non-zero Y0
-    1005                # population size in each cell
+# This function will save a video in your current directory as "video73.mp4"
+video_sir73(
+    sol73; 
+    # should the colour scale be constant throughout the video (vs each frame having a separate scale):
+    fixmax = true,
+    # attempt to find colormap with good differentiation between small values (especially with fixmax = true):
+    colormap = :gist_stern
 )
-p_r = [             # Model parameters
+
+### Repeat with defined starting points (one infectious individual in the middle and one in a corner)
+
+u0_2 = sir73_u0(    # Initial conditions for the model
+    101,                # size of grid 
+    999,                # value of x0 in each cell 
+    [5101, 9901],       # vector of cells with non-zero Y0 
+    1,                  # value of Y0 in cells with non-zero Y0
+    1000                # population size in each cell
+)
+p_2 = [             # Model parameters
     .4,                 # beta = infectiousness parameter 
     .2,                 # gamma = recovery rate 
     4e-5,               # mu = mortality rate
     .1                  # rho = rate at which individuals interact with neighbouring environments
 ]
-duration = 2910     # Duration
+duration_2 = 500    # Duration
 
-sol73_r = run_sir73(u0_r, p_r, duration; saveat = 4) 
+sol73_2 = run_sir73(u0_2, p_2, duration_2; saveat = 1) 
+video_sir73(sol73_2; filename = "video73_2.mp4", fixmax = false)
 
-video_sir73(sol73_r; filename = "video73_r.mp4")
+### A custom addition with a "firebreak" area with no initial population 
+
+u0_3 = sir73_u0(    # Initial conditions for the model
+    101,                # size of grid 
+    1000,               # value of x0 in each cell 
+    0,                  # number of cells with non-zero Y0 
+    0,                  # value of Y0 in cells with non-zero Y0
+    1000                # population size in each cell
+)
+for i ∈ axes(u0_3, 1), j ∈ axes(u0_3, 2), k ∈ axes(u0_3,3 )
+    if j == 51 && i <= 51 
+        u0_3[i, j, k] = 0 
+    elseif j == 52 && i == 1 
+        u0_3[i, j, 1] = 999
+        u0_3[i, j, 2] = 1
+    end 
+end 
+p_3 = [             # Model parameters
+    .4,                 # beta = infectiousness parameter 
+    .2,                 # gamma = recovery rate 
+    4e-5,               # mu = mortality rate
+    .1                  # rho = rate at which individuals interact with neighbouring environments
+]
+duration_3 = 750    # Duration
+
+sol73_3 = run_sir73(u0_3, p_3, duration_3; saveat = 1) 
+video_sir73(sol73_3; filename = "video73_3.mp4", fixmax = true, colormap = :gist_stern)

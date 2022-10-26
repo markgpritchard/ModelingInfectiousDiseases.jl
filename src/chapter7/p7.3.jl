@@ -4,7 +4,7 @@ module MID_73
 using CairoMakie, DifferentialEquations, Random
 using StatsBase: sample
 
-export sir73_u0, sir73!, run_sir73, plot_sir73, plot_sir73!, video_sir73
+export sir73_u0, sir73!, run_sir73, plot_sir73, video_sir73
  
 # Neighbours can be in one of four directions 
 @enum Directions North East South West
@@ -27,7 +27,7 @@ function _sir73_u0(n::Int, x0, ni::Int, y0, n0, seed::Nothing)
 end 
 
 function _sir73_u0(n::Int, x0, yvector::Vector{<:Int}, y0, n0, seed::Nothing)
-    @assert n0 >= x0 + y0
+    @assert n0 >= x0 + y0 "x0 + y0 > n0 will lead to some negative compartments"
 
     X0 = x0 * ones(n, n)
     Y0 = zeros(n, n) 
@@ -55,7 +55,7 @@ function sir73!(du, u, p, t)
     N = .+(X, Y, Z)
 
     for i ∈ axes(u, 1), j ∈ axes(u, 2) 
-        nu = mu * N[i, j]
+        nu = mu * N[i, j]   # so that births equal deaths
 
         # ODEs
 
@@ -80,18 +80,12 @@ function sir73!(du, u, p, t)
     end
 end 
 
-sumneighbours(x, i, j) = sum( findneighbours(x, i, j) )
+sumneighbours(x, i, j) = sum( findneighbours(x, i, j) ) # sums the values of all neighbouring cells
 
-function findneighbours(x, i, j)
-    return [ 
-        findneighbour(x, i, j, North),
-        findneighbour(x, i, j, East),
-        findneighbour(x, i, j, South),
-        findneighbour(x, i, j, West)
-    ]
-end 
+# return the values of all neighbouring cells:
+findneighbours(x, i, j) = [ findneighbour(x, i, j, Directions(d)) for d ∈ 0:3 ]
 
-function findneighbour(x, i, j, direction)
+function findneighbour(x, i, j, direction) # returns the value of a neighbouring cell
     if direction == North 
         if i == 1 
             return .0 
@@ -120,6 +114,7 @@ function findneighbour(x, i, j, direction)
 end 
 
 function countneighbours(x, i, j) 
+    # number of neighbours is usually 4 but not for cells on an edge or in a corner
     n = 0 
     if i > 1 n += 1 end 
     if j < size(x, 2) n += 1 end 
@@ -141,36 +136,46 @@ function run_sir73(u0, p, duration; saveat = 1)
     return sol
 end 
 
-function plot_sir73(sol, t)
+function plot_sir73(sol, i::Int; forcepositive = false, kwargs...)
+    data = values_sir73(sol, i; forcepositive)
+    return plot_sir73(data, sol; forcepositive, kwargs...) 
+end 
+
+function plot_sir73(data, sol; fixmax = false, colormap = :viridis)
     fig = Figure()
-    ax = Axis(fig[1, 1])
-    plot_sir73!(ax, sol, t)
+    if fixmax 
+        maxval = maximum([ maximum(sol[i][:, :, 2]) for i ∈ axes(sol, 4) ])
+        colorrange = (0, maxval)
+        ax, hm = heatmap(fig[1, 1][1, 1], data; colorrange, colormap)
+    else 
+        ax, hm = heatmap(fig[1, 1][1, 1], data; colormap)
+    end   
+    Colorbar(fig[1, 1][1, 2], hm)
+    hidexdecorations!(ax)
+    hideydecorations!(ax)
     return fig 
 end 
 
-#plot_sir73!(ax::Axis, sol, t) = heatmap!(ax, sol[t][:, :, 2])
-
-function plot_sir73!(ax, sol, t; forcepositive = false)
+function values_sir73(sol, t; forcepositive = false) 
     d = sol[t][:, :, 2]
     if forcepositive 
+        # an uncomfortable fix for situations where some compartments have very slightly negative values
         for i ∈ axes(d, 1), j ∈ axes(d, 2)
             d[i, j] = max(.0, d[i, j])
         end 
     end 
-    heatmap!(ax, d)
+    return d
 end 
 
-function video_sir73(sol; filename = "video73.mp4", colorbar = false, forcepositive = true, kwargs...)
-    fig = Figure()
-    ax = Axis(fig[1, 1])
-    if colorbar
-        @warn "Colorbar displayed in video may not currently be accurate -- work in progress"
-        Colorbar(fig[1, 2]) 
-    end
-    record(fig, filename; kwargs...) do io
+function video_sir73(sol; filename = "video73.mp4", forcepositive = false, kwargs...)
+    data = values_sir73(sol, 1; forcepositive)
+    values = Observable(data)
+    fig = plot_sir73(values, sol; kwargs...)
+
+    record(fig, filename) do io
         for i ∈ axes(sol, 4)
-            plot_sir73!(ax, sol, i; forcepositive)  # animate scene
-            recordframe!(io)                        # record a new frame
+            values[] = values_sir73(sol, i; forcepositive)  # animate scene by changing values
+            recordframe!(io)                                # record a new frame
         end
     end
 end 
