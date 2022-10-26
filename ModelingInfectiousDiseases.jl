@@ -716,10 +716,11 @@ u0_3 = sir73_u0(    # Initial conditions for the model
     0,                  # value of Y0 in cells with non-zero Y0
     1000                # population size in each cell
 )
-for i ∈ axes(u0_3, 1), j ∈ axes(u0_3, 2), k ∈ axes(u0_3,3 )
-    if j == 51 && i <= 51 
-        u0_3[i, j, k] = 0 
-    elseif j == 52 && i == 1 
+for i ∈ axes(u0_3, 1), j ∈ axes(u0_3, 2)
+    if j ∈ [50, 51, 52] && i <= 51 
+        u0_3[i, j, 1] = 0 
+        u0_3[i, j, 3] = 1000 
+    elseif j == 53 && i == 1 
         u0_3[i, j, 1] = 999
         u0_3[i, j, 2] = 1
     end 
