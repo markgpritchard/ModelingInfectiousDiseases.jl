@@ -13,20 +13,24 @@ sir73_u0(; n, x0, ni, y0, n0, seed = nothing) = sir73_u0(n, x0, ni, y0, n0; seed
 sir73_u0(n, x0, ni, y0, n0; seed = nothing) = _sir73_u0(n, x0, ni, y0, n0, seed)
 
 function _sir73_u0(n, x0, ni, y0, n0, seed)
-    @error "Inputs `n` and `ni` must both be integers"
+    @error "Input `n` must be an integer and `ni` must be an integer or vector"
 end 
 
-function _sir73_u0(n::Int, x0, ni::Int, y0, n0, seed::Real)
+function _sir73_u0(n::Int, x0, ni, y0, n0, seed::Real)
     Random.seed!(seed)
     return _sir73_u0(n, x0, ni, y0, n0, nothing)
 end 
 
 function _sir73_u0(n::Int, x0, ni::Int, y0, n0, seed::Nothing)
+    yvector = sample(collect(1:1:n^2), ni; replace = false)
+    return _sir73_u0(n, x0, yvector, y0, n0, seed)
+end 
+
+function _sir73_u0(n::Int, x0, yvector::Vector{<:Int}, y0, n0, seed::Nothing)
     @assert n0 >= x0 + y0
 
     X0 = x0 * ones(n, n)
     Y0 = zeros(n, n) 
-    yvector = sample(collect(1:1:n^2), ni; replace = false)
     for y ∈ yvector 
         Y0[y] = y0 
     end 

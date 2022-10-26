@@ -203,7 +203,6 @@ result32 = dataframe_sis32(sol32; type = :both)
 plot_sis32(sol32; legend = :below)
 
 
-
 ## Programme 3.3
 
 using .MID_33
@@ -365,7 +364,8 @@ u0 = [                  #
     1e6 - (1e5 + 500)   # Z0 -- initial number recovered
 ]
 
-# Run with no noise
+### Run with no noise
+
 p_nonoise = Parameters61(# Model parameters
     1.,                 # beta -- infection parameter 
     .1,                 # gamma -- recovery rate 
@@ -377,7 +377,8 @@ p_nonoise = Parameters61(# Model parameters
 results61_nonoise = run_sir61(u0, p_nonoise, 5 * 365)
 plot_sir61(results61_nonoise, p_nonoise)
 
-# Run with noise parameter
+### Run with noise parameter
+
 p = Parameters61(
     1.,                 # beta -- infection parameter  
     .1,                 # gamma -- recovery rate 
@@ -400,7 +401,8 @@ u0 = [
     1e6 - (1e5 + 500)   # Z0 -- initial number recovered
 ]
 
-# Run with no noise
+### Run with no noise
+
 p_nonoise = Parameters62(
     1.,                 # beta -- infection parameter 
     .1,                 # gamma -- recovery rate 
@@ -412,7 +414,8 @@ p_nonoise = Parameters62(
 results62_nonoise = run_sir62(u0, p_nonoise, 5 * 365)
 plot_sir62(results62_nonoise, p_nonoise)
 
-# Run with noise parameter
+### Run with noise parameter
+
 p = Parameters62(
     1.,                 # beta -- infection parameter 
     .1,                 # gamma -- recovery rate 
@@ -424,7 +427,8 @@ p = Parameters62(
 results62 = run_sir62(u0, p, 5 * 365; seed = 62)
 plot_sir62(results62, p)
 
-# Run with a large noise parameter
+### Run with a large noise parameter
+
 p_bignoise = Parameters62(
     1.,                 # beta -- infection parameter 
     .1,                 # gamma -- recovery rate 
@@ -435,6 +439,7 @@ p_bignoise = Parameters62(
 
 results62_bignoise = run_sir62(u0, p_bignoise, 5 * 365; seed = 62)
 plot_sir62(results62_bignoise, p_bignoise)
+
 
 ## Programme 6.3 
 
@@ -463,12 +468,14 @@ p = [
     5e-4                # mu -- birth and death rate
 ]
 
-# Examine model with small population
+### Examine model with small population
+
 u0_50 = u0_sir64(50, p)
 results64_50 = run_sir64(u0_50, p, 2 * 365; seed = 64)
 plot_sir64(results64_50, 50)
 
-# and with a larger population
+### and with a larger population
+
 u0 = u0_sir64(5000, p)
 results64 = run_sir64(u0, p, 2 * 365; seed = 64)
 plot_sir64(results64, 5000)
@@ -484,12 +491,14 @@ p = [
     5e-4                # mu -- birth and death rate
 ]
 
-# Examine model with small population
+### Examine model with small population
+
 u0_50 = u0_sir65(50, p)
 results65_50 = run_sir65(u0_50, p, 2 * 365; seed = 65)
 plot_sir65(results65_50, 50)
 
-# and with a larger population
+### and with a larger population
+
 u0 = u0_sir65(5000, p)
 results65 = run_sir65(u0, p, 2 * 365; seed = 65)
 plot_sir65(results65, 5000)
@@ -499,7 +508,8 @@ plot_sir65(results65, 5000)
 
 using .MID_66
 
-# Examine model with small population
+### Examine model with small population
+
 # Recommended that ε parameter is adjusted with inverse population size
 p_50 = [
     1.,                 # beta -- infection parameter  
@@ -512,7 +522,8 @@ u0_50 = u0_sir66(50, p_50)
 results66_50 = run_sir66(u0_50, p_50, 2 * 365; seed = 66)
 plot_sir66(results66_50, 50)
 
-# and with a larger population
+### and with a larger population
+
 p = [
     1.,                 # beta -- infection parameter  
     .1,                 # gamma -- recovery rate  
@@ -606,7 +617,7 @@ sol72 = run_sir72(u0, p, duration; saveat = .125)
 # of results
 plot_sir72(sol72) 
 
-# repeat with more varied parameters 
+### repeat with more varied parameters 
 
 X0 = [
     999 0   0   0   0
@@ -664,10 +675,31 @@ p = [               # Model parameters
     .0001,              # mu = mortality rate
     .1                  # rho = rate at which individuals interact with neighbouring environments
 ]
-duration = 2910
+duration = 2910     # Duration
 
 sol73 = run_sir73(u0, p, duration; saveat = 4) # saveat = 4 to give approximately 
     # 30 seconds of video with duration = 2910 and framerate = 24
 
 # This function will save a video in your current working directory as "video73.mp4"
 video_sir73(sol73)
+
+### Repeat with a defined starting point of one infectious individual in the middle 
+
+u0_r = sir73_u0(    # Initial conditions for the model
+    25,                 # size of grid 
+    1000,               # value of x0 in each cell 
+    [313],              # vector of cells with non-zero Y0 
+    1,                  # value of Y0 in cells with non-zero Y0
+    1005                # population size in each cell
+)
+p_r = [             # Model parameters
+    .4,                 # beta = infectiousness parameter 
+    .2,                 # gamma = recovery rate 
+    4e-5,               # mu = mortality rate
+    .1                  # rho = rate at which individuals interact with neighbouring environments
+]
+duration = 2910     # Duration
+
+sol73_r = run_sir73(u0_r, p_r, duration; saveat = 4) 
+
+video_sir73(sol73_r; filename = "video73_r.mp4")

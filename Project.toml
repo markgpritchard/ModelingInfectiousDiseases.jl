@@ -1,7 +1,7 @@
 name = "ModelingInfectiousDiseases"
 uuid = "f781dabf-c6d9-4d5d-8c6d-8371671e0f9d"
 authors = ["Mark Pritchard <mark.pritchard@ndm.ox.ac.uk>"]
-version = "0.2.5"
+version = "0.2.6"
 
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
