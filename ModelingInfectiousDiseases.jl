@@ -679,7 +679,7 @@ duration = 2910     # Duration
 sol73 = run_sir73(u0, p, duration; saveat = 4) # saveat = 4 to give approximately 
     # 30 seconds of video with duration = 2910 and framerate = 24
 
-# This function will save a video in your current directory as "video73.mp4"
+# This function will save a video in the folder "outputvideos/" as "video73.mp4"
 video_sir73(
     sol73; 
     # should the colour scale be constant throughout the video (vs each frame having a separate scale):

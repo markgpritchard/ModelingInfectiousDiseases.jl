@@ -167,12 +167,12 @@ function values_sir73(sol, t; forcepositive = false)
     return d
 end 
 
-function video_sir73(sol; filename = "video73.mp4", forcepositive = false, kwargs...)
+function video_sir73(sol; folder = "outputvideos", filename = "video73.mp4", forcepositive = false, kwargs...)
     data = values_sir73(sol, 1; forcepositive)
     values = Observable(data)
     fig = plot_sir73(values, sol; kwargs...)
 
-    record(fig, filename) do io
+    record(fig, "$folder/$filename") do io
         for i ∈ axes(sol, 4)
             values[] = values_sir73(sol, i; forcepositive)  # animate scene by changing values
             recordframe!(io)                                # record a new frame
