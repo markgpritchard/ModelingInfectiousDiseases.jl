@@ -273,7 +273,7 @@ sol35_1 = run_seir35(u0_1, p_1, duration_1)
 result35_1 = dataframe_seir35(sol35_1, p_1)
 plot_seir35(result35_1; legend = :below)
 
-# Alternative sets of parameters
+### Alternative sets of parameters
 
 p_2 = Parameters35(     # Model parameters
     1.,                     # beta = infectiousness parameter 
@@ -536,7 +536,7 @@ results66 = run_sir66(u0, p, 2 * 365; seed = 66)
 plot_sir66(results66, 5000)
 
 # This plot looks interesting -- what happens over 10 years?
-results66_10y = run_sir66(u0, p, 10 * 365; seed = 66)
+results66_10y = run_sir66(u0, p, 3650; seed = 66)
 plot_sir66(results66_10y, 5000)
 
 # And what happens if we change δt? 
@@ -579,6 +579,7 @@ plot_sir71(result71)
 
 using .MID_72
 
+# Initial conditions for the model:
 X0 = [
     800 0   0   0   0
     0   800 0   0   0
