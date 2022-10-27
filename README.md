@@ -15,7 +15,7 @@ v"1.8.2"
 ```
 If you do not have version 1.8.2 or newer, you can [download it now](https://julialang.org/downloads/). 
 
-You are recommended to _clone_ this git repository (see [instructions here](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)). Then open the file `ModelingInfectiousDiseases.jl`. You should replace the string on line 8 with the path to your local copy,
+You are recommended to _clone_ this git repository (see [instructions here](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)). Then open the file `ModelingInfectiousDiseases.jl`. You should replace the string on line 11 with the path to your local copy,
 
 ``` julia 
 ###############################################################################

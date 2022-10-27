@@ -3,6 +3,9 @@
 # Set up 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# Run all the code in this set up section to ensure you have the packages expected 
+# by the programmes and your working directory includes all the required code
+
 ###############################################################################
 # Enter the path to this file here 
 loc = "C:\\Users\\yourname\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
@@ -14,9 +17,10 @@ using Pkg
 Pkg.activate(loc)
 Pkg.instantiate()
 
-include("src/ModelingInfectiousDiseases.jl")
-
 using CairoMakie
+
+# There is an `include` statement for programme so you do not need to wait for 
+# Julia to read code that you will not be using in this session
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,6 +29,7 @@ using CairoMakie
 
 ## Programme 2.1
 
+include("src/chapter2/p2.1.jl")
 using .MID_21
 
 beta = 520 / 365        # infectiousness parameter
@@ -39,6 +44,7 @@ plot_sir21(sol21)
 
 ## Programme 2.2
 
+include("src/chapter2/p2.2.jl")
 using .MID_22
 
 beta = 520 / 365        # infectiousness parameter 
@@ -54,6 +60,7 @@ plot_sir22(sol22)
 
 ## Programme 2.3
 
+include("src/chapter2/p2.3.jl")
 using .MID_23
 
 beta = 520 / 365        # infectiousness parameter 
@@ -72,6 +79,7 @@ plot_sir23(sol23)
 
 ## Programme 2.4
 
+include("src/chapter2/p2.4.jl")
 using .MID_24
 
 beta = 520 / 365        # infectiousness parameter 
@@ -90,6 +98,7 @@ plot_sir24(sol24)
 
 ## Additional function to view outputs of programme 2.3 and 2.4 side-by-side 
 
+include("src/chapter2/additions.jl")
 using .Chapter2Additions
 
 beta = 520 / 365        # infectiousness parameter 
@@ -107,6 +116,7 @@ plot_sirs23_24(; beta, gamma, mu, nu, rho, X0, Y0, N0, duration)
 
 ## Programme 2.5
 
+include("src/chapter2/p2.5.jl")
 using .MID_25
 
 beta = 520 / 365        # infectiousness parameter 
@@ -120,6 +130,7 @@ plot_sis25(sol25)
 
 ## Programme 2.6 
 
+include("src/chapter2/p2.6.jl")
 using .MID_26
 
 beta = 520 / 365        # infectiousness parameter 
@@ -137,6 +148,7 @@ plot_seir26(sol26)
 
 ## Programme 2.7 
 
+include("src/chapter2/p2.7.jl")
 using .MID_27
 
 beta = 0.2              # infectiousness parameter 
@@ -160,6 +172,7 @@ plot_sir27(sol27)
 
 ## Programme 3.1
 
+include("src/chapter3/p3.1.jl")
 using .MID_31
 
 beta = [10 .1; .1 1]    # matrix of infectiousness parameters [β_hh, β_hl; β_lh β_ll]
@@ -175,6 +188,7 @@ plot_sir31(sol31)
 
 ## Programme 3.2
 
+include("src/chapter3/p3.2.jl")
 using .MID_32 
 
 # For this example we have five risk groups. 
@@ -205,6 +219,7 @@ plot_sis32(sol32; legend = :below)
 
 ## Programme 3.3
 
+include("src/chapter3/p3.3.jl")
 using .MID_33
 
 u0 = [                  # Initial conditions for the model
@@ -229,6 +244,7 @@ plot_sir33(sol33; legend = :below)
 
 ## Programme 3.4
 
+include("src/chapter3/p3.4.jl")
 using .MID_34
 
 u0 = [                  # Initial conditions for the model
@@ -255,6 +271,7 @@ plot_seir34(result34; legend = :below)
 
 ## Programme 3.5
 
+include("src/chapter3/p3.5.jl")
 using .MID_35
 
 p_1 = Parameters35(     # Model parameters
@@ -356,6 +373,7 @@ fig35_2
 
 ## Programme 6.1 
 
+include("src/chapter6/p6.1.jl")
 using .MID_61
 
 u0 = [                  # 
@@ -393,6 +411,7 @@ plot_sir61(results61, p)
 
 ## Programme 6.2 
 
+include("src/chapter6/p6.2.jl")
 using .MID_62
 
 u0 = [
@@ -443,6 +462,7 @@ plot_sir62(results62_bignoise, p_bignoise)
 
 ## Programme 6.3 
 
+include("src/chapter6/p6.3.jl")
 using .MID_63
 
 u0 = [
@@ -460,6 +480,7 @@ plot_sis63(results63)
 
 ## Programme 6.4 
 
+include("src/chapter6/p6.4.jl")
 using .MID_64
 
 p = [
@@ -483,6 +504,7 @@ plot_sir64(results64, 5000)
 
 ## Programme 6.5
 
+include("src/chapter6/p6.5.jl")
 using .MID_65
 
 p = [
@@ -506,6 +528,7 @@ plot_sir65(results65, 5000)
 
 ## Programme 6.6
 
+include("src/chapter6/p6.6.jl")
 using .MID_66
 
 ### Examine model with small population
@@ -554,6 +577,7 @@ plot_sir66(results66_10y_d01, "p6.6.jl: SIR model with τ-leap stochasticity\nδ
 
 ## Programme 7.1
 
+include("src/chapter7/p7.1.jl")
 using .MID_71
 
 u0 = [                  # Initial conditions for the model
@@ -577,6 +601,7 @@ plot_sir71(result71)
 
 ## Programme 7.2
 
+include("src/chapter7/p7.2.jl")
 using .MID_72
 
 # Initial conditions for the model:
@@ -658,6 +683,7 @@ plot_sir72(sol72_2)
 
 ## Programme 7.3
 
+include("src/chapter7/p7.3.jl")
 using .MID_73
 
 u0 = sir73_u0(      # Initial conditions for the model
@@ -740,6 +766,7 @@ video_sir73(sol73_3; filename = "video73_3.mp4", fixmax = true, colormap = :gist
 
 ## Programme 7.4
 
+include("src/chapter7/p7.4.jl")
 using .MID_74
 
 u0 = u0_sir74(50)   # Initial conditions for the model (all susceptible)
