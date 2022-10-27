@@ -736,3 +736,35 @@ duration_3 = 750    # Duration
 
 sol73_3 = run_sir73(u0_3, p_3, duration_3; saveat = 1) 
 video_sir73(sol73_3; filename = "video73_3.mp4", fixmax = true, colormap = :gist_stern)
+
+
+## Programme 7.4
+
+using .MID_74
+
+u0 = u0_sir74(50)   # Initial conditions for the model (all susceptible)
+p = [               # Model parameters
+    1,                  # tau = transmission rate between neighbours
+    .1,                 # gamma = recovery rate
+    .01,                # nu = birth or waning immunity rate
+    .001                # epsilon = import rate
+]
+duration = 100      # Duration (is 1000 in other example code but 100 allows the 
+                    # video to run slower and finish after 100 seconds)
+
+tv, uv = run_sir74(u0, p, duration; seed = 74)
+video_sir74(uv, tv)
+
+### Re-run with recovered population 
+
+u0_2 = u0_sir74(50, 0, 2500)  # Initial conditions for the model (all recovered)
+p_2 = [             # Model parameters
+    1,                  # tau = transmission rate between neighbours
+    .1,                 # gamma = recovery rate
+    .01,                # nu = birth or waning immunity rate
+    .001                # epsilon = import rate
+]
+duration_2 = 180    # Duration (longer video as slower to start)
+
+tv_2, uv_2 = run_sir74(u0_2, p_2, duration_2; seed = 742)
+video_sir74(uv_2, tv_2; filename = "video74_2.mp4")
