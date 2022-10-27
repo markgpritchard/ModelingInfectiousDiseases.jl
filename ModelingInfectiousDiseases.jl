@@ -19,8 +19,8 @@ Pkg.instantiate()
 
 using CairoMakie
 
-# There is an `include` statement for programme so you do not need to wait for 
-# Julia to read code that you will not be using in this session
+# There is an `include` statement for each programme so you do not need to wait 
+# for Julia to read code that you will not be using in this session
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -771,7 +771,7 @@ using .MID_74
 
 u0 = u0_sir74(50)   # Initial conditions for the model (all susceptible)
 p = [               # Model parameters
-    1,                  # tau = transmission rate between neighbours
+    1.,                 # tau = transmission rate between neighbours
     .1,                 # gamma = recovery rate
     .01,                # nu = birth or waning immunity rate
     .001                # epsilon = import rate
@@ -786,7 +786,7 @@ video_sir74(uv, tv)
 
 u0_2 = u0_sir74(50, 0, 2500)  # Initial conditions for the model (all recovered)
 p_2 = [             # Model parameters
-    1,                  # tau = transmission rate between neighbours
+    1.,                 # tau = transmission rate between neighbours
     .1,                 # gamma = recovery rate
     .01,                # nu = birth or waning immunity rate
     .001                # epsilon = import rate
