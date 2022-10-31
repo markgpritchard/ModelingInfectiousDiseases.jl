@@ -1,7 +1,7 @@
 name = "ModelingInfectiousDiseases"
 uuid = "f781dabf-c6d9-4d5d-8c6d-8371671e0f9d"
 authors = ["Mark Pritchard <mark.pritchard@ndm.ox.ac.uk>"]
-version = "0.2.5"
+version = "0.2.6"
 
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
@@ -9,6 +9,7 @@ CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
