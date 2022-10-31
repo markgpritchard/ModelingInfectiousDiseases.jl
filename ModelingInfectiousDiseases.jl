@@ -795,3 +795,97 @@ duration_2 = 180    # Duration (longer video as slower to start)
 
 tv_2, uv_2 = run_sir74(u0_2, p_2, duration_2; seed = 742)
 video_sir74(uv_2, tv_2; filename = "video74_2.mp4")
+
+
+## Programme 7.5
+
+include("src/chapter7/p7.5.jl")
+using .MID_75
+
+u0 = u0_sis75(      # Initial conditions for the model
+    1000,               # n = number of individuals in model  
+    4,                  # Y0 = number of initially infectious individuals  
+    10;                 # size = size of the grid that the individuals are in 
+    seed = 75
+) 
+p = [               # Model parameters
+    3.,                 # alpha = power law decay for the transmission kernal
+    .01,                # beta = transmission parameter 
+    .5                  # gamma = recovery rate
+]
+duration = 20       # Duration of the model (example code gives duration of 100)
+tstep = .01         # Discrete time intervals used by model 
+
+result75 = run_sis75(u0, p, duration; tstep, seed = 750)
+
+video_sis75(result75; step = 1/48)
+
+
+## Programme 7.6
+
+include("src/chapter7/p7.6.jl")
+using .MID_76
+
+p = Parameters76(   # Model parameters
+    [1., 10.5],         # susceptibility parameters for sheep and cows 
+    [5.1e-7, 7.7e-7],   # transmissibility parameters for sheep and cows 
+    .0                  # diameter of ring culling
+)
+u0 = u0_seirc76(    # Initial conditions for the model
+    4000,               # number of farms
+    1,                  # Y0 = initial number of farms with infections
+    20,                 # size of grid 
+    p;                  # the parameters defined above
+    seed = 76
+) 
+duration = 400      # Duration
+
+result76 = run_seirc76(u0, p, duration; seed = 760)
+df76 = dataframe_seirc76(result76)
+            
+plot_seirc76(df76)
+video_seirc76(result76, df76)
+
+### Repeat with ring cull diameter > 0
+
+p_2 = Parameters76( # Model parameters
+    [1., 10.5],         # susceptibility parameters for sheep and cows 
+    [5.1e-7, 7.7e-7],   # transmissibility parameters for sheep and cows 
+    1.                  # diameter of ring culling
+)
+u0_2 = u0_seirc76(  # Initial conditions for the model
+    4000,               # number of farms
+    1,                  # Y0 = initial number of farms with infections
+    20,                 # size of grid 
+    p_2;                # the parameters defined above
+    seed = 762
+) 
+duration_2 = 400    # Duration
+
+result76_2 = run_seirc76(u0_2, p_2, duration_2; seed = 7620)
+df76_2 = dataframe_seirc76(result76_2)
+            
+plot_seirc76(df76_2)
+video_seirc76(result76_2, df76_2; filename = "video76_2.mp4")
+
+### Aggressive ring culling (diameter = 2 km) and 4 initially infectious
+
+p_agg = Parameters76(  # Model parameters
+    [1., 10.5],         # susceptibility parameters for sheep and cows 
+    [5.1e-7, 7.7e-7],   # transmissibility parameters for sheep and cows 
+    2.                  # diameter of ring culling
+)
+u0_agg = u0_seirc76(   # Initial conditions for the model
+    4000,               # number of farms
+    4,                  # Y0 = initial number of farms with infections
+    20,                 # size of grid 
+    p_2;                # the parameters defined above
+    seed = 763
+) 
+duration_agg = 400     # Duration
+
+result76_agg = run_seirc76(u0_agg, p_agg, duration_agg; seed = 7630)
+df76_agg = dataframe_seirc76(result76_agg)
+            
+plot_seirc76(df76_agg)
+video_seirc76(result76_agg, df76_agg; filename = "video76_agg.mp4")
