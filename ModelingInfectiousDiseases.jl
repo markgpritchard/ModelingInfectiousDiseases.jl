@@ -711,7 +711,7 @@ video_sir73(
     # should the colour scale be constant throughout the video (vs each frame having a separate scale):
     fixmax = true,
     # attempt to find colormap with good differentiation between small values (especially with fixmax = true):
-    colormap = :gist_stern
+    colormap = :seaborn_colorblind#:gist_stern
 )
 
 ### Repeat with defined starting points (one infectious individual in the middle and one in a corner)
