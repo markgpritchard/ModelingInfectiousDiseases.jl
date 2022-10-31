@@ -889,3 +889,52 @@ df76_agg = dataframe_seirc76(result76_agg)
             
 plot_seirc76(df76_agg)
 video_seirc76(result76_agg, df76_agg; filename = "video76_agg.mp4")
+
+
+## Programme 7.7
+
+include("src/chapter7/p7.7.jl")
+using .MID_77
+
+N = 100                 # Number of individuals in the model 
+connections = 4         # Average number of connections per individual
+y0 = 1                  # Initial number of infectious individuals 
+p = [               # Model parameters 
+    .1,                 # gamma = recovery rate  
+    1.                  # tau = transmission rates to contacts 
+]
+duration = 50       # Duration
+
+### Random network
+
+u0_rand = u0_sis77(N, connections,  y0, :random; seed = 77)
+
+u_rand, times_rand = run_sis77(u0_rand, p, duration; seed = 770)
+result77_rand = dataframe_sis77(u_rand, times_rand, N)
+
+### Lattice network
+
+u0_lat = u0_sis77(N, connections, y0, :lattice; seed = 77)
+
+u_lat, times_lat = run_sis77(u0_lat, p, duration; seed = 770)
+result77_lat = dataframe_sis77(u_lat, times_lat, N)
+
+### Small world network
+
+u0_sw = u0_sis77(N, connections, y0, :smallworld; seed = 77)
+
+u_sw, times_sw = run_sis77(u0_sw, p, duration; seed = 770)
+result77_sw = dataframe_sis77(u_sw, times_sw, N)
+
+### Figure with all three sets of results 
+titles = ["Random", "Lattice", "Small world"]
+
+fig = Figure() 
+gl = GridLayout(fig[1, 1])
+axs = [ Axis(gl[i, 1]) for i ∈ 1:3 ]
+for (i, res) ∈ enumerate([result77_rand, result77_lat, result77_sw])
+    plot_sis77!(axs[i], res)
+    axs[i].title = titles[i]
+end 
+leg = Legend(gl[:, 2], axs[1])
+fig 
