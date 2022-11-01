@@ -44,7 +44,6 @@ function makenetwork_smallworld(N, averageconnections; seed = nothing)
     return g
 end 
 
-
 function u0_sis77(N, averageconnections, Y0, type; seed = nothing)
     @assert Y0 <= N "Cannot have more than all individuals infectious"
 
@@ -87,7 +86,7 @@ function _sis77!(u, t, rates, tstep::Nothing)
     r1 = rand(); r2 = rand() 
 
     # How soon is something going to happen 
-    timestep = -log(r2) / sumrates
+    timestep = -log(r1) / sumrates
     newt = t + timestep
 
     # Who is it going to happen to  

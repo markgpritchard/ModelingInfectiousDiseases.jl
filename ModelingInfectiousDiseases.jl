@@ -927,14 +927,14 @@ u_sw, times_sw = run_sis77(u0_sw, p, duration; seed = 770)
 result77_sw = dataframe_sis77(u_sw, times_sw, N)
 
 ### Figure with all three sets of results 
-titles = ["Random", "Lattice", "Small world"]
+titles77 = ["Random", "Lattice", "Small world"]
 
-fig = Figure() 
-gl = GridLayout(fig[1, 1])
+fig_77 = Figure() 
+gl = GridLayout(fig_77[1, 1])
 axs = [ Axis(gl[i, 1]) for i ∈ 1:3 ]
 for (i, res) ∈ enumerate([result77_rand, result77_lat, result77_sw])
     plot_sis77!(axs[i], res)
-    axs[i].title = titles[i]
+    axs[i].title = titles77[i]
 end 
 leg = Legend(gl[:, 2], axs[1])
-fig 
+fig_77
