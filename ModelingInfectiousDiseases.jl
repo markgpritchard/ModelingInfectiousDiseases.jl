@@ -691,7 +691,7 @@ using .MID_72data
 u0_3 = datau0_sir72(loc) 
 p_3 = Parameters72(parameters_sir72(loc)...)
 duration_3 = 300 
-duration_3 = 3
+
 sol72_3 = run_sir72(u0_3, p_3, duration_3)
 
 plotcounties = [13, 22, 38, 15, 22, 30]
