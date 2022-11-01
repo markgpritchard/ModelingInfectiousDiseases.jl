@@ -680,6 +680,30 @@ duration_2 = 100        # Duration
 sol72_2 = run_sir72(u0_2, p_2, duration_2; saveat = .125)
 plot_sir72(sol72_2) 
 
+### Attempt with more realistic numbers 
+
+using .MID_72data 
+
+# Population sizes come from the Wikipedia article 
+# https://en.wikipedia.org/wiki/Counties_in_England_by_population
+# Numbers of movements between counties are hypothetical
+
+u0_3 = datau0_sir72(loc) 
+p_3 = Parameters72(parameters_sir72(loc)...)
+duration_3 = 300 
+duration_3 = 3
+sol72_3 = run_sir72(u0_3, p_3, duration_3)
+
+plotcounties = [13, 22, 38, 15, 22, 30]
+countynames = countynames_sir72(loc) 
+fig72_3 = Figure(); gl = GridLayout(fig72_3[1, 1])
+axs = [ Axis(gl[i, 1]) for i ∈ 1:6 ]
+for (i, county) ∈ enumerate(plotcounties)
+    plot_sir72!( axs[i, 1], sol72_3, county, county; hidex = county != last(plotcounties), lbls = ["Infectious"] )
+    axs[i, 1].title = countynames[county]
+end 
+fig72_3
+
 
 ## Programme 7.3
 

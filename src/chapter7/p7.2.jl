@@ -121,8 +121,7 @@ function plot_sir72!(fig::Figure, sol; kwargs...)
 end 
 
 function plot_sir72!(gl::GridLayout, sol; 
-        label = "p7.2.jl: SIR metapopulation model", 
-        legend = :below
+        label = "p7.2.jl: SIR metapopulation model", legend = :below, kwargs...
     )
 
     @assert axes(sol, 1) == axes(sol, 2) 
@@ -131,7 +130,7 @@ function plot_sir72!(gl::GridLayout, sol;
 
     axs = [ Axis(gl[i, j]) for i ∈ solaxs, j ∈ solaxs ]
     for i ∈ solaxs, j ∈ solaxs
-        plot_sir72!( axs[i, j], sol, i, j; hidex = i < solsz, hidey = j != 1 )
+        plot_sir72!( axs[i, j], sol, i, j; hidex = i < solsz, hidey = j != 1, kwargs... )
     end 
     Label(gl[solsz+1, :], "Time")
     Label(gl[:, 0], "Counts"; rotation = π/2)
@@ -149,10 +148,12 @@ function plot_sir72!(gl::GridLayout, sol;
     end 
 end 
 
-function plot_sir72!(ax::Axis, sol, i, j; hidex = false, hidey = false)
+function plot_sir72!(ax::Axis, sol, i, j; 
+        hidex = false, hidey = false, lbls = [ "Susceptible", "Infectious", "Recovered" ]
+    )
+    
     data = dataframe_sir72(sol, i, j)
-    lbls = [ "Susceptible", "Infectious", "Recovered" ]
-    for (i, lbl) ∈ enumerate(lbls)
+    for lbl ∈ lbls
         lines!(ax, data.t, data[:, lbl]; label = lbl)
     end 
     if hidex hidexdecorations!(ax; ticks = false) end
@@ -160,3 +161,64 @@ function plot_sir72!(ax::Axis, sol, i, j; hidex = false, hidey = false)
 end 
 
 end # module MID_72
+
+
+module MID_72data 
+
+using CSV, Tables
+using LinearAlgebra: diagm
+
+export datau0_sir72, parameters_sir72, countynames_sir72
+
+function datau0_sir72(loc, infectedcounty = 13, Y0val = 10) 
+    populationsmat = CSV.File("$loc\\assets\\data\\countysizes.csv"; header=false) |> 
+        Tables.matrix
+    populations = populationsmat[:, 1]
+    X0 = diagm(populations)
+    Y0 = zeros(47, 47)
+    _datau0_sir72!(Y0, infectedcounty, Y0val) 
+    Z0 = zeros(47, 47)
+    u0 = zeros(47, 47, 3) 
+    u0[:, :, 1] = X0; u0[:, :, 2] = Y0; u0[:, :, 3] = Z0
+    return u0 
+end 
+
+function _datau0_sir72!(Y0, infectedcounty::Int, Y0val::Real) 
+    Y0[infectedcounty, infectedcounty] = Y0val 
+end 
+
+function _datau0_sir72!(Y0, infectedcounty::Vector{Int}, Y0val::Real) 
+    for i ∈ infectedcounty
+        Y0[i, i] = Y0val 
+    end 
+end 
+
+function _datau0_sir72!(Y0, infectedcounty::Vector{Int}, Y0val::Vector{<:Real}) 
+    for (i, j) ∈ enumerate(infectedcounty)
+        Y0[j, j] = Y0val[i]
+    end 
+end 
+
+function parameters_sir72(loc; beta = .3571, gamma = 1/14, mu = 0, nu = 0, r = 2)
+    betas = ones(47) * beta
+    gammas = ones(47) * gamma
+    mus = ones(47) * mu
+    nus = ones(47, 47) * nu
+    ℓ = CSV.File(
+        "$loc\\assets\\data\\hypotheticalmovementsbetweencounties.csv"; 
+        header=false
+    ) |> 
+        Tables.matrix
+    r2 = ones(47, 47) * r
+
+    return betas, gammas, mus, nus, ℓ, r2 
+end 
+
+function countynames_sir72(loc) 
+    namessmat = CSV.File("$loc\\assets\\data\\countynames.csv"; header=false) |> 
+        Tables.matrix
+    names = namessmat[:, 1]
+    return names 
+end 
+
+end # module MID_72data
