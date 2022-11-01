@@ -911,6 +911,7 @@ u0_rand = u0_sis77(N, connections,  y0, :random; seed = 77)
 
 u_rand, times_rand = run_sis77(u0_rand, p, duration; seed = 770)
 result77_rand = dataframe_sis77(u_rand, times_rand, N)
+video_sis77(u_rand, times_rand, result77_rand; filename = "video77_rand.mp4")
 
 ### Lattice network
 
@@ -918,6 +919,7 @@ u0_lat = u0_sis77(N, connections, y0, :lattice; seed = 77)
 
 u_lat, times_lat = run_sis77(u0_lat, p, duration; seed = 770)
 result77_lat = dataframe_sis77(u_lat, times_lat, N)
+video_sis77(u_lat, times_lat, result77_lat; filename = "video77_lat.mp4")
 
 ### Small world network
 
@@ -925,8 +927,10 @@ u0_sw = u0_sis77(N, connections, y0, :smallworld; seed = 77)
 
 u_sw, times_sw = run_sis77(u0_sw, p, duration; seed = 770)
 result77_sw = dataframe_sis77(u_sw, times_sw, N)
+video_sis77(u_sw, times_sw, result77_sw; filename = "video77_sw.mp4")
 
 ### Figure with all three sets of results 
+
 titles77 = ["Random", "Lattice", "Small world"]
 
 fig_77 = Figure() 
@@ -938,3 +942,4 @@ for (i, res) ∈ enumerate([result77_rand, result77_lat, result77_sw])
 end 
 leg = Legend(gl[:, 2], axs[1])
 fig_77
+

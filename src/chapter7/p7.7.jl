@@ -1,10 +1,10 @@
 
 module MID_77
   
-using CairoMakie, DataFrames, Graphs, Random
+using CairoMakie, DataFrames, GraphMakie, Graphs, Random
 using StatsBase: sample 
 
-export sis77!, u0_sis77, run_sis77, dataframe_sis77, plot_sis77, plot_sis77! 
+export sis77!, u0_sis77, run_sis77, dataframe_sis77, plot_sis77, plot_sis77!, video_sis77
 
 mutable struct Environment 
     g           :: SimpleGraph{Int64} 
@@ -184,26 +184,68 @@ function dataframe_sis77(u, times, N)
     return df 
 end 
 
-function plot_sis77(data)
+function plot_sis77(data, t = nothing)
     fig = Figure()
-    plot_sis77!(fig, data)
+    plot_sis77!(fig, data, t)
     return fig 
 end 
 
-function plot_sis77!(fig::Figure, data)
+function plot_sis77!(fig::Figure, data, t = nothing)
     gl = GridLayout(fig[1, 1])
-    plot_sis77!(gl, data)
+    plot_sis77!(gl, data, t)
 end 
 
-function plot_sis77!(gl::GridLayout, data)
+function plot_sis77!(gl::GridLayout, data, t = nothing)
     ax = Axis(gl[1, 1])
-    plot_sis77!(ax, data)
+    plot_sis77!(ax, data, t)
     leg = Legend(gl[2, 1], ax; orientation = :horizontal)
 end 
 
-function plot_sis77!(ax::Axis, data)
+function plot_sis77!(ax::Axis, data, t = nothing)
     lines!(ax, data.t, data.Susceptible; label = "Susceptibles")
     lines!(ax, data.t, data.Infectious; label = "Infectious")
+    plott_sis77!(ax, t)
+end 
+
+plott_sis77!(ax, t::Nothing) = nothing 
+plott_sis77!(ax, t) = vlines!(ax, t)
+
+function videoplot_sis77(g, yhistory, df, t, colours)
+    fig = Figure()
+    ga = GridLayout(fig[1, 1])
+    ax1 = Axis(ga[1, 1])
+    graphplot!(ax1, g; node_color = colours )
+    hidexdecorations!(ax1); hideydecorations!(ax1)
+    gb = GridLayout(fig[1, 2])
+    ax2 = Axis(gb[1, 1])
+    plot_sis77!(ax2, df, t)
+    leg = Legend(gb[2, 1], ax2)
+    return fig
+end 
+
+function video_sis77(u, times, df; 
+        step = 1/24, folder = "outputvideos", filename = "video77.mp4", kwargs...)
+
+    g = u.g
+    yhistory = u.historyY
+    tstart = 0.
+    colours = [ ifelse(i ∈ yhistory[1], :red, :black) for i ∈ vertices(g) ]
+    ot = Observable(tstart)
+    cols = Observable(colours)
+
+    fig = videoplot_sis77(g, yhistory, df, ot, cols)
+
+    frametimes = collect(0:step:last(times))
+
+    record(fig, "$folder/$filename") do io
+        for t ∈ frametimes 
+            # animate scene by changing values:
+            ot[] = t
+            k = max(1, searchsortedfirst(times, t) - 1)
+            cols[] = [ ifelse(i ∈ yhistory[k], :red, :black) for i ∈ vertices(g) ]
+            recordframe!(io)    # record a new frame
+        end
+    end
 end 
 
 end # module MID_77
