@@ -114,4 +114,4 @@ function plot_sir71!(ax::Axis, result::DataFrame)
     end 
 end 
 
-end # module MID_6_1
+end # module MID_7_1
