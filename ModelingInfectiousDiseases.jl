@@ -1030,9 +1030,9 @@ u0 = [              # Initial conditions for the model
     .1,                 # S0 = initial proportion susceptible 
     1e-4,               # I0 = initial proportion infectious 
     .8999               # R0 = initial proportion resistant to infection 
-]   # these differ from the examples online to give a better display of effect
+]   
 p = [               # Model parameters
-    520 / 365,          # beta = transmission parameter (originally 520 / 365)
+    520 / 365,          # beta = transmission parameter 
     1 / 7,              # gamma = recovery rate
     1 / (70 * 365),     # mu = mortality rate 
     1 / (70 * 365),     # nu = birth rate 
@@ -1040,8 +1040,34 @@ p = [               # Model parameters
 ]
 duration = 36500       # Duration of the model 
 vaccinationstarttime = 30 * 365     # time when vaccination programme starts 
-vaccinationrate = .8    # proportion vaccinated in vaccination programme 
+vaccinationrate = .7    # proportion vaccinated in vaccination programme 
 
 sol81 =  run_sir81(u0, p, duration, vaccinationstarttime, vaccinationrate)
 result81 = dataframe_sir81(sol81)
-plot_sir81(result81)
+plot_sir81(result81; plotr = false)
+
+
+## Programme 8.2
+
+include("src/chapter8/p8.2.jl")
+using .MID_82
+
+u0 = [              # Initial conditions for the model
+    .1,                 # S0 = initial proportion susceptible 
+    2e-3,               # I0 = initial proportion infectious 
+    .898                # R0 = initial proportion resistant to infection 
+]   
+p = [               # Model parameters
+    520 / 365,          # beta = transmission parameter (originally 520 / 365)
+    1 / 7,              # gamma = recovery rate
+    1 / (10 * 365),     # mu = mortality rate 
+    1 / (10 * 365),     # nu = birth rate 
+    0.                  # pr = proportion vaccinated (for first part of model)
+]
+duration = 20 * 365     # Duration of the model 
+vaccinationstarttime = 5 * 365   # time when vaccination programme starts 
+vaccinationrate = .002  # proportion vaccinated in vaccination programme 
+
+sol82 =  run_sir82(u0, p, duration, vaccinationstarttime, vaccinationrate)
+result82 = dataframe_sir82(sol82)
+plot_sir82(result82; plotr = false)

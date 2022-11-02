@@ -1,45 +1,43 @@
 
-module MID_81
+module MID_82
   
 using CairoMakie, DataFrames, DifferentialEquations
 
-export sir81!, run_sir81, dataframe_sir81, plot_sir81, plot_sir81!
+export sir82!, run_sir82, dataframe_sir82, plot_sir82, plot_sir82!
 
-function sir81!(du, u, p, t) 
+function sir82!(du, u, p, t) 
     # compartments 
     S, I, R = u
 
     # parameters 
-    beta, gamma, mu, nu, pr = p
+    beta, gamma, mu, nu, v = p
     
     # ODEs
-    du[1] = nu * (1 - pr) - beta * I * S - mu * S   # dS 
-    du[2] = beta * I * S - (gamma + mu) * I         # dI 
-    du[3] = gamma * I + nu * pr - mu * R            # dR
+    du[1] = nu - (beta * I + mu + v) * S        # dS 
+    du[2] = beta * I * S - (gamma + mu) * I     # dI 
+    du[3] = gamma * I + v * S - mu * R          # dR
 end 
 
-function run_sir81(u0, p, duration, vaccinationstarttime, vaccinationrate; saveat = 1)
+function run_sir82(u0, p, duration, vaccinationstarttime, vaccinationrate; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
     @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters" 
     @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
     
     tspan = ( 0., Float64(duration) )
-    prob = ODEProblem(sir81!, u0, tspan, p)
+    prob = ODEProblem(sir82!, u0, tspan, p)
     
     if vaccinationstarttime > duration 
         @info "Vaccination start time is after end of model run" 
-        sol = solve(prob; saveat)
+        return solve(prob; saveat)
     else 
         # The callback to change the parameter for vaccine rate at vaccinationstarttime
         affect!(integrator) = integrator.p[5] = vaccinationrate
         cb = PresetTimeCallback(vaccinationstarttime, affect!)
-        sol = solve(prob; callback = cb, saveat)
+        return solve(prob; callback = cb, saveat)
     end
-
-    return sol
 end 
 
-function dataframe_sir81(sol)
+function dataframe_sir82(sol)
     result = DataFrame(t = sol.t)
     insertcols!(result, :S => [ sol[i][1] for i ∈ axes(sol, 2) ])
     insertcols!(result, :I => [ sol[i][2] for i ∈ axes(sol, 2) ])
@@ -47,29 +45,29 @@ function dataframe_sir81(sol)
     return result 
 end 
 
-function plot_sir81(result; kwargs...)
+function plot_sir82(result; kwargs...)
     fig = Figure()
-    plot_sir81!(fig, result; kwargs...)
+    plot_sir82!(fig, result; kwargs...)
     resize_to_layout!(fig)
     return fig 
 end 
 
-plot_sir81!(any, sol; kwargs...) = plot_sir81!(any, dataframe_sir81(sol); kwargs...)
+plot_sir82!(any, sol; kwargs...) = plot_sir82!(any, dataframe_sir82(sol); kwargs...)
 
-function plot_sir81!(fig::Figure, result::DataFrame; kwargs...)
+function plot_sir82!(fig::Figure, result::DataFrame; kwargs...)
     gl = GridLayout(fig[1, 1])
-    plot_sir81!(gl, result; kwargs...)
+    plot_sir82!(gl, result; kwargs...)
 end 
 
-function plot_sir81!(gl::GridLayout, result::DataFrame; 
-        label = "p8.1.jl: SIR model with childhood vaccination", kwargs...)
+function plot_sir82!(gl::GridLayout, result::DataFrame; 
+        label = "p8.2.jl: SIR model with random vaccination", kwargs...)
 
     ax = Axis(gl[1, 1])
-    plot_sir81!(ax, result; kwargs...)
+    plot_sir82!(ax, result; kwargs...)
     leg = Legend(gl[1, 2], ax)
 end 
 
-function plot_sir81!(ax::Axis, result::DataFrame; plotr = true)
+function plot_sir82!(ax::Axis, result::DataFrame; plotr = true)
     lines!(ax, result.t / 365, result.S; label = "Susceptible")
     lines!(ax, result.t / 365, result.I; label = "Infectious")
     if plotr lines!(ax, result.t / 365, result.R; label = "Resistant") end
@@ -77,4 +75,4 @@ function plot_sir81!(ax::Axis, result::DataFrame; plotr = true)
     ax.ylabel = "Proportion"
 end 
 
-end # module MID_81
+end # module MID_82

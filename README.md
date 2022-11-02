@@ -2,7 +2,7 @@
 
 This code recreates the programmes from http://www.modelinginfectiousdiseases.org/ into Julia. These are from the book Keeling, M.J. and Rohani, P., *Modeling Infectious Diseases in Humans and Animals*, Princeton University Press (2007). The code is being developed as a learning exercise. It is not associated with the authors or publishers of the book, and is saved here in 'as is' form.
 
-Programmes from Chapters 2, 3, 6 and 7 are currently available.
+Programmes from Chapters 2, 3, 6 and 7 are currently available, along with programme2 8.1 and 8.2 from Chapter 8.
 
 ## Use
 
