@@ -83,8 +83,7 @@ function plot_sir71!(fig::Figure, result::DataFrame; kwargs...)
 end 
 
 function plot_sir71!(gl::GridLayout, result::DataFrame; 
-        label = "p7.1.jl: SIR metapopulation model", legend = :belowsol72_2 = run_sir72(u0_2, p_2, duration_2; saveat = .125)
-        plot_sir72(sol72_2) )
+        label = "p7.1.jl: SIR metapopulation model", legend = :below)
 
     n = Int((size(result, 2) - 1) / 3)
 
