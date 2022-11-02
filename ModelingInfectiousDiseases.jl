@@ -995,3 +995,23 @@ end
 linkxaxes!(axs1...)
 leg = Legend(gl[:, 3], axs1[1])
 fig_77_spaces
+
+
+## Programme 7.8
+
+include("src/chapter7/p7.8.jl")
+using .MID_78
+
+X0 = 9999               # initial number susceptible
+Y0 = 1                  # initial number infectious
+n = 4                   # number of connections per individual in population
+gamma = .05             # recovery rate 
+tau = .1                # transmission rate across a contact 
+
+u0 = u0_sis78(X0, Y0, n) 
+p = [gamma, tau, n]
+duration = 100          # duration of model
+
+sol78 = run_sis78(u0, p, duration; saveat = .2)
+result78 = dataframe_sis78(sol78)
+plot_sir78(result78)
