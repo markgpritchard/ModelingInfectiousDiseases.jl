@@ -1071,3 +1071,55 @@ vaccinationrate = .002  # proportion vaccinated in vaccination programme
 sol82 =  run_sir82(u0, p, duration, vaccinationstarttime, vaccinationrate)
 result82 = dataframe_sir82(sol82)
 plot_sir82(result82; plotr = false)
+
+
+## Programme 8.3
+
+include("src/chapter8/p8.3.jl")
+using .MID_83
+
+u0 = [              # Initial conditions for the model
+    .1,                 # S0 = initial proportion susceptible 
+    1e-4,               # I0 = initial proportion infectious 
+    .8999               # R0 = initial proportion resistant to infection 
+]   
+p = [               # Model parameters
+    520 / 365,          # beta = transmission parameter (originally 520 / 365)
+    1 / 7,              # gamma = recovery rate
+    1 / (70 * 365),     # mu = mortality rate 
+    1 / (70 * 365)      # nu = birth rate 
+]
+duration = 36500    # Duration of the model 
+vst = 30 * 365      # time when vaccination programme starts
+vf = 2 * 365        # how often there is a pulse of vaccination 
+pv = .1             # proportion vaccinated in vaccination programme 
+
+sol83 = run_sir83(u0, p, duration, vst, vf, pv)
+result83 = dataframe_sir83(sol83)
+plot_sir83(result83; plotr = false)
+
+
+## Programme 8.4
+
+include("src/chapter8/p8.4.jl")
+using .MID_84
+
+u0 = [              # Initial conditions of the model (high risk then low risk)
+    .1      .7          # numbers susceptible
+    1e-5    1e-5        # numbers infectious 
+    .024    .17598      # numbers recovered or vaccinated 
+]
+p = Parameters84(   # Parameters for the model 
+    [1 .01; .01 .1] ,   # matrix of infectiousness parameters [β_hh, β_hl; β_lh β_ll]
+    .1,                 # gamma = recovery rate 
+    5e-5,               # mu = mortality rate 
+    [1e-5, 4e-5],       # nu = birth rates 
+    [.0, .0]            # pv = initial vaccination rates
+)
+duration = 36500    # model duration 
+vaccinationstarttime = 50 * 365     # when vaccination programme begins 
+vaccinationrate = [.4, .1]  # vaccination rate once vaccination starts
+
+sol84 = run_sir84(u0, p, duration, vaccinationstarttime, vaccinationrate)
+result84 = dataframe_sir84(sol84)
+plot_sir84(result84; plotr = false)
