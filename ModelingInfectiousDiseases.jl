@@ -1024,7 +1024,7 @@ plot_sis78(result78)
 ## Programme 8.1
 
 include("src/chapter8/p8.1.jl")
-#using .MID_81
+using .MID_81
 
 u0 = [              # Initial conditions for the model
     .1,                 # S0 = initial proportion susceptible 
