@@ -929,17 +929,32 @@ u_sw, times_sw = run_sis77(u0_sw, p, duration; seed = 770)
 result77_sw = dataframe_sis77(u_sw, times_sw, N)
 video_sis77(u_sw, times_sw, result77_sw; filename = "video77_sw.mp4")
 
+### Spatial network 
+
+u0_sp = u0_sis77(N, connections, y0, :spatial; seed = 77)
+
+u_sp, times_sp = run_sis77(u0_sp, p, duration; seed = 770)
+result77_sp = dataframe_sis77(u_sp, times_sp, N)
+video_sis77(u_sp, times_sp, result77_sp; filename = "video77_sp.mp4")
+
+### Repeat spatial with a different seed 
+
+u0_sp2 = u0_sis77(N, connections, y0, :spatial; seed = 771)
+
+u_sp2, times_sp2 = run_sis77(u0_sp2, p, duration; seed = 7710)
+result77_sp2 = dataframe_sis77(u_sp2, times_sp2, N)
+video_sis77(u_sp2, times_sp2, result77_sp2; filename = "video77_sp2.mp4")
+
 ### Figure with all three sets of results 
 
-titles77 = ["Random", "Lattice", "Small world"]
+titles77 = ["Random", "Lattice", "Small world", "Spatial"]
 
 fig_77 = Figure() 
 gl = GridLayout(fig_77[1, 1])
-axs = [ Axis(gl[i, 1]) for i ∈ 1:3 ]
-for (i, res) ∈ enumerate([result77_rand, result77_lat, result77_sw])
+axs = [ Axis(gl[i, 1]) for i ∈ 1:4 ]
+for (i, res) ∈ enumerate([result77_rand, result77_lat, result77_sw, result77_sp2])
     plot_sis77!(axs[i], res)
     axs[i].title = titles77[i]
 end 
 leg = Legend(gl[:, 2], axs[1])
 fig_77
-

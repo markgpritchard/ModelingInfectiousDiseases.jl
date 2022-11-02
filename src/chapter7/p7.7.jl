@@ -1,8 +1,7 @@
 
 module MID_77
   
-using CairoMakie, DataFrames, GraphMakie, Graphs, Random
-using StatsBase: sample 
+using CairoMakie, DataFrames, Distributions, GraphMakie, Graphs, Random, StatsBase
 
 export sis77!, u0_sis77, run_sis77, dataframe_sis77, plot_sis77, plot_sis77!, video_sis77
 
@@ -11,6 +10,11 @@ mutable struct Environment
     Y           :: Vector{Int64}
     historyY    :: Vector{Vector{Int}}
 end
+
+struct SpatialPosition 
+    x           :: Float64 
+    y           :: Float64 
+end 
 
 makenetwork_random(N, averageconnections; seed = nothing) = 
     _makenetwork_random(N, averageconnections, seed)
@@ -44,15 +48,62 @@ function makenetwork_smallworld(N, averageconnections; seed = nothing)
     return g
 end 
 
-function u0_sis77(N, averageconnections, Y0, type; seed = nothing)
+makenetwork_spatial(N, averageconnections; seed = nothing, kwargs...) = 
+    _makenetwork_spatial(N, averageconnections, seed; kwargs...)
+
+function _makenetwork_spatial(N, averageconnections, seed::Real; kwargs...)
+    Random.seed!(seed)
+    return _makenetwork_spatial(N, averageconnections, nothing; kwargs...)
+end 
+
+_makenetwork_spatial(N, averageconnections, seed::Nothing; spacesize = nothing) = 
+    __makenetwork_spatial(N, averageconnections, spacesize) 
+
+__makenetwork_spatial(N, averageconnections, spacesize::Nothing) = 
+    __makenetwork_spatial(N, averageconnections, 10)
+
+function __makenetwork_spatial(N, averageconnections, spacesize::Real)
+    # Make a matrix of positions and identify which nodes link to each other
+    positions = [ randomposition(spacesize) for _ ∈ 1:N ]
+    distances = [ dists(positions[i], positions[j]) for i ∈ 1:N, j ∈ 1:N ]
+    probabilities = [ calcprobs(distances, i, j) for i ∈ 1:N, j ∈ 1:N ]
+    wts = ProbabilityWeights(vec(probabilities))
+    identities = vec([ (i, j) for i ∈ 1:N, j ∈ 1:N ])
+    contacts = round(Int, N * averageconnections / 2) # total number of connections
+    connecteds = sample(identities, wts, contacts; replace = false) # vector of connections
+
+    g = SimpleGraph(N)
+    for c ∈ connecteds
+        add_edge!(g, c...)
+    end 
+    
+    return g
+end 
+
+randomposition(spacesize) = SpatialPosition(rand(Uniform(0, spacesize), 2)...)
+
+dists(A, B) = sqrt( (A.x - B.x)^2 + (A.y - B.y)^2 )
+
+function calcprobs(distances, i, j)
+    if i >= j # all connections are bidirectional so only need non-zero values in 
+            # half of the matrix
+        return .0 
+    else 
+        return exp(-5 * distances[i, j])
+    end 
+end 
+
+function u0_sis77(N, averageconnections, Y0, type; seed = nothing, kwargs...)
     @assert Y0 <= N "Cannot have more than all individuals infectious"
 
     if type == :random || type == :Random 
-        g = makenetwork_random(N, averageconnections)
+        g = makenetwork_random(N, averageconnections, kwargs...)
     elseif type == :lattice || type == :Lattice 
-        g = makenetwork_lattice(N, averageconnections)
+        g = makenetwork_lattice(N, averageconnections, kwargs...)
     elseif type == :smallworld || type == :Smallworld || type == :SmallWorld
-        g = makenetwork_smallworld(N, averageconnections)
+        g = makenetwork_smallworld(N, averageconnections, kwargs...)
+    elseif type == :spatial || type == :Spatial
+        g = makenetwork_spatial(N, averageconnections, kwargs...)
     else 
         @error "`type` not recognised"
     end 
