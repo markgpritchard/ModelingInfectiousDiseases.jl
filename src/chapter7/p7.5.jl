@@ -97,7 +97,7 @@ function __sis75(inds, rates, t, tstep::Nothing)
     r1 = rand(); r2 = rand() 
 
     # How soon is something going to happen 
-    timestep = -log(r2) / sumrates
+    timestep = -log(r1) / sumrates
     newt = t + timestep
 
     # Who is it going to happen to  

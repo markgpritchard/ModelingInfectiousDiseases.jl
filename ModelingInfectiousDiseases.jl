@@ -907,17 +907,19 @@ duration = 50       # Duration
 
 ### Random network
 
-u0_rand = u0_sis77(N, connections,  y0, :random; seed = 77)
+u0_rand = u0_sis77(N, connections, y0, :random; seed = 77)
 
 u_rand, times_rand = run_sis77(u0_rand, p, duration; seed = 770)
 result77_rand = dataframe_sis77(u_rand, times_rand, N)
+video_sis77(u_rand, times_rand, result77_rand; filename = "video77_rand.mp4")
 
 ### Lattice network
 
-u0_lat = u0_sis77(N, connections, y0, :lattice; seed = 77)
+u0_lat = u0_sis77(N, connections, y0, :lattice)
 
 u_lat, times_lat = run_sis77(u0_lat, p, duration; seed = 770)
 result77_lat = dataframe_sis77(u_lat, times_lat, N)
+video_sis77(u_lat, times_lat, result77_lat; filename = "video77_lat.mp4")
 
 ### Small world network
 
@@ -925,16 +927,91 @@ u0_sw = u0_sis77(N, connections, y0, :smallworld; seed = 77)
 
 u_sw, times_sw = run_sis77(u0_sw, p, duration; seed = 770)
 result77_sw = dataframe_sis77(u_sw, times_sw, N)
+video_sis77(u_sw, times_sw, result77_sw; filename = "video77_sw.mp4")
+
+### Spatial network 
+
+u0_sp = u0_sis77(N, connections, y0, :spatial; seed = 77)
+
+u_sp, times_sp = run_sis77(u0_sp, p, duration; seed = 770)
+result77_sp = dataframe_sis77(u_sp, times_sp, N)
+video_sis77(u_sp, times_sp, result77_sp; filename = "video77_sp.mp4")
 
 ### Figure with all three sets of results 
-titles = ["Random", "Lattice", "Small world"]
 
-fig = Figure() 
-gl = GridLayout(fig[1, 1])
-axs = [ Axis(gl[i, 1]) for i ∈ 1:3 ]
-for (i, res) ∈ enumerate([result77_rand, result77_lat, result77_sw])
+titles77 = ["Random", "Lattice", "Small world", "Spatial"]
+
+fig_77 = Figure() 
+gl = GridLayout(fig_77[1, 1])
+axs = [ Axis(gl[i, 1]) for i ∈ 1:4 ]
+for (i, res) ∈ enumerate([result77_rand, result77_lat, result77_sw, result77_sp])
     plot_sis77!(axs[i], res)
-    axs[i].title = titles[i]
+    axs[i].title = titles77[i]
+    if i < 4 hidexdecorations!(axs[i]; ticks = false) end
 end 
+linkxaxes!(axs...)
 leg = Legend(gl[:, 2], axs[1])
-fig 
+fig_77
+
+### Effects of changing options 
+
+# For small world, we can change the proportion of edges that are connected at random. 
+# Default is 0.05 (note that beta = 0 is the lattice model and beta = 1 is the equivalent 
+# of the random model)
+
+fig_77_betas = Figure() 
+gl = GridLayout(fig_77_betas[1, 1])
+axs1 = [ Axis(gl[i, 1]) for i ∈ 1:6 ]; axs2 = [ Axis(gl[i, 2]) for i ∈ 1:6 ]
+for (i, beta) ∈ enumerate( [ .01, .05, .1, .2, .4, .8] )
+    u0 = u0_sis77(N, connections, y0, :smallworld; beta, seed = 77)
+    u, times = run_sis77(u0, p, duration; seed = 770)
+    result = dataframe_sis77(u, times, N)
+    plot_sis77!(axs1[i], result)
+    if i < 6 hidexdecorations!(axs1[i]; ticks = false) end
+    graphplot_sis77!(axs2[i], u.g, u.historyY, 1)
+    hidexdecorations!(axs2[i]); hideydecorations!(axs2[i])
+    axs1[i].title = "β = $beta"
+end 
+linkxaxes!(axs1...)
+leg = Legend(gl[:, 3], axs[1])
+fig_77_betas
+
+# For spatial, we can change the hypothetical space in which the nodes are arranged.
+# Default is 1 
+
+fig_77_spaces = Figure() 
+gl = GridLayout(fig_77_spaces[1, 1])
+axs1 = [ Axis(gl[i, 1]) for i ∈ 1:6 ]; axs2 = [ Axis(gl[i, 2]) for i ∈ 1:6 ]
+for (i, spacesize) ∈ enumerate( [ .01, .1, 1, 10, 100, 1000 ] )
+    u0 = u0_sis77(N, connections, y0, :spatial; spacesize, seed = 77)
+    u, times = run_sis77(u0, p, duration; seed = 770)
+    result = dataframe_sis77(u, times, N)
+    plot_sis77!(axs1[i], result)
+    if i < 6 hidexdecorations!(axs1[i]; ticks = false) end
+    graphplot_sis77!(axs2[i], u.g, u.historyY, 1)
+    hidexdecorations!(axs2[i]); hideydecorations!(axs2[i])
+    axs1[i].title = "Space size = $spacesize"
+end 
+linkxaxes!(axs1...)
+leg = Legend(gl[:, 3], axs1[1])
+fig_77_spaces
+
+
+## Programme 7.8
+
+include("src/chapter7/p7.8.jl")
+using .MID_78
+
+X0 = 9999               # initial number susceptible
+Y0 = 1                  # initial number infectious
+n = 4                   # number of connections per individual in population
+gamma = .05             # recovery rate 
+tau = .1                # transmission rate across a contact 
+
+u0 = u0_sis78(X0, Y0, n) 
+p = [gamma, tau, n]
+duration = 100          # duration of model
+
+sol78 = run_sis78(u0, p, duration; saveat = .2)
+result78 = dataframe_sis78(sol78)
+plot_sir78(result78)

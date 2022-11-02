@@ -38,8 +38,8 @@ function sir71!(du, u, p, t)
             sum( [ p.m[i, j] * Y[j] for j ∈ axes(u, 2) ] ) - 
             sum( [ p.m[j, i] * Y[i] for j ∈ axes(u, 2) ] )              # dY
         du[3, i] = p.gamma[i] * Y[i] - p.mu[i] * Z[i] + 
-        sum( [ p.m[i, j] * Z[j] for j ∈ axes(u, 2) ] ) - 
-        sum( [ p.m[j, i] * Z[i] for j ∈ axes(u, 2) ] )              # dZ
+            sum( [ p.m[i, j] * Z[j] for j ∈ axes(u, 2) ] ) - 
+            sum( [ p.m[j, i] * Z[i] for j ∈ axes(u, 2) ] )              # dZ
     end 
 end 
 
@@ -83,9 +83,7 @@ function plot_sir71!(fig::Figure, result::DataFrame; kwargs...)
 end 
 
 function plot_sir71!(gl::GridLayout, result::DataFrame; 
-        label = "p7.1.jl: SIR metapopulation model", 
-        legend = :below
-    )
+        label = "p7.1.jl: SIR metapopulation model", legend = :below)
 
     n = Int((size(result, 2) - 1) / 3)
 
@@ -115,4 +113,4 @@ function plot_sir71!(ax::Axis, result::DataFrame)
     end 
 end 
 
-end # module MID_6_1
+end # module MID_7_1

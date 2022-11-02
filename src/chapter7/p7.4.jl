@@ -62,7 +62,7 @@ function sir74!(u, p, t, neighbours, rates)
     r1 = rand(); r2 = rand() 
 
     # How soon is something going to happen 
-    timestep = -log(r2) / sum(rates)
+    timestep = -log(r1) / sum(rates)
     newt = last(t) + timestep
     push!(t, newt)
 

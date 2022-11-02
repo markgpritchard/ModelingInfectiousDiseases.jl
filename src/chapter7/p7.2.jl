@@ -121,8 +121,7 @@ function plot_sir72!(fig::Figure, sol; kwargs...)
 end 
 
 function plot_sir72!(gl::GridLayout, sol; 
-        label = "p7.2.jl: SIR metapopulation model", 
-        legend = :below
+        label = "p7.2.jl: SIR metapopulation model", legend = :below, kwargs...
     )
 
     @assert axes(sol, 1) == axes(sol, 2) 
@@ -131,7 +130,7 @@ function plot_sir72!(gl::GridLayout, sol;
 
     axs = [ Axis(gl[i, j]) for i ∈ solaxs, j ∈ solaxs ]
     for i ∈ solaxs, j ∈ solaxs
-        plot_sir72!( axs[i, j], sol, i, j; hidex = i < solsz, hidey = j != 1 )
+        plot_sir72!( axs[i, j], sol, i, j; hidex = i < solsz, hidey = j != 1, kwargs... )
     end 
     Label(gl[solsz+1, :], "Time")
     Label(gl[:, 0], "Counts"; rotation = π/2)
@@ -149,10 +148,12 @@ function plot_sir72!(gl::GridLayout, sol;
     end 
 end 
 
-function plot_sir72!(ax::Axis, sol, i, j; hidex = false, hidey = false)
+function plot_sir72!(ax::Axis, sol, i, j; 
+        hidex = false, hidey = false, lbls = [ "Susceptible", "Infectious", "Recovered" ]
+    )
+    
     data = dataframe_sir72(sol, i, j)
-    lbls = [ "Susceptible", "Infectious", "Recovered" ]
-    for (i, lbl) ∈ enumerate(lbls)
+    for lbl ∈ lbls
         lines!(ax, data.t, data[:, lbl]; label = lbl)
     end 
     if hidex hidexdecorations!(ax; ticks = false) end
