@@ -3,7 +3,7 @@ module MID_81
   
 using CairoMakie, DataFrames, DifferentialEquations
 
-export sir81!, run_sir81, dataframe_sir81, plot_sir81, plot_sir81!
+export sir81!, run_sir81, run_sir81!, dataframe_sir81, plot_sir81, plot_sir81!
 
 function sir81!(du, u, p, t) 
     # compartments 
@@ -19,7 +19,13 @@ function sir81!(du, u, p, t)
 end 
 
 function run_sir81(u0, p, duration, vaccinationstarttime, vaccinationrate; saveat = 1)
+    pcopy = deepcopy(p)
+    return run_sir81!(u0, pcopy, duration, vaccinationstarttime, vaccinationrate; saveat)
+end 
+
+function run_sir81!(u0, p, duration, vaccinationstarttime, vaccinationrate; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
+    @assert sum(u0) ≈ 1 "Input sum(u0) = $(sum(u0)): compartments are proportions so should sum to 1"
     @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters" 
     @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
     

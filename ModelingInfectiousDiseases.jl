@@ -1038,7 +1038,7 @@ p = [               # Model parameters
     1 / (70 * 365),     # nu = birth rate 
     0.                  # pr = proportion vaccinated (for first part of model)
 ]
-duration = 36500       # Duration of the model 
+duration = 36500        # Duration of the model 
 vaccinationstarttime = 30 * 365     # time when vaccination programme starts 
 vaccinationrate = .7    # proportion vaccinated in vaccination programme 
 
