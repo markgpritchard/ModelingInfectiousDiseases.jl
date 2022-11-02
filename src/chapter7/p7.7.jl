@@ -3,7 +3,8 @@ module MID_77
   
 using CairoMakie, DataFrames, Distributions, GraphMakie, Graphs, Random, StatsBase
 
-export sis77!, u0_sis77, run_sis77, dataframe_sis77, plot_sis77, plot_sis77!, video_sis77
+export sis77!, u0_sis77, run_sis77, dataframe_sis77, plot_sis77, plot_sis77!, graphplot_sis77!, 
+    video_sis77
 
 mutable struct Environment 
     g           :: SimpleGraph{Int64} 
@@ -14,6 +15,27 @@ end
 struct SpatialPosition 
     x           :: Float64 
     y           :: Float64 
+end 
+
+function u0_sis77(N, averageconnections, Y0, networktype; kwargs...)
+    @assert Y0 <= N "Cannot have more than all individuals infectious"
+    @assert averageconnections <= N - 1 "Need averageconnections ≤ N - 1: 
+        Cannot connect with more than every other node"
+
+    if networktype == :random || networktype == :Random 
+        g = makenetwork_random(N, averageconnections; kwargs...)
+    elseif networktype == :lattice || networktype == :Lattice 
+        g = makenetwork_lattice(N, averageconnections; kwargs...)
+    elseif networktype == :smallworld || networktype == :Smallworld || networktype == :SmallWorld
+        g = makenetwork_smallworld(N, averageconnections; kwargs...)
+    elseif networktype == :spatial || networktype == :Spatial
+        g = makenetwork_spatial(N, averageconnections; kwargs...)
+    else 
+        @error "`networktype` not recognised"
+    end 
+    Y = sample(vertices(g), Y0; replace = false)
+
+    return Environment(g, Y, [Y])
 end 
 
 makenetwork_random(N, averageconnections; seed = nothing) = 
@@ -36,17 +58,10 @@ function _makenetwork_random(N, averageconnections, seed::Nothing)
     return g
 end 
 
-function makenetwork_lattice(N, averageconnections; seed = nothing)
-    g = watts_strogatz(N, averageconnections, 0; seed)
-    return g
-end 
-
-function makenetwork_smallworld(N, averageconnections; seed = nothing)
-    contacts = N * averageconnections / 2
-    beta = 10 / contacts
-    g = watts_strogatz(N, averageconnections, beta; seed)
-    return g
-end 
+makenetwork_lattice(N, averageconnections) = watts_strogatz(N, averageconnections, 0)
+    
+makenetwork_smallworld(N, averageconnections; seed = nothing, beta = .05) = 
+    watts_strogatz(N, averageconnections, beta; seed)
 
 makenetwork_spatial(N, averageconnections; seed = nothing, kwargs...) = 
     _makenetwork_spatial(N, averageconnections, seed; kwargs...)
@@ -56,13 +71,11 @@ function _makenetwork_spatial(N, averageconnections, seed::Real; kwargs...)
     return _makenetwork_spatial(N, averageconnections, nothing; kwargs...)
 end 
 
-_makenetwork_spatial(N, averageconnections, seed::Nothing; spacesize = nothing) = 
-    __makenetwork_spatial(N, averageconnections, spacesize) 
+function _makenetwork_spatial(N, averageconnections, seed::Nothing; spacesize = 1) 
+    if spacesize > 100 
+        @warn "Nodes further apart than ≈ 150 will be given a probability of connecting of 0" 
+    end
 
-__makenetwork_spatial(N, averageconnections, spacesize::Nothing) = 
-    __makenetwork_spatial(N, averageconnections, 10)
-
-function __makenetwork_spatial(N, averageconnections, spacesize::Real)
     # Make a matrix of positions and identify which nodes link to each other
     positions = [ randomposition(spacesize) for _ ∈ 1:N ]
     distances = [ dists(positions[i], positions[j]) for i ∈ 1:N, j ∈ 1:N ]
@@ -85,31 +98,11 @@ randomposition(spacesize) = SpatialPosition(rand(Uniform(0, spacesize), 2)...)
 dists(A, B) = sqrt( (A.x - B.x)^2 + (A.y - B.y)^2 )
 
 function calcprobs(distances, i, j)
-    if i >= j # all connections are bidirectional so only need non-zero values in 
-            # half of the matrix
+    if i >= j # connections are bidirectional so non-zero values in only half of matrix
         return .0 
     else 
         return exp(-5 * distances[i, j])
     end 
-end 
-
-function u0_sis77(N, averageconnections, Y0, type; seed = nothing, kwargs...)
-    @assert Y0 <= N "Cannot have more than all individuals infectious"
-
-    if type == :random || type == :Random 
-        g = makenetwork_random(N, averageconnections, kwargs...)
-    elseif type == :lattice || type == :Lattice 
-        g = makenetwork_lattice(N, averageconnections, kwargs...)
-    elseif type == :smallworld || type == :Smallworld || type == :SmallWorld
-        g = makenetwork_smallworld(N, averageconnections, kwargs...)
-    elseif type == :spatial || type == :Spatial
-        g = makenetwork_spatial(N, averageconnections, kwargs...)
-    else 
-        @error "`type` not recognised"
-    end 
-    Y = sample(vertices(g), Y0; replace = false)
-
-    return Environment(g, Y, [Y])
 end 
 
 function sis77!(u, p, t; tstep = nothing)
@@ -122,8 +115,7 @@ function sis77!(u, p, t; tstep = nothing)
             i ∈ u.Y, # i.e. is infected 
             gamma,
             forceofinfection(i, u, tau)
-        )
-        for i ∈ vertices(u.g)
+        ) for i ∈ vertices(u.g)
     ]
 
     return _sis77!(u, t, rates, tstep)
@@ -148,13 +140,9 @@ function _sis77!(u, t, rates, tstep::Nothing)
     Y = Int[] 
     for j ∈ vertices(u.g) 
         if j ∈ u.Y # i.e. is already infected 
-            if j == i
-                continue 
-            else 
-                push!(Y, j)
-            end 
+            if j != i push!(Y, j) end # not changing, remains infectious 
         else 
-            if j == i push!(Y, j) end 
+            if j == i push!(Y, j) end # changing, becomes infectious
         end 
     end 
     u.Y = Y 
@@ -253,15 +241,22 @@ function plot_sis77!(gl::GridLayout, data, t = nothing)
 end 
 
 function plot_sis77!(ax::Axis, data, t = nothing)
-    lines!(ax, data.t, data.Susceptible; label = "Susceptibles")
-    lines!(ax, data.t, data.Infectious; label = "Infectious")
+    copydata = deepcopy(data)
+    if last(data.t) == Inf pop!(copydata) end 
+    lines!(ax, copydata.t, copydata.Susceptible; label = "Susceptibles")
+    lines!(ax, copydata.t, copydata.Infectious; label = "Infectious")
     plott_sis77!(ax, t)
 end 
 
 plott_sis77!(ax, t::Nothing) = nothing 
 plott_sis77!(ax, t) = vlines!(ax, t)
 
-function videoplot_sis77(g, yhistory, df, t, colours)
+function graphplot_sis77!(ax, g, yhistory, t)
+    colours = [ ifelse(i ∈ yhistory[t], :red, :black) for i ∈ vertices(g) ]
+    graphplot!(ax, g; node_color = colours )
+end 
+
+function videoplot_sis77(g, df, t, colours)
     fig = Figure()
     ga = GridLayout(fig[1, 1])
     ax1 = Axis(ga[1, 1])
@@ -277,6 +272,9 @@ end
 function video_sis77(u, times, df; 
         step = 1/24, folder = "outputvideos", filename = "video77.mp4", kwargs...)
 
+    copytimes = deepcopy(times) 
+    if last(times) == Inf pop!(copytimes) end 
+
     g = u.g
     yhistory = u.historyY
     tstart = 0.
@@ -284,15 +282,15 @@ function video_sis77(u, times, df;
     ot = Observable(tstart)
     cols = Observable(colours)
 
-    fig = videoplot_sis77(g, yhistory, df, ot, cols)
+    fig = videoplot_sis77(g, df, ot, cols)
 
-    frametimes = collect(0:step:last(times))
+    frametimes = collect(0:step:last(copytimes))
 
     record(fig, "$folder/$filename") do io
         for t ∈ frametimes 
             # animate scene by changing values:
             ot[] = t
-            k = max(1, searchsortedfirst(times, t) - 1)
+            k = max(1, searchsortedfirst(copytimes, t) - 1)
             cols[] = [ ifelse(i ∈ yhistory[k], :red, :black) for i ∈ vertices(g) ]
             recordframe!(io)    # record a new frame
         end
