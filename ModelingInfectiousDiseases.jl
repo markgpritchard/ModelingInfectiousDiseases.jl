@@ -1014,4 +1014,34 @@ duration = 100          # duration of model
 
 sol78 = run_sis78(u0, p, duration; saveat = .2)
 result78 = dataframe_sis78(sol78)
-plot_sir78(result78)
+plot_sis78(result78)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Chapter 8
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## Programme 8.1
+
+include("src/chapter8/p8.1.jl")
+#using .MID_81
+
+u0 = [              # Initial conditions for the model
+    .1,                 # S0 = initial proportion susceptible 
+    1e-4,               # I0 = initial proportion infectious 
+    .8999               # R0 = initial proportion resistant to infection 
+]   # these differ from the examples online to give a better display of effect
+p = [               # Model parameters
+    520 / 365,          # beta = transmission parameter (originally 520 / 365)
+    1 / 7,              # gamma = recovery rate
+    1 / (70 * 365),     # mu = mortality rate 
+    1 / (70 * 365),     # nu = birth rate 
+    0.                  # pr = proportion vaccinated (for first part of model)
+]
+duration = 36500       # Duration of the model 
+vaccinationstarttime = 30 * 365     # time when vaccination programme starts 
+vaccinationrate = .8    # proportion vaccinated in vaccination programme 
+
+sol81 =  run_sir81(u0, p, duration, vaccinationstarttime, vaccinationrate)
+result81 = dataframe_sir81(sol81)
+plot_sir81(result81)
