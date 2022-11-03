@@ -38,6 +38,7 @@ function u0_sis77(N, averageconnections, Y0, networktype; kwargs...)
     return Environment(g, Y, [Y])
 end 
 
+#=
 makenetwork_random(N, averageconnections; seed = nothing) = 
     _makenetwork_random(N, averageconnections, seed)
 
@@ -57,6 +58,9 @@ function _makenetwork_random(N, averageconnections, seed::Nothing)
     end 
     return g
 end 
+=#
+makenetwork_random(N, averageconnections; seed = nothing) = 
+    watts_strogatz(N, averageconnections, 1; seed)
 
 makenetwork_lattice(N, averageconnections) = watts_strogatz(N, averageconnections, 0)
     
