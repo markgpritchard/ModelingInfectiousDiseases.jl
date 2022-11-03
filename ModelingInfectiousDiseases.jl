@@ -922,6 +922,9 @@ result77_lat = dataframe_sis77(u_lat, times_lat, N)
 video_sis77(u_lat, times_lat, result77_lat; filename = "video77_lat.mp4")
 
 ### Small world network
+# Note, for the small world network, we can change the proportion of edges that 
+# are connected at random with the optional keyword argument `beta`. Default is 0.05 
+# (note that beta = 0 is the lattice model and beta = 1 is the random model)
 
 u0_sw = u0_sis77(N, connections, y0, :smallworld; seed = 77)
 
@@ -930,6 +933,11 @@ result77_sw = dataframe_sis77(u_sw, times_sw, N)
 video_sis77(u_sw, times_sw, result77_sw; filename = "video77_sw.mp4")
 
 ### Spatial network 
+# Note, for spatial network, we can change the hypothetical space in which the nodes 
+# are arranged with the optional keyword argument `spacesize`. Default is 1. If 
+# the space is set to greater than 100, there will be some nodes with 0 probability 
+# of being connected. If more than N * averageconnections / 2 pairs of nodes have 
+# 0 probability of connecting then the model will fail.
 
 u0_sp = u0_sis77(N, connections, y0, :spatial; seed = 77)
 
@@ -952,49 +960,6 @@ end
 linkxaxes!(axs...)
 leg = Legend(gl[:, 2], axs[1])
 fig_77
-
-### Effects of changing options 
-
-# For small world, we can change the proportion of edges that are connected at random. 
-# Default is 0.05 (note that beta = 0 is the lattice model and beta = 1 is the equivalent 
-# of the random model)
-
-fig_77_betas = Figure() 
-gl = GridLayout(fig_77_betas[1, 1])
-axs1 = [ Axis(gl[i, 1]) for i ∈ 1:6 ]; axs2 = [ Axis(gl[i, 2]) for i ∈ 1:6 ]
-for (i, beta) ∈ enumerate( [ .01, .05, .1, .2, .4, .8] )
-    u0 = u0_sis77(N, connections, y0, :smallworld; beta, seed = 77)
-    u, times = run_sis77(u0, p, duration; seed = 770)
-    result = dataframe_sis77(u, times, N)
-    plot_sis77!(axs1[i], result)
-    if i < 6 hidexdecorations!(axs1[i]; ticks = false) end
-    graphplot_sis77!(axs2[i], u.g, u.historyY, 1)
-    hidexdecorations!(axs2[i]); hideydecorations!(axs2[i])
-    axs1[i].title = "β = $beta"
-end 
-linkxaxes!(axs1...)
-leg = Legend(gl[:, 3], axs[1])
-fig_77_betas
-
-# For spatial, we can change the hypothetical space in which the nodes are arranged.
-# Default is 1 
-
-fig_77_spaces = Figure() 
-gl = GridLayout(fig_77_spaces[1, 1])
-axs1 = [ Axis(gl[i, 1]) for i ∈ 1:6 ]; axs2 = [ Axis(gl[i, 2]) for i ∈ 1:6 ]
-for (i, spacesize) ∈ enumerate( [ .01, .1, 1, 10, 100, 1000 ] )
-    u0 = u0_sis77(N, connections, y0, :spatial; spacesize, seed = 77)
-    u, times = run_sis77(u0, p, duration; seed = 770)
-    result = dataframe_sis77(u, times, N)
-    plot_sis77!(axs1[i], result)
-    if i < 6 hidexdecorations!(axs1[i]; ticks = false) end
-    graphplot_sis77!(axs2[i], u.g, u.historyY, 1)
-    hidexdecorations!(axs2[i]); hideydecorations!(axs2[i])
-    axs1[i].title = "Space size = $spacesize"
-end 
-linkxaxes!(axs1...)
-leg = Legend(gl[:, 3], axs1[1])
-fig_77_spaces
 
 
 ## Programme 7.8
