@@ -38,51 +38,33 @@ function u0_sis77(N, averageconnections, Y0, networktype; kwargs...)
     return Environment(g, Y, [Y])
 end 
 
-#=
-makenetwork_random(N, averageconnections; seed = nothing) = 
-    _makenetwork_random(N, averageconnections, seed)
-
-function _makenetwork_random(N, averageconnections, seed::Real)
-    Random.seed!(seed)
-    return _makenetwork_random(N, averageconnections, nothing)
+function makenetwork_random(N, averageconnections; seed = nothing)
+    distances = ones(N, N) # all probabilities are equal
+    return __makenetwork(N, averageconnections, distances, seed) 
 end 
-
-function _makenetwork_random(N, averageconnections, seed::Nothing)
-    g = SimpleGraph(N)
-    contacts = 0 
-    while contacts < N * averageconnections 
-        a, b = sample(vertices(g), 2; replace = false)
-        has_edge(g, a, b) && continue
-        add_edge!(g, a, b)
-        contacts += 2
-    end 
-    return g
-end 
-=#
-makenetwork_random(N, averageconnections; seed = nothing) = 
-    watts_strogatz(N, averageconnections, 1; seed)
 
 makenetwork_lattice(N, averageconnections) = watts_strogatz(N, averageconnections, 0)
     
 makenetwork_smallworld(N, averageconnections; seed = nothing, beta = .05) = 
     watts_strogatz(N, averageconnections, beta; seed)
 
-makenetwork_spatial(N, averageconnections; seed = nothing, kwargs...) = 
-    _makenetwork_spatial(N, averageconnections, seed; kwargs...)
-
-function _makenetwork_spatial(N, averageconnections, seed::Real; kwargs...)
-    Random.seed!(seed)
-    return _makenetwork_spatial(N, averageconnections, nothing; kwargs...)
-end 
-
-function _makenetwork_spatial(N, averageconnections, seed::Nothing; spacesize = 1) 
+function makenetwork_spatial(N, averageconnections; seed = nothing, spacesize = 1) 
     if spacesize > 100 
-        @warn "Nodes further apart than ≈ 150 will be given a probability of connecting of 0" 
+        @warn "Nodes further apart than ≈ 150 will have a probability of connecting of 0" 
     end
 
     # Make a matrix of positions and identify which nodes link to each other
     positions = [ randomposition(spacesize) for _ ∈ 1:N ]
     distances = [ dists(positions[i], positions[j]) for i ∈ 1:N, j ∈ 1:N ]
+    return __makenetwork(N, averageconnections, distances, seed) 
+end 
+
+function __makenetwork(N, averageconnections, distances, seed::Real) 
+    Random.seed!(seed)
+    return __makenetwork(N, averageconnections, distances, nothing) 
+end 
+
+function __makenetwork(N, averageconnections, distances, seed::Nothing) 
     probabilities = [ calcprobs(distances, i, j) for i ∈ 1:N, j ∈ 1:N ]
     wts = ProbabilityWeights(vec(probabilities))
     identities = vec([ (i, j) for i ∈ 1:N, j ∈ 1:N ])
@@ -163,14 +145,10 @@ function _sis77!(u, t, rates, tstep::Real)
     # Calculate new vector of infected individuals 
     Y = Int[] 
     for i ∈ vertices(u.g) 
-        if i ∈ u.Y # i.e. is infected 
-            if rands[i] < probs[i] 
-                continue 
-            else 
-                push!(Y, i)
-            end 
-        else 
-            if rands[i] < probs[i] push!(Y, i) end 
+        if i ∈ u.Y  # i.e. is already infected 
+            if rands[i] >= probs[i] push!(Y, i) end # not changing, remains infectious 
+        else        # not already infected
+            if rands[i] < probs[i] push!(Y, i) end # changing, becomes infectious
         end 
     end 
 
