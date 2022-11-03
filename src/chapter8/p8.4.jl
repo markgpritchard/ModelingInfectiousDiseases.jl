@@ -6,7 +6,7 @@ import Base: minimum
 
 export Parameters84, sir84!, run_sir84, dataframe_sir84, plot_sir84, plot_sir84!
 
-mutable struct Parameters84 # beta will be a matrix but gamma is a float, so group them in a structure
+mutable struct Parameters84 
     beta    :: Matrix{<:Float64} 
     gamma   :: Float64
     mu      :: Float64
