@@ -137,8 +137,10 @@ function plot_seir34!(gl::GridLayout, result;
             axs[i], 
             select(result, :t, Symbol("S$i"), Symbol("E$i"), Symbol("I$i"), Symbol("R$i"))
         )
+        i < 4 && hidexdecorations!(axs[i]; grid = false, ticks = false)
         Label(gl[i, 2], "age $i"; rotation = -π/2)
     end 
+    linkxaxes!(axs...)
     Label(gl[:, 0], "Proportion of the population"; rotation = π/2)
     Label(gl[5, :], "Time, years")
 

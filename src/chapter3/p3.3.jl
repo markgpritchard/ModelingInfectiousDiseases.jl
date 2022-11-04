@@ -100,6 +100,8 @@ function plot_sir33!(gl::GridLayout, result::DataFrame;
     plot_sir33!(axs[2], select(result, :t, :Sa, :Ia, :Ra))
     axs[2].ylabel = "Fraction adults"
 
+    linkxaxes!(axs...)
+    hidexdecorations!(axs[1]; grid = false, ticks = false)
     axs[2].xlabel = "Time"
     Label(gl[0, :], label)
 

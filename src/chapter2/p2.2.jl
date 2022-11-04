@@ -124,7 +124,8 @@ function plot_sir22(sol)
     ax1.ylabel = "Fraction susceptible"
     ax2.ylabel = "Fraction infectious"
     ax3.ylabel = "Fraction resistant"
-    hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
+    hidexdecorations!(ax1; grid = false, ticks = false)
+    hidexdecorations!(ax2; grid = false, ticks = false)
     resize_to_layout!(fig)
     
     return fig

@@ -120,6 +120,8 @@ function plot_sis32!(gl::GridLayout, result::DataFrame;
     ax4.ylabel = "Fraction of risk group infectious\n(log scale)"
     ax4.xlabel = "Time, days"
 
+    linkxaxes!(ax1, ax2); hidexdecorations!(ax1; grid = false, ticks = false)
+    linkxaxes!(ax3, ax4); hidexdecorations!(ax3; grid = false, ticks = false)
 
     Label(gl[0, :], label)
 

@@ -103,10 +103,11 @@ function plot_sir84!(gl::GridLayout, result::DataFrame;
         lines!(ax2, result.t / 365, result.Rl; label = "Resistant low risk") 
     end
     linkxaxes!(ax1, ax2)
-    hidexdecorations!(ax1; ticks = false)
+    hidexdecorations!(ax1; grid = false, ticks = false)
     ax2.xlabel = "Time, years"
     ylbl = Label(gl[:, 0], "Proportion"; rotation = pi/2)
     leg1 = Legend(gl[1, 2], ax1); leg2 = Legend(gl[2, 2], ax2)
+    Label(gl[0, :], label)
 end 
 
 end # module MID_84

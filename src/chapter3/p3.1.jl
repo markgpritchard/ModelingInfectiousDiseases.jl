@@ -120,6 +120,7 @@ function plot_sir31(sol)
         fig[0, :], 
         "p3.1.jl: Susceptible--infectious--resistant model with a constant population"
     )
+    hidexdecorations!(ax1; grid = false, ticks = false)
     ax1.ylabel = "Fraction infectious\n(linear scale)"
     ax2 = Axis(fig[2, 1], yscale = log10)
     lines!(ax2, xs, Ih, label = "High risk")

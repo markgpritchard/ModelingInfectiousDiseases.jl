@@ -73,6 +73,7 @@ function plot_sir81!(gl::GridLayout, result::DataFrame;
     ax = Axis(gl[1, 1])
     plot_sir81!(ax, result; kwargs...)
     leg = Legend(gl[1, 2], ax)
+    Label(gl[0, 1], label)
 end 
 
 function plot_sir81!(ax::Axis, result::DataFrame; plotr = true)

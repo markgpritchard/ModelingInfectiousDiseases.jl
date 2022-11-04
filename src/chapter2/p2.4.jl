@@ -155,7 +155,8 @@ function plot_sir24!(ax1, ax2, ax3, xs, X, Y, Z, N)
     ax2.ylabel = "Number infectious"
     ax3.ylabel = "Numbers"
     linkxaxes!(ax1, ax2, ax3)
-    hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
+    hidexdecorations!(ax1; grid = false, ticks = false)
+    hidexdecorations!(ax2; grid = false, ticks = false)
 end 
 
 end # module MID_24
