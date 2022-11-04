@@ -3,7 +3,7 @@ module MID_78
   
 using CairoMakie, DataFrames, DifferentialEquations
 
-export sis78!, u0_sis78, run_sis78, dataframe_sis78, plot_sir78, plot_sir78!
+export sis78!, u0_sis78, run_sis78, dataframe_sis78, plot_sis78, plot_sis78!
 
 function u0_sis78(X0, Y0, n) 
     N0 = X0 + Y0
@@ -52,21 +52,21 @@ function dataframe_sis78(sol)
     return result 
 end 
 
-function plot_sir78(result; kwargs...)
+function plot_sis78(result; kwargs...)
     fig = Figure()
-    plot_sir78!(fig, result; kwargs...)
+    plot_sis78!(fig, result; kwargs...)
     resize_to_layout!(fig)
     return fig 
 end 
 
-plot_sir78!(any, sol; kwargs...) = plot_sir78!(any, dataframe_sis78(sol); kwargs...)
+plot_sis78!(any, sol; kwargs...) = plot_sis78!(any, dataframe_sis78(sol); kwargs...)
 
-function plot_sir78!(fig::Figure, result::DataFrame; kwargs...)
+function plot_sis78!(fig::Figure, result::DataFrame; kwargs...)
     gl = GridLayout(fig[1, 1])
-    plot_sir78!(gl, result; kwargs...)
+    plot_sis78!(gl, result; kwargs...)
 end 
 
-function plot_sir78!(gl::GridLayout, result::DataFrame; 
+function plot_sis78!(gl::GridLayout, result::DataFrame; 
         label = "p7.8.jl: Pairwise SIS model")
 
     ax1 = Axis(gl[1, 1])
@@ -83,4 +83,4 @@ function plot_sir78!(gl::GridLayout, result::DataFrame;
     linkaxes!(ax1, ax2)
 end 
 
-end # module MID_7_8
+end # module MID_78
