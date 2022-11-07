@@ -1103,16 +1103,16 @@ u0 = [              # Initial model conditions
     0,                  # Q = initial number quarantined due to infection
     0                   # Z = initial number recovered
 ]
-duration = 100      # Duration
+duration = 120      # Duration
 
 ### Without any quarantine
 
-p_nq = [            # Model parameters
-    1.3,                # b = probability of transmission given contact 
-    400 / 365,          # k = contact rate 
+p_nq = [            # Model parameters with no quarantine 
+    .7,                 # b = probability of transmission given contact 
+    1.1,                # k = contact rate 
     0,                  # di = rate at which infecteds are isolated 
     0,                  # q = proportion of contacts isolated 
-    1 / 15,             # tauq = rate of leaving quarantine 
+    1 / 21,             # tauq = rate of leaving quarantine 
     1 / 7               # gamma = recovery rate 
 ]
 
@@ -1121,41 +1121,55 @@ result85_nq = dataframe_siqr85(sol85_nq)
 
 ### Quarantine cases but not contacts 
 
-p_qc = [            # Model parameters
-    1.3,                # b = probability of transmission given contact 
-    400 / 365,          # k = contact rate 
+p_qc = [            # Model parameters with quarantine of cases but not contacts
+    .7,                 # b = probability of transmission given contact 
+    1.1,                # k = contact rate 
     200 / 365,          # di = rate at which infecteds are isolated 
     0,                  # q = proportion of contacts isolated 
-    1 / 15,             # tauq = rate of leaving quarantine 
-    1  /7               # gamma = recovery rate 
+    1 / 21,             # tauq = rate of leaving quarantine 
+    1 / 7               # gamma = recovery rate 
 ]
 
 sol85_qc = run_siqr85(u0, p_qc, duration)
 result85_qc = dataframe_siqr85(sol85_qc)
 
+### Quarantine contacts but not cases 
+
+p_qco = [           # Model parameters with quarantine of contacts but not cases 
+    .7,                 # b = probability of transmission given contact 
+    1.1,                # k = contact rate 
+    0,                  # di = rate at which infecteds are isolated 
+    .5,                 # q = proportion of contacts isolated 
+    1 / 21,             # tauq = rate of leaving quarantine 
+    1 / 7               # gamma = recovery rate 
+]
+
+sol85_qco = run_siqr85(u0, p_qco, duration)
+result85_qco = dataframe_siqr85(sol85_qco)
+
 ### Quarantine cases and contacts 
 
-p_qcc = [
-    1.3,                # b = probability of transmission given contact 
-    400 / 365,          # k = contact rate 
+p_qcc = [           # Model parameters with quarantine of cases and contacts
+    .7,                 # b = probability of transmission given contact 
+    1.1,                # k = contact rate 
     200 / 365,          # di = rate at which infecteds are isolated 
     .5,                 # q = proportion of contacts isolated 
-    1 / 15,             # tauq = rate of leaving quarantine 
+    1 / 21,             # tauq = rate of leaving quarantine 
     1 / 7               # gamma = recovery rate 
 ]
 
 sol85_qcc = run_siqr85(u0, p_qcc, duration)
 result85_qcc = dataframe_siqr85(sol85_qcc)
 
-lbls85 = ["No quarantine", "Quarantine cases", "Quarantine cases and contacts"]
+lbls85 = ["No quarantine", "Quarantine cases", "Quarantine contacts", "Quarantine cases and contacts"]
 fig85 = Figure()
-axs = [ Axis(fig85[i, 1]) for i ∈ 1:3 ]
-for (i, result) ∈ enumerate([result85_nq, result85_qc, result85_qcc]) 
+axs = [ Axis(fig85[i, 1]) for i ∈ 1:4 ]
+for (i, result) ∈ enumerate([result85_nq, result85_qc, result85_qco, result85_qcc]) 
     plot_siqr85!(axs[i], result)
     axs[i].title = lbls85[i]
-    i < 3 && hidexdecorations!(axs[i]; ticks = false, grid = false)
-    if i == 3 axs[i].xlabel = "Time" end 
+    i < 4 && hidexdecorations!(axs[i]; ticks = false, grid = false)
+    if i == 4 axs[i].xlabel = "Time" end 
 end 
-ylbl = Label(fig85[1:3, 0], "Number"; rotation = pi/2)
-leg = Legend(fig85[4, :], axs[1]; orientation = :horizontal);
+ylbl = Label(fig85[1:4, 0], "Number"; rotation = pi/2)
+leg = Legend(fig85[5, :], axs[1]; orientation = :horizontal);
 fig85 
