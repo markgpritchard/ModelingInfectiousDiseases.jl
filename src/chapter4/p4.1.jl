@@ -53,7 +53,7 @@ end
 function dataframe_sir41(sol)
     result = DataFrame(t = sol.t)
     for (i, lbl) ∈ enumerate([ "SS", "IS", "RS", "SI", "RI", "SR", "IR", "RR" ])
-        insertcols!(result, Symbol(lbl) => [ sol[i][i] for i ∈ axes(sol, 2) ])
+        insertcols!(result, Symbol(lbl) => [ sol[j][i] for j ∈ axes(sol, 2) ])
     end 
     return result 
 end 
