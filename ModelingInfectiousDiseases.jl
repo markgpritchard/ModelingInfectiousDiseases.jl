@@ -368,6 +368,40 @@ fig35_2
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Chapter 4 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## Programme 4.1
+
+include("src/chapter4/p4.1.jl")
+using .MID_41
+
+u0 = [              # Initial conditions for the model
+    .12,                # SS = proportion susceptible to both 
+    1e-4,               # IS = infectious with first, susceptible to second 
+    .02,                # RS = recovered from first, susceptible to second 
+    1e-4,               # SI
+    .0,                 # RI
+    .5,                 # SR
+    .0,                 # IR
+    .3598               # RR
+]
+p = Parameters41(   # Model parameters 
+    [.4, .5],           # a = transmission rate of one strain to the other 
+    [.5, .4],           # alpha = susceptibility to one strain following recovery from the other 
+    [.712, 1.42],       # beta = transmission parameters 
+    [1 / 7, 1 / 7],     # gamma = recovery rates 
+    1 / (70 * 365),     # mu = mortality rate 
+    1 / (70 * 365)      # nu = birth rate 
+)
+duration = 36500    # Duration
+
+sol41 = run_sir41(u0, p, duration)
+result41 = dataframe_sir41(sol41)
+plot_sir41(result41)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Chapter 6 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
