@@ -52,14 +52,9 @@ end
 
 function dataframe_sir41(sol)
     result = DataFrame(t = sol.t)
-    insertcols!(result, :SS => [ sol[i][1] for i ∈ axes(sol, 2) ])
-    insertcols!(result, :IS => [ sol[i][2] for i ∈ axes(sol, 2) ])
-    insertcols!(result, :RS => [ sol[i][3] for i ∈ axes(sol, 2) ])
-    insertcols!(result, :SI => [ sol[i][4] for i ∈ axes(sol, 2) ])
-    insertcols!(result, :RI => [ sol[i][5] for i ∈ axes(sol, 2) ])
-    insertcols!(result, :SR => [ sol[i][6] for i ∈ axes(sol, 2) ])
-    insertcols!(result, :IR => [ sol[i][7] for i ∈ axes(sol, 2) ])
-    insertcols!(result, :RR => [ sol[i][8] for i ∈ axes(sol, 2) ])
+    for (i, lbl) ∈ enumerate([ "SS", "IS", "RS", "SI", "RI", "SR", "IR", "RR" ])
+        insertcols!(result, Symbol(lbl) => [ sol[i][i] for i ∈ axes(sol, 2) ])
+    end 
     return result 
 end 
 
