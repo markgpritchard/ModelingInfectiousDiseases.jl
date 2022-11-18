@@ -200,7 +200,7 @@ function plot_sir66(results, label::String)
     axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
     for i ∈ 1:3
         lines!(axs[i], results.t ./ 365, results[:, i+1])
-        if i <= 2 hidexdecorations!(axs[i]; grid = false, ticks = false) end
+        i <= 2 && hidexdecorations!(axs[i]; grid = false, ticks = false)
     end 
     linkxaxes!(axs...)
     axs[3].xlabel = "Time, years"

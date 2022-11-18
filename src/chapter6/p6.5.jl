@@ -184,7 +184,7 @@ function plot_sir65(results, label::String)
     for i ∈ 1:3
         lines!(axs[i], results.t ./ 365, results[:, i+1]) # lines! instead of stairs! 
             # because we're no longer trying to simulate the instance events occurred
-        if i <= 2 hidexdecorations!(axs[i]; grid = false, ticks = false) end
+        i <= 2 && hidexdecorations!(axs[i]; grid = false, ticks = false)
     end 
     linkxaxes!(axs...)
     axs[3].xlabel = "Time, years"
