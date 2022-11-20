@@ -135,7 +135,8 @@ function plot_sir27(sol)
     ax2.ylabel = "Proportion infectious"
     ax3.ylabel = "Proportion carriers"
     linkxaxes!(ax1, ax2, ax3)
-    hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
+    hidexdecorations!(ax1; grid = false, ticks = false)
+    hidexdecorations!(ax2; grid = false, ticks = false)
     resize_to_layout!(fig)
     
     return fig

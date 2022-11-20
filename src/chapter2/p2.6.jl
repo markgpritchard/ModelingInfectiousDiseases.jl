@@ -129,7 +129,8 @@ function plot_seir26(sol)
     ax3.ylabel = "Proportion resistant"
     fig[2, 2] = Legend(fig, ax2)
     linkxaxes!(ax1, ax2, ax3)
-    hidexdecorations!(ax1; grid = false); hidexdecorations!(ax2; grid = false)
+    hidexdecorations!(ax1; grid = false, ticks = false)
+    hidexdecorations!(ax2; grid = false, ticks = false)
     resize_to_layout!(fig)
 
     return fig

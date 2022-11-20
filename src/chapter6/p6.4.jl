@@ -187,7 +187,7 @@ function plot_sir64(results, label::String)
     axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
     for i ∈ 1:3
         stairs!(axs[i], results.t ./ 365, results[:, i+1]; step = :post)
-        if i <= 2 hidexdecorations!(axs[i]; ticks = false) end
+        i <= 2 && hidexdecorations!(axs[i]; grid = false, ticks = false)
     end 
     linkxaxes!(axs...)
     axs[3].xlabel = "Time, years"

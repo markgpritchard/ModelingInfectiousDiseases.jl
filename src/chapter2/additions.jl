@@ -36,7 +36,7 @@ function plot_sirs23_24(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), 
     fig[3, 3] = Legend(fig, ax3)
 
     linkyaxes!(ax1, ax4); linkyaxes!(ax2, ax5); linkyaxes!(ax3, ax6)
-    for ax ∈ [ax4, ax5, ax6] hideydecorations!(ax; grid = false) end 
+    for ax ∈ [ax4, ax5, ax6] hideydecorations!(ax; grid = false, ticks = false) end 
 
     Label(fig[0, :], "p2.3.jl and p2.4.jl: SIR models with infection-induced mortality")
     ax1.title = "Density-dependent transmission"; ax1.titlefont = "Makie"

@@ -4,7 +4,8 @@ module MID_61
 using CairoMakie, DataFrames, DifferentialEquations, Distributions, Random
 import Base: minimum
 
-export Parameters61, sir61!, run_sir61, plot_sir61
+export Parameters61, sir61!, run_sir61, plot_sir61, plot_sir61!
+
 
 ## Structures that pass the model parameters to the relevant functions
 
@@ -30,6 +31,7 @@ end
 # Define the Base function minimum for Parameters61
 minimum(p::Parameters61) = min(p.beta, p.gamma, p.mu, p.nu, p.xi)
 
+
 ## The function that is passed to the DifferentialEquations solver 
 
 function sir61!(du, u, p, t) 
@@ -43,12 +45,102 @@ function sir61!(du, u, p, t)
     du[3] = p.gamma * Y - p.mu * Z                                  # dZ
 end 
 
+
 ## Functions that calculate the appropriate `noise` value
 
 noise(p, δt) = p.xi * rand(Normal(0, 1)) / sqrt(δt)
 noise!(parameters, p, δt) = parameters.Noise = noise(p, δt)
 
+
 ## Function to run the whole model
+
+run_sir61(u0, p, duration; δt = 1, seed = nothing) = _run_sir61(u0, p, duration, seed; δt)
+
+function _run_sir61(u0, p, duration, seed::Real; δt)
+    Random.seed!(seed)
+    return _run_sir61(u0, p, duration, nothing; δt)
+end 
+
+_run_sir61(u0, p, duration, seed::Nothing; δt) = __run_sir61(u0, p, duration, δt)
+
+# It is much more convenient to ensure at this stage that δt will always be a Float64
+__run_sir61(u0, p, duration, δt) = __run_sir61(u0, p, duration, Float64(δt))
+
+function __run_sir61(u0, p, duration, δt::Float64)
+    @assert minimum(u0) >= 0 "Model cannot run with negative starting values in `u0`. Model supplied u0 = $u0."
+    if minimum(p) < 0 @warn "Model may be unreliable with negative parameters. Running with p = $p." end
+    @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
+    @assert δt > 0 "Model needs δt > 0. Model supplied δt = $δt."
+    @assert δt <= duration "Model needs δt <= duration. Model supplied δt = $δt and duration = $duration."
+
+    # The model runs deterministically for a period δt, then a new `Noise` is calculated 
+    # and the model runs for a further δt until duration is reached 
+    u = u0
+    parameters = InputParameters61(
+        p.beta,
+        p.gamma,
+        p.mu,
+        p.nu,
+        .0      # the Noise parameter is added in the loop below before the ODE is run
+    )
+    τ0 = .0
+    τ1 = δt 
+    results = DataFrame(t = Float64[], X = Float64[], Y = Float64[], Z = Float64[])
+    push!( results, Dict(:t => τ0, :X => u[1], :Y => u[2], :Z => u[3]) )
+    while τ1 <= duration 
+        tspan = ( τ0, τ1 )
+        noise!(parameters, p, δt)   # add the noise parameter
+        prob = ODEProblem(sir61!, u, tspan, parameters)
+        sol = solve(prob)
+        u = last(sol)
+        τ0 = τ1
+        τ1 += δt 
+        push!( results, Dict(:t => τ0, :X => u[1], :Y => u[2], :Z => u[3]) )
+    end
+
+    return results
+end 
+
+
+## Plotting functions
+
+function plot_sir61(results, noise::Real)
+    return plot_sir61(
+        results, 
+        "p6.1.jl: SIR model with random noise added to the transmission term\nNoise magnitude = $noise"
+    )
+end
+
+plot_sir61(results, p::Parameters61) = plot_sir61(results, p.xi) 
+
+function plot_sir61(results, label = "p6.1.jl: SIR model with random noise added to the transmission term")
+    fig = Figure()
+    plot_sir61!(fig, results, label)
+    resize_to_layout!(fig)
+    return fig 
+end 
+
+function plot_sir61!(fig::Figure, results, label)
+    gl = GridLayout(fig[1, 1])
+    plot_sir61!(gl, results, label)
+end 
+
+function plot_sir61!(gl::GridLayout, results, label)
+    axs = [ Axis(gl[i, 1]) for i ∈ 1:3 ]
+    for i ∈ 1:3
+        lines!(axs[i], results.t ./ 365, results[:, i+1])
+        i <= 2 && hidexdecorations!(axs[i]; grid = false, ticks = false)
+    end 
+    linkxaxes!(axs...)
+    axs[3].xlabel = "Time, years"
+    axs[1].ylabel = "Susceptible"
+    axs[2].ylabel = "Infected"
+    axs[3].ylabel = "Recovered"
+    Label(gl[0, :], label; justification = :left)
+end 
+
+
+## Help text 
 
 """
     run_sir61(u0, p, duration[; δt, seed])
@@ -101,52 +193,7 @@ julia> run_sir61(u0, p, 5; seed = 61)
    6 │     5.0       1.00056e5  471.756       9.99972e5
 ```
 """
-run_sir61(u0, p, duration; δt = 1, seed = nothing) = _run_sir61(u0, p, duration, seed; δt)
-
-function _run_sir61(u0, p, duration, seed::Real; δt)
-    Random.seed!(seed)
-    return _run_sir61(u0, p, duration, nothing; δt)
-end 
-
-_run_sir61(u0, p, duration, seed::Nothing; δt) = __run_sir61(u0, p, duration, δt)
-
-# It is much more convenient to ensure at this stage that δt will always be a Float64
-__run_sir61(u0, p, duration, δt) = __run_sir61(u0, p, duration, Float64(δt))
-
-function __run_sir61(u0, p, duration, δt::Float64)
-    @assert minimum(u0) >= 0 "Model cannot run with negative starting values in `u0`. Model supplied u0 = $u0."
-    if minimum(p) < 0 @warn "Model may be unreliable with negative parameters. Running with p = $p." end
-    @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
-    @assert δt > 0 "Model needs δt > 0. Model supplied δt = $δt."
-    @assert δt <= duration "Model needs δt <= duration. Model supplied δt = $δt and duration = $duration."
-
-    # The model runs deterministically for a period δt, then a new `Noise` is calculated 
-    # and the model runs for a further δt until duration is reached 
-    u = u0
-    parameters = InputParameters61(
-            p.beta,
-            p.gamma,
-            p.mu,
-            p.nu,
-            .0      # the Noise parameter is added in the loop below before the ODE is run
-        )
-    τ0 = .0
-    τ1 = δt 
-    results = DataFrame(t = Float64[], X = Float64[], Y = Float64[], Z = Float64[])
-    push!( results, Dict(:t => τ0, :X => u[1], :Y => u[2], :Z => u[3]) )
-    while τ1 <= duration 
-        tspan = ( τ0, τ1 )
-        noise!(parameters, p, δt)   # add the noise parameter
-        prob = ODEProblem(sir61!, u, tspan, parameters)
-        sol = solve(prob)
-        u = last(sol)
-        τ0 = τ1
-        τ1 += δt 
-        push!( results, Dict(:t => τ0, :X => u[1], :Y => u[2], :Z => u[3]) )
-    end
-
-    return results
-end 
+function run_sir61() end
 
 """
     plot_sir61(results[, noise])
@@ -158,37 +205,6 @@ A `label` term can be added which will be printed at the top of the figure. If a
 `noise` term is included, the magnitude of the noise is printed on the plot. `noise` 
 can be a value or a `Parameters61` structure.
 """
-function plot_sir61(results)
-    return plot_sir61(
-        results, 
-        "p6.1.jl: SIR model with random noise added to the transmission term"
-    )
-end
-
-function plot_sir61(results, noise::Real)
-    return plot_sir61(
-        results, 
-        "p6.1.jl: SIR model with random noise added to the transmission term\nNoise magnitude = $noise"
-    )
-end
-
-plot_sir61(results, p::Parameters61) = plot_sir61(results, p.xi) 
-
-function plot_sir61(results, label::String)
-    fig = Figure()
-    axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
-    for i ∈ 1:3
-        lines!(axs[i], results.t ./ 365, results[:, i+1])
-        if i <= 2 hidexdecorations!(axs[i]; ticks = false) end
-    end 
-    linkxaxes!(axs...)
-    axs[3].xlabel = "Time, years"
-    axs[1].ylabel = "Susceptible"
-    axs[2].ylabel = "Infected"
-    axs[3].ylabel = "Recovered"
-    Label(fig[0, :], label; justification = :left)
-
-    return fig
-end 
+function plot_sir61() end
 
 end # module MID_6_1

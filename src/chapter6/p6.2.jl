@@ -57,7 +57,7 @@ function sir62!(du, u, p, t)
 end 
 
 ## Function that support `sir62!`
-ρ
+
 function addnoise(a, p) 
     # With large magnitudes of noise, negative values can be passed to the functions, 
     # such that a negative number of people might be born or might be infected. 
@@ -224,7 +224,7 @@ function plot_sir62(results, label::String)
     axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
     for i ∈ 1:3
         lines!(axs[i], results.t ./ 365, results[:, i+1])
-        if i <= 2 hidexdecorations!(axs[i]; ticks = false) end
+        i <= 2 && hidexdecorations!(axs[i]; grid = false, ticks = false)
     end 
     linkxaxes!(axs...)
     axs[3].xlabel = "Time, years"

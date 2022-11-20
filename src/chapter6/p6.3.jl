@@ -126,7 +126,7 @@ function plot_sis63(results, label::String)
         stairs!(axs[i], results.t ./ 365, results[:, i+1]; step = :post)
     end 
     linkxaxes!(axs...)
-    hidexdecorations!(axs[1]; ticks = false)
+    hidexdecorations!(axs[1]; grid = false, ticks = false)
     axs[2].xlabel = "Time, years"
     axs[1].ylabel = "Susceptible"
     axs[2].ylabel = "Infected"
