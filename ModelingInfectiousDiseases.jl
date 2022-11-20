@@ -380,7 +380,7 @@ u0 = [              # Initial conditions for the model
     .12,                # SS = proportion susceptible to both 
     1e-4,               # IS = infectious with first, susceptible to second 
     .02,                # RS = recovered from first, susceptible to second 
-    1e-4,               # SI
+    1e-4,               # SI (pattern as above)
     .0,                 # RI
     .5,                 # SR
     .0,                 # IR
