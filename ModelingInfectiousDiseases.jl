@@ -430,7 +430,7 @@ plot_spr42(sol42_3)
 include("src/chapter4/p4.3.jl"); using .MID_43
 
 sol43 = run_seicr43(; 
-    S_0 = .8,                           # initial proportion fully susceptible
+    S_0 = .88,                          # initial proportion fully susceptible
     E1_0 = .01,                         # initial proportion exposed to pathogen 1 and susceptible to pathogen 2
     E2_0 = .05,                         # initial proportion exposed to pathogen 2 and susceptible to pathogen 1
     I1_0 = .01,                         # initial proportion infectious with pathogen 1 and susceptible to pathogen 2
@@ -439,8 +439,8 @@ sol43 = run_seicr43(;
     C2_0 = .03,                         # initial proportion convalesing with pathogen 2 and susceptible to pathogen 1
     R1_0 = .0,                          # initial proportion resistant to pathogen 1 and susceptible to pathogen 2
     R2_0 = .0,                          # initial proportion resistant to pathogen 2 and susceptible to pathogen 1
-    ε1_0 = .01,                         # initial proportion exposed to pathogen 1 
-    ε2_0 = .01,                         # initial proportion exposed to pathogen 2
+    ε1_0 = .011,                        # initial proportion exposed to pathogen 1 
+    ε2_0 = .055,                        # initial proportion exposed to pathogen 2
     λ1_0 = .02,                         # initial force of infection for pathogen 1 
     λ2_0 = .02,                         # initial force of infection for pathogen 2 
     alpha = [2., 1.6],                  # permanent cross-immunity parameters 
