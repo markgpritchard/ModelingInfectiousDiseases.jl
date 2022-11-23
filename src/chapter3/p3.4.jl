@@ -90,6 +90,17 @@ function run_seir34(u0, p, duration; saveat = 1)
     return result
 end 
 
+function run_seir34(; S0, E0, I0, R0, beta, sigma, gamma, mu, nu, duration, kwargs...)
+    @assert length(S0) == length(E0) == length(I0) == length(R0) "Must have equal length vectors for S0, E0, I0 and R0"
+    u0 = zeros(4, length(S0))
+    u0[1, :] = S0 
+    u0[2, :] = E0
+    u0[3, :] = I0 
+    u0[4, :] = R0 
+    p = Parameters34(beta, sigma, gamma, mu, nu)
+    return run_seir34(u0, p, duration; kwargs...)
+end
+
 function dataframe_seir34!(df, sol)
     df2 = dataframe_seir34(sol)
     append!(df, df2)
@@ -130,7 +141,6 @@ function plot_seir34!(gl::GridLayout, result;
         label = "p3.3.jl: Susceptible--exposed--infectious--recovered model with four age groups", 
         legend = :right
     )
-
     axs = [ Axis(gl[i, 1]) for i ∈ 1:4 ]
     for i ∈ 1:4 
         plot_seir34!(

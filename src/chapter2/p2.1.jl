@@ -19,16 +19,20 @@ end
 
 function run_sir21(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: Cannot run model with negative starting values in any compartment"
-    @assert sum(u0) == 1 "Input u0 = $u0: Compartment values are proportions so must sum to 1"
+    @assert sum(u0) ≈ 1 "Input u0 = $u0: Compartment values are proportions so must sum to 1"
     @assert minimum(p) >= 0 "Input p = $p: Cannot run with negative values for any parameters"
     @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
 
     tspan = ( 0., Float64(duration) )
-
     prob = ODEProblem(sir21!, u0, tspan, p)
     sol = solve(prob; saveat)
-
     return sol
+end 
+
+function run_sir21(; S0, I0, R0 = 1 - (S0 + I0), beta, gamma, duration, kwargs...)
+    u0 = [S0, I0, R0]
+    p = [beta, gamma]
+    return run_sir21(u0, p, duration; kwargs...)
 end 
 
 function dataframe_sir21(sol)
@@ -62,7 +66,6 @@ function plot_sir21!(gl::GridLayout, result::DataFrame;
         label = "p2.1.jl: Susceptible--infectious--resistant model with a constant population", 
         legend = :right
     )
-
     ax = Axis(gl[1, 1])
     plot_sir21!(ax, result)
 
@@ -89,30 +92,31 @@ function plot_sir21!(ax::Axis, result::DataFrame)
     ax.ylabel = "Fraction of population"
 end 
 
-
-## Help text 
-
 """
     run_sir21(u0, p, duration[; saveat])
+    run_sir21(; S0, I0, beta, gamma, duration[, R0, saveat])
 
-Run the model `sir21!`, Susceptible--infectious--resistant model with a constant 
-population
+Run the model `sir21!`, Susceptible--infectious--resistant model without demography 
+(page 19).
+
+The function has two methods. Either initial conditions and parameters are gathered 
+into two vectors, or all arguments for the model are entered as keyword arguments.
 
 # Arguments 
 
-`u0` is a vector of the initial proportions in each compartment. The vector should 
-have three values, in the order `susceptible`, `infectious`, `recovered`. These 
-values are proportions so should sum to 1.
-
-`p` is a vector of the parameters of the model. The vector should have two values, 
-in the order `beta` (infectiousness parameter), `gamma` (recovery rate).
-
-`duration` is the time the model should run for (time units are interpretted as 
-days).
+* `u0` is a vector of the initial proportions in each compartment in the order `susceptible`, 
+    `infectious`, `recovered`. These values are proportions so must sum to 1.
+* `p` is a vector of the parameters of the model in the order `beta` (infectiousness 
+    parameter), `gamma` (recovery rate).
+* `duration` is the time the model should run for (time units interpretted as days). 
+* `S0` is the proportion initially susceptible.
+* `I0` is the proportion initially infectious.
+* `beta` is the infectiousness parameter
+* `gamma` is the recovery rate
 
 # Optional keyword arguments 
-
 * `saveat`: How frequently the model should save values. Default is 1 (day).
+* `R0`: The initial proportion in the resistant compartment. Default is `1 - (S0 + I0)`.
 
 # Examples 
 ```
@@ -157,35 +161,11 @@ Plot the results of the model `sir21!`.
 
 ## Optional keyword arguments 
 
-* `label`: The label to be placed at the top of the plot. Default is "p2.1.jl: Susceptible--infectious--resistant 
-    model with a constant population"
+* `label`: The label to be placed at the top of the plot. Default is "p2.1.jl: 
+    Susceptible--infectious--resistant model with a constant population"
 * `legend`: where the plot legend should be positioned relative to the plot. Recognised 
     options are `:right`, `:below` and `:none`.
 """
 function plot_sir21() end 
-
-"""
-    plot_sir21!(fig::Figure, result[; kwargs...])
-    plot_sir21!(gl::GridLayout, result[; kwargs...])
-    plot_sir21!(ax::Axis, result)
-
-Plot the results of the model `sir21!`.
-
-This function is provided to give more flexibility than only using `plot_sir21`. 
-It allows the results of the model to be added to an existing figure. The function 
-accepts a `Figure`, `GridLayout` or `Axis` to plot on to.
-
-`result` can be either the ODE solver output or a DataFrame produced with `dataframe_sir21`.
-
-## Optional keyword arguments 
-
-* `label`: The label to be placed at the top of the plot. Default is "p2.1.jl: Susceptible--infectious--resistant 
-    model with a constant population"
-* `legend`: where the plot legend should be positioned relative to the plot. Recognised 
-    options are `:right`, `:below` and `:none`. 
-
-Note that neither option is available if an `Axis` was provided to the function.
-"""
-function plot_sir21!() end 
 
 end # module MID_21

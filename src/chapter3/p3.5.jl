@@ -100,6 +100,12 @@ function run_seir35(u0, p, duration; saveat = 1)
     return sol
 end 
 
+function run_seir35(; m, n, S0, E0, I0, R0 = 1 - (S0 + E0 + I0), beta, sigma, gamma, mu, nu, duration, kwargs...)
+    u0 = seir35_u0(S0, E0, I0, R0, m, n)
+    p = Parameters35(beta, sigma, gamma, mu, nu, m, n)
+    return run_seir35(u0, p, duration; kwargs...)
+end
+
 dataframe_seir35(sol, p) = dataframe_seir35(sol, p.m, p.n)
 
 function dataframe_seir35(sol, m, n)
@@ -170,7 +176,6 @@ function plot_seir35!(gl::GridLayout, result;
         label = "p3.5.jl: Susceptible--exposed--infectious--recovered model with multiple stages", 
         legend = :right
     )
-
     ax = Axis(gl[1, 1])
     plot_seir35!(ax, result)
     ax.xlabel = "Time, years" 

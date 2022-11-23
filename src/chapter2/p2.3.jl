@@ -1,20 +1,10 @@
 
 module MID_23
   
-using CairoMakie, DifferentialEquations
+using CairoMakie, DataFrames, DifferentialEquations
 
-export sir23!, run_sir23, print_sir23, plot_sir23
+export sir23!, run_sir23, dataframe_sir23, plot_sir23, plot_sir23!
 
-"""
-    sir23!(du, u, p, t) 
-
-A compartmental susceptible--infectious--resistant model with infection-induced
-    mortality. This model uses density-dependent (pseudo mass action) transmission,
-    and so compartments are labelled X, Y and Z rather than S, I and R.
-    
-This is the ordinary differential equations function for programme 2.3 in 
-    `Modeling Infectious Diseases in Humans and Animals`
-"""
 function sir23!(du, u, p, t)
     # compartments 
     X, Y, Z = u # following convention in book, {S, I, R} refer to proportions and {X, Y, Z} refer to numbers
@@ -22,12 +12,91 @@ function sir23!(du, u, p, t)
     beta, gamma, mu, nu, rho = p 
 
     # the ODEs
-    du[1] = dX = nu - beta * X * Y - mu * X 
-    du[2] = dY = beta * X * Y - (gamma + mu) * Y / (1 - rho)
-    du[3] = dZ = gamma * Y - mu * Z
+    du[1] = nu - beta * X * Y - mu * X                      # dX
+    du[2] = beta * X * Y - (gamma + mu) * Y / (1 - rho)     # dY
+    du[3] = gamma * Y - mu * Z                              # dZ
 end 
 
-"""
+function run_sir23(u0, p, duration; reltol = 1e-12, saveat = 1)
+    # set low tolerance for solver, otherwise oscillations don't converge appropriately
+    @assert minimum(u0) >= 0 "Input u0 = $u0: Cannot run model with negative starting values in any compartment"
+    @assert minimum(p) >= 0 "Input p = $p: Cannot run with negative values for any parameters"
+    @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
+
+    tspan = ( 0., Float64(duration) )
+
+    prob = ODEProblem(sir23!, u0, tspan, p)
+    sol = solve(prob; reltol, saveat)
+
+    return sol
+end 
+
+function run_sir23(; N0 = 0, X0, Y0, Z0 = N0 - (X0 + Y0), beta, gamma, mu, nu, rho, duration, kwargs...)
+    u0 = [X0, Y0, Z0]
+    p = [beta, gamma, mu, nu, rho]
+    return run_sir23(u0, p, duration; kwargs...)
+end 
+
+function dataframe_sir23(sol)
+    result = DataFrame(t = Float64[], X = Float64[], Y = Float64[], Z = Float64[])
+    for i ∈ eachindex(sol.u)
+        push!( result, Dict(
+            :t => sol.t[i], 
+            :X => sol.u[i][1], 
+            :Y => sol.u[i][2], 
+            :Z => sol.u[i][3]
+        ) )
+    end 
+    insertcols!(result, :N => +(result.X, result.Y, result.Z) )
+    return result 
+end 
+
+function plot_sir23(result; kwargs...)
+    fig = Figure()
+    plot_sir23!(fig, result; kwargs...)
+    resize_to_layout!(fig)
+    return fig 
+end 
+
+plot_sir23!(any, sol; kwargs...) = plot_sir23!(any, dataframe_sir23(sol); kwargs...)
+
+function plot_sir23!(fig::Figure, result::DataFrame; kwargs...)
+    gl = GridLayout(fig[1, 1])
+    plot_sir23!(gl, result; kwargs...)
+end 
+
+function plot_sir23!(gl::GridLayout, result::DataFrame; 
+        label = "p2.3.jl: SIR model with infection-induced mortality and density-dependent transmission", 
+        legend = :right, kwargs...
+    )
+    ax = Axis(gl[1, 1])
+    plot_sir23!(ax, result; kwargs...)
+
+    Label(gl[0, :], label)
+
+    if legend == :right
+        leg = Legend(gl[1, 2], ax)
+    elseif legend == :below 
+        leg = Legend(gl[2, 1], ax)
+    elseif legend == :none 
+        # no legend 
+    else 
+        @info "Unrecognised legend position given. Recognised options are `:right`, `:below` and `:none`"
+    end
+end 
+
+function plot_sir23!(ax::Axis, result::DataFrame; plotZ = true, plotN = true)
+    xs = result.t ./ 365  # to plot time in years
+    
+    lines!(ax, xs, result.X, label = "Susceptible")
+    lines!(ax, xs, result.Y, label = "Infectious")
+    plotZ && lines!(ax, xs, result.Z, label = "Recovered")
+    plotN && lines!(ax, xs, result.N, label = "Total population")
+    ax.xlabel = "Time, years"
+    ax.ylabel = "Numbers"
+end 
+
+#="""
     run_sir23([; beta, gamma, mu, nu, rho, X0, Y0, N0, duration, saveat])
 
 Run the model `sir23`
@@ -51,110 +120,6 @@ All keyword arguments are optional with default values supplied for each.
     Default is 100 years. (The default differs between the programmes in different 
     languages -- 100 years appears to give a reasonable illustration of the results.)
 * `saveat`: How frequently the model should save values. Default is 1 (day).
-"""
-function run_sir23(; beta = 520 / 365, gamma = 1 / 7, mu = 1 / (70 * 365), nu = 1 / (70 * 365), 
-        rho = .5, X0 = .2, Y0 = 1e-6, N0 = 1, duration = 100 * 365, saveat = 1)
-  
-    @assert X0 >= 0 "Input X0 = $X0: cannot run with negative initial number susceptible"
-    @assert Y0 >= 0 "Input Y0 = $Y0: cannot run with negative initial number resistant"
-    @assert beta >= 0 "Input beta = $beta: cannot run with negative parameter beta"
-    @assert gamma >= 0 "Input gamma = $gamma: cannot run with negative parameter gamma"
-    @assert mu >= 0 "Input mu = $mu: cannot run with negative parameter mu"
-    @assert nu >= 0 "Input nu = $nu: cannot run with negative parameter nu"
-    @assert rho >= 0 && rho <= 1 "Input rho = $rho: rho is a probability and cannot be <0 or >1"
-    @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
-    @assert X0 + Y0 <= N0 "Initial numbers susceptible ($X0) and infectious ($Y0) must not sum to more than the total population size ($N0)" 
-    if beta * (1 - rho) * nu < (gamma + nu) * mu @info "R₀ < 1 ($( beta * (1 - rho) * nu / ( (gamma + nu) * mu ) )" end
-
-    Z0 = N0 - X0 - Y0 
-    u0 = [X0, Y0, Z0]
-    tspan = ( 0., Float64(duration) )
-    p = [beta, gamma, mu, nu, rho]
-    prob = ODEProblem(sir23!, u0, tspan, p)
-    # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
-    sol = solve(prob; saveat, reltol = 1e-12)
-
-    return sol
-end 
-
-"""
-    print_sir23([; kwargs...])
-
-Print the saved values after running the model `sir23`. 
-
-Keyword arguments are all optional. See `run_sir23` for details of the arguments and their default values.
-"""
-function print_sir23(; kwargs...)
-    sol = run_sir23(; kwargs...)
-    print_sir23(sol)
-end 
-
-function print_sir23(sol)
-    for i ∈ eachindex(sol.u)
-        println("t = $(sol.t[i]): $(sol.u[i])")
-    end 
-    return nothing 
-end 
-
-"""
-    plot_sir23([; kwargs...])
-    plot_sir23(sol)
-
-Plot the results of running the model `sir23`. 
-
-Can take optional keyword arguments, `run_sir23` (see that function for details 
-    of the arguments and their default values), or the solution from an ODE model. 
-    The advantage of allowing the plot function to run the ODE is that `saveat` 
-    is selected to provide a smooth line on the plot.
-"""
-function plot_sir23(; kwargs...)
-    sol = run_sir23(; kwargs...)
-    return plot_sir23(sol)
-end 
-
-function plot_sir23(sol)
-    # Split out the plotting function here to allow an additional function that 
-    # will plot the results of programmes 2.3 and 2.4 side-by-side
-    xs, X, Y, Z, N = plot_sir23_vals(sol)
-
-    fig = Figure()
-    ax1 = Axis(fig[1, 1]); ax2 = Axis(fig[2, 1]); ax3 = Axis(fig[3, 1])
-    plot_sir23!(ax1, ax2, ax3, xs, X, Y, Z, N)
-    Label(
-        fig[0, :], 
-        "p2.3.jl: SIR model with infection-induced mortality and density-dependent transmission"
-    )
-    fig[3, 2] = Legend(fig, ax3)
-    resize_to_layout!(fig)
-
-    return fig
-end 
-
-function plot_sir23_vals(sol)
-    xs = sol.t ./ 365 # to plot time in years
-    X = Float64[]; Y = Float64[]; Z = Float64[]; N = Float64[]
-    for i ∈ eachindex(sol.u)
-        push!(X, sol.u[i][1])
-        push!(Y, sol.u[i][2])
-        push!(Z, sol.u[i][3])
-        push!(N, (X[i] + Y[i] + Z[i]))
-    end 
-
-    return xs, X, Y, Z, N
-end 
-
-function plot_sir23!(ax1, ax2, ax3, xs, X, Y, Z, N)
-    lines!(ax1, xs, X)
-    lines!(ax2, xs, Y)
-    lines!(ax3, xs, Z, label = "Recovered")
-    lines!(ax3, xs, N, label = "Total population")
-    ax3.xlabel = "Time, years"
-    ax1.ylabel = "Number susceptible"
-    ax2.ylabel = "Number infectious"
-    ax3.ylabel = "Numbers"
-    linkxaxes!(ax1, ax2, ax3)
-    hidexdecorations!(ax1; grid = false, ticks = false)
-    hidexdecorations!(ax2; grid = false, ticks = false)
-end 
+""" =#
 
 end # module MID_23

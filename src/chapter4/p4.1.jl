@@ -50,6 +50,12 @@ function run_sir41(u0, p, duration; saveat = 1)
     return sol
 end 
 
+function run_sir41(; SS0, IS0, RS0, SI0, RI0, SR0, IR0, RR0, a, alpha, beta, gamma, mu, nu, duration, kwargs...)
+    u0 = [SS0, IS0, RS0, SI0, RI0, SR0, IR0, RR0]
+    p = Parameters41(a, alpha, beta, gamma, mu, nu)
+    return run_sir41(u0, p, duration; kwargs...)
+end 
+
 function dataframe_sir41(sol)
     result = DataFrame(t = sol.t)
     for (i, lbl) ∈ enumerate([ "SS", "IS", "RS", "SI", "RI", "SR", "IR", "RR" ])
@@ -73,17 +79,17 @@ function plot_sir41!(fig::Figure, result::DataFrame; kwargs...)
 end 
 
 function plot_sir41!(gl::GridLayout, result::DataFrame; 
-        label = "p1.1.jl: SIR model with partial immunity", kwargs...)
-
+        label = "p1.1.jl: SIR model with partial immunity", kwargs...
+    )
     ax = Axis(gl[1, 1])
     plot_sir41!(ax, result; kwargs...)
     leg = Legend(gl[1, 2], ax)
     Label(gl[0, 1], label)
 end 
 
-function plot_sir41!(ax::Axis, result::DataFrame; plotr = true)
+function plot_sir41!(ax::Axis, result::DataFrame)
     for lbl ∈ [ "SS", "IS", "RS", "SI", "RI", "SR", "IR", "RR" ]
-        lines!(ax, result.t / 365, result41[:, lbl]; label = lbl)
+        lines!(ax, result.t / 365, result[:, lbl]; label = lbl)
     end 
     ax.xlabel = "Time, years"
     ax.ylabel = "Proportion"

@@ -43,6 +43,17 @@ function run_sis32(u0, p, duration; saveat = 1)
     return sol
 end 
 
+function run_sis32(; S0, I0, betavector = nothing, betaconstant = 1, beta = nothing, gamma, duration, kwargs...)
+    @assert length(S0) == length(I0) "Must have equal length vectors for S0 and I0"
+    u0 = zeros(2, length(S0))
+    u0[1, :] = S0 
+    u0[2, :] = I0 
+    # We use an intermediary step when creating the transmission factor so that all βᵢⱼ == βⱼᵢ 
+    if isnothing(beta) beta = betaconstant .* betavector * betavector' end 
+    p = Parameters32(beta, gamma)
+    run_sis32(u0, p, duration; kwargs...)
+end
+
 function dataframe_sis32(sol; type = :both)
     result = DataFrame(t = sol.t)
     if type == :both    # susceptible and infectious to be included in DataFrame 
@@ -100,24 +111,24 @@ function plot_sis32!(gl::GridLayout, result::DataFrame;
     # Plot on a linear scale 
     ax1 = Axis(gl[1, 1])
     plot_sis32!(ax1, result)
-    ax1.ylabel = "Fraction of population infectious\n(linear scale)"
+    ax1.ylabel = "Fraction of population\ninfectious (linear scale)"
 
     # Plot on a log scale
     ax2 = Axis(gl[2, 1], yscale = log10)
     plot_sis32!(ax2, result, plotvalue_nozero)
-    ax2.ylabel = "Fraction of population infectious\n(log scale)"
+    ax2.ylabel = "Fraction of population\ninfectious (log scale)"
     ax2.xlabel = "Time, days"
 
     # And plot proportions within risk group instead of within population 
     # Plot on a linear scale 
     ax3 = Axis(gl[1, 2])
     plot_sis32!(ax3, result, plotvalue_dividen)
-    ax3.ylabel = "Fraction of risk group infectious\n(linear scale)"
+    ax3.ylabel = "Fraction of risk group\ninfectious (linear scale)"
 
     # Plot on a log scale
     ax4 = Axis(gl[2, 2], yscale = log10)
     plot_sis32!(ax4, result, plotvalue_dividen_nozero)
-    ax4.ylabel = "Fraction of risk group infectious\n(log scale)"
+    ax4.ylabel = "Fraction of risk group\ninfectious (log scale)"
     ax4.xlabel = "Time, days"
 
     linkxaxes!(ax1, ax2); hidexdecorations!(ax1; grid = false, ticks = false)
