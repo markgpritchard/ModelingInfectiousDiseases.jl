@@ -443,20 +443,20 @@ sol43 = run_seicr43(;
     ε2_0 = .01,                         # initial proportion exposed to pathogen 2
     λ1_0 = .02,                         # initial force of infection for pathogen 1 
     λ2_0 = .02,                         # initial force of infection for pathogen 2 
-    alpha = [.4, .4],                   # permanent cross-immunity parameters 
-    beta = [.5, .3],                    # transmission parameters 
+    alpha = [2., 1.6],                  # permanent cross-immunity parameters 
+    beta = [.5, .6],                    # transmission parameters 
     gamma = [1 / 5, 1 / 14],            # recovery rates 
     delta = [1 / 7, 1 / 14],            # rate of leaving quarantine 
     mu = .02 / 365,                     # mortality rate 
     nu = .02 / 365,                     # birth rate 
     xi = [1., .5],                      # temporary cross-immunity parameters 
-    rho = [.02, .02],                   # probabilities of infection-induced mortality
+    rho = [.005, .005],                 # probabilities of infection-induced mortality
     sigma = [.125, .125],               # rates of movement from exposed to infectious
     phi = [1., .5],                     # probabilities of co-infection 
-    psi = [.0, .0],                     # differential infection-induced mortality 
+    psi = [.01, .0],                    # differential infection-induced mortality 
     duration = 100,                     # duration of model
     saveat = .2                         # frequent saveat to give a smooth plot
-) # note that psi does not seem to be in any of the equations
+) 
 result43 = dataframe_seicr43(sol43, [.5, .5])
 plot_seicr43(result43)
 
