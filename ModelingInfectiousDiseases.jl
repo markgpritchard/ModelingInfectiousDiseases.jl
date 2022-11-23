@@ -425,6 +425,43 @@ sol42_3 = run_spr42(;
 plot_spr42(sol42_3)
 
 
+## Programme 4.3
+
+include("src/chapter4/p4.3.jl"); using .MID_43
+
+sol43 = run_seicr43(; 
+    S_0 = .9,                           # initial proportion fully susceptible
+    E1_0 = .01,                         # initial proportion exposed to pathogen 1 and susceptible to pathogen 2
+    E2_0 = .01,                         # initial proportion exposed to pathogen 2 and susceptible to pathogen 1
+    I1_0 = .01,                         # initial proportion infectious with pathogen 1 and susceptible to pathogen 2
+    I2_0 = .01,                         # initial proportion infectious with pathogen 2 and susceptible to pathogen 1
+    C1_0 = .0,                          # initial proportion convalesing with pathogen 1 and susceptible to pathogen 2
+    C2_0 = .03,                         # initial proportion convalesing with pathogen 2 and susceptible to pathogen 1
+    R1_0 = .0,                          # initial proportion resistant to pathogen 1 and susceptible to pathogen 2
+    R2_0 = .0,                          # initial proportion resistant to pathogen 2 and susceptible to pathogen 1
+    R12_0 = .0,                         # initial proportion resistant to both pathogens
+    ε1_0 = .01,                         # initial proportion exposed to pathogen 1 
+    ε2_0 = .01,                         # initial proportion exposed to pathogen 2
+    λ1_0 = .02,                         # initial force of infection for pathogen 1 
+    λ2_0 = .02,                         # initial force of infection for pathogen 2 
+    alpha = [.4, .4],                   # permanent cross-immunity parameters 
+    beta = [.5, .3],                    # transmission parameters 
+    gamma = [1 / 5, 1 / 14],            # recovery rates 
+    delta = [1 / 7, 1 / 14],            # rate of leaving quarantine 
+    mu = .02 / 365,                     # mortality rate 
+    nu = .02 / 365,                     # birth rate 
+    xi = [1., .5],                      # temporary cross-immunity parameters 
+    rho = [.02, .02],                   # probabilities of infection-induced mortality
+    sigma = [.125, .125],               # rates of movement from exposed to infectious
+    phi = [1., .5],                     # probabilities of co-infection 
+    psi = [.0, .0],                     # differential infection-induced mortality 
+    duration = 100,                     # duration of model
+    saveat = .2                         # frequent saveat to give a smooth plot
+) # note that psi does not seem to be in any of the equations
+result43 = dataframe_seicr43(sol43, [.5, .5])
+plot_seicr43(result43)
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Chapter 6 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
