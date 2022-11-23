@@ -374,6 +374,57 @@ result41 = dataframe_sir41(sol41)
 plot_sir41(result41)
 
 
+## Programme 4.2
+
+include("src/chapter4/p4.2.jl"); using .MID_42
+
+sol42 = run_spr42(; 
+    n = 4,                              # number of strains 
+    S0 = [.08, .1, .1, .11],            # proportions initially susceptible to each strain
+    P0 = [.4 , .3, .3, .29],            # proportions initially partially susceptible to each strain
+    lambda0 = [.15, .02, .1, .01],      # initial force of infection for each strain
+    beta = 40.,                         # infectiousness parameter 
+    gamma = 9.98,                       # recovery rate 
+    mu = .02,                           # birth and mortality rate
+    a = .4,                             # modified transmission rate due to partial immunity
+    duration = 200,                     # duration of model
+    saveat = .25                        # frequent saveat to give a smooth plot
+)
+plot_spr42(sol42)
+
+### Alternative conditions 
+
+sol42_2 = run_spr42(; 
+    n = 4,                              # number of strains 
+    S0 = [.25 , .14, .25 , .14],        # proportions initially susceptible to each strain
+    P0 = [.016, .55, .016, .55],        # proportions initially partially susceptible to each strain
+    lambda0 = [.07, 1e-12, .07, 1e-12], # initial force of infection for each strain
+    beta = 40.,                         # infectiousness parameter 
+    gamma = 9.98,                       # recovery rate 
+    mu = .02,                           # birth and mortality rate
+    a = .25,                            # modified transmission rate due to partial immunity
+    duration = 200,                     # duration of model
+    saveat = .25                        # frequent saveat to give a smooth plot
+)
+plot_spr42(sol42_2)
+
+### 5 strains 
+
+sol42_3 = run_spr42(; 
+    n = 5,                              # number of strains 
+    S0 = [.2 , .125, .175, .1, .025],   # proportions initially susceptible to each strain
+    P0 = [.03, .49 , .1  , .4, .3  ],   # proportions initially partially susceptible to each strain
+    lambda0 = [.05, .04, .03, .02, .01],# initial force of infection for each strain
+    beta = 40.,                         # infectiousness parameter 
+    gamma = 9.98,                       # recovery rate 
+    mu = .02,                           # birth and mortality rate
+    a = .25,                            # modified transmission rate due to partial immunity
+    duration = 200,                     # duration of model
+    saveat = .25                        # frequent saveat to give a smooth plot
+)
+plot_spr42(sol42_3)
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Chapter 6 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
