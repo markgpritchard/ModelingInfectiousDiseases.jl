@@ -40,7 +40,7 @@ function run_spr42(u0, p::Parameters42, duration; saveat = 1)
     @assert duration > 0 "Input duration = $duration: cannot run with zero or negative duration"
     for i ∈ axes(u0, 2)
         if !isapprox(sum(u0[1:3, i]), 1)
-            @error "Input u0 = $u0: compartments are the sum of S, R, R in each column must equal 1"
+            @error "Input u0 = $u0: compartments are the sum of S, P, R in each column must equal 1"
         end 
     end 
 
@@ -74,8 +74,8 @@ end
 
 function run_spr42(; n, S0, P0, R0 = nothing, lambda0, beta, gamma, mu, a, duration, kwargs...)
     if isnothing(R0) R0 = [ 1 - (S0[i] + P0[i]) for i ∈ eachindex(S0) ] end 
-    @assert length(S0) == length(P0) == length(R0) == length(lambda0) == n "Must have 
-    equal length vectors for `S0`, `P0`, `R0` and `lambda0`, and must be equal to `n`"
+    _em = "Must have equal length vectors for `S0`, `P0`, `R0` and `lambda0`, which must all equal `n`"
+    @assert length(S0) == length(P0) == length(R0) == length(lambda0) == n "$_em"
 
     u0 = zeros(4, length(S0))
     u0[1, :] = S0
