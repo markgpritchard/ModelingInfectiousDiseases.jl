@@ -62,6 +62,7 @@ end
 
 function run_seicr43(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: cannot run with negative compartment values"
+    @assert sum(u0[1:10]) ≈ 1 "Input u0[1:10] = $(u0[1:10]): Compartment values are proportions so must sum to 1"
     @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters"
     @assert maximum(p.rho) <= 1 "Input p.rho = $(p.rho): is a probability and cannot be > 1"
     @assert maximum(p.phi) <= 1 "Input p.phi = $(p.phi): is a probability and cannot be > 1"
@@ -74,7 +75,8 @@ function run_seicr43(u0, p, duration; saveat = 1)
     return sol
 end 
 
-function run_seicr43(; S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0, R12_0, 
+function run_seicr43(; S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0, 
+        R12_0 = 1 - +(S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0), 
         ε1_0, ε2_0, λ1_0, λ2_0, alpha, beta, gamma, delta, mu, nu, xi, rho, sigma, 
         phi, psi, duration, kwargs...
     )
