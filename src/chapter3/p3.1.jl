@@ -97,9 +97,9 @@ function plot_sir31!(gl::GridLayout, result::DataFrame;
     Label(gl[0, :], label)
 
     if legend == :right
-        leg = Legend(gl[1:2, 2], ax)
+        leg = Legend(gl[1:2, 2], ax1)
     elseif legend == :below 
-        leg = Legend(gl[3, 1], ax)
+        leg = Legend(gl[3, 1], ax1)
     elseif legend == :none 
         # no legend 
     else 
