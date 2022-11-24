@@ -249,8 +249,8 @@ plot_seir34(result34; legend = :below)
 include("src/chapter3/p3.5.jl"); using .MID_35
 
 sol35_1 = run_seir35(;
-    m = 8,                  # m = number of exposed compartments
-    n = 13,                 # n = total number of infected compartments (E + I)
+    m = 8,                  # number of exposed compartments
+    n = 13,                 # total number of infected compartments (E + I)
     S0 = .05,               # initial proportion susceptible
     E0 = .0,                # initial proportion exposed
     I0 = .00001,            # initial proportion infectious
@@ -267,8 +267,8 @@ plot_seir35(result35_1; legend = :below)
 ### Alternative sets of parameters
 
 sol35_2 = run_seir35(;
-    m = 0,                  # m = number of exposed compartments
-    n = 10,                 # n = total number of infected compartments (E + I)
+    m = 0,                  # number of exposed compartments
+    n = 10,                 # total number of infected compartments (E + I)
     S0 = .5,                # initial proportion susceptible
     E0 = .0,                # initial proportion exposed
     I0 = 1e-6,              # initial proportion infectious
@@ -283,8 +283,8 @@ sol35_2 = run_seir35(;
 result35_2 = dataframe_seir35(sol35_2, 0, 10) # values of m and n
 
 sol35_3 = run_seir35(;
-    m = 0,                  # m = number of exposed compartments
-    n = 1,                  # n = total number of infected compartments (E + I)
+    m = 0,                  # number of exposed compartments
+    n = 1,                  # total number of infected compartments (E + I)
     S0 = .5,                # initial proportion susceptible
     E0 = .0,                # initial proportion exposed
     I0 = 1e-6,              # initial proportion infectious
@@ -306,8 +306,8 @@ plot_seir35!(gb, result35_3; label = "SIR with 1 I compartment", legend = :right
 fig35_1
 
 sol35_4 = run_seir35(;
-    m = 5,                  # m = number of exposed compartments
-    n = 10,                 # n = total number of infected compartments (E + I)
+    m = 5,                  # number of exposed compartments
+    n = 10,                 # total number of infected compartments (E + I)
     S0 = .5,                # initial proportion susceptible
     E0 = .0,                # initial proportion exposed
     I0 = 1e-4,              # initial proportion infectious
@@ -322,8 +322,8 @@ sol35_4 = run_seir35(;
 result35_4 = dataframe_seir35(sol35_4, 5, 10) # values of m and n
 
 sol35_5 = run_seir35(;
-    m = 1,                  # m = number of exposed compartments
-    n = 2,                  # n = total number of infected compartments (E + I)
+    m = 1,                  # number of exposed compartments
+    n = 2,                  # total number of infected compartments (E + I)
     S0 = .5,                # initial proportion susceptible
     E0 = .0,                # initial proportion exposed
     I0 = 1e-4,              # initial proportion infectious
