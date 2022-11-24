@@ -484,6 +484,121 @@ plot_sir44(result44)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Chapter 5 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## Programme 5.1 
+
+include("src/chapter5/p5.1.jl"); using .MID_51
+
+sol51 = run_sir51(; 
+    S0 = 1 / 17,                    # initial proportion susceptible
+    I0 = 1e-4,                      # initial proportion infectious
+    beta0 = 17 / 13,                # mean transmission parameter 
+    beta1 = .1,                     # amplitude of sinuoidal forcing of transmission
+    gamma = 1 / 13,                 # recovery rate
+    mu = 1 / (50 * 365),            # birth and mortality rate 
+    duration = 60 * 365             # duration of model
+)
+result51 = dataframe_sir51(sol51)
+plot_sir51(result51)
+
+bifdata51 = bifurcationdata_sir51(;
+    S0 = 1 / 17,                    # initial proportion susceptible
+    I0 = 1e-4,                      # initial proportion infectious
+    beta0 = 17 / 13,                # mean transmission parameter 
+    beta1 = collect(0:.0005:.215),   # amplitude of sinuoidal forcing of transmission
+    gamma = 1 / 13,                 # recovery rate
+    mu = 1 / (50 * 365),            # birth and mortality rate 
+    alg_hints = [:stiff]            # additional argument for solver
+)
+bifurcationplot_sir51(bifdata51)
+
+
+## Programme 5.2
+
+include("src/chapter5/p5.2.jl"); using .MID_52
+
+sol52 = run_sir52(; 
+    S0 = 1 / 17,                            # initial proportion susceptible
+    I0 = 1e-4,                              # initial proportion infectious
+    beta0 = 17 / 13,                        # mean transmission parameter 
+    beta1 = .25,                            # amplitude of term-time forcing of transmission
+    gamma = 1 / 13,                         # recovery rate
+    mu = 1 / (50 * 365),                    # birth and mortality rate  
+    termstarttimes = [6, 115, 251, 307],    # days when term starts each year
+    termendtimes = [100, 200, 300, 356],    # days when term ends each year
+    duration = 3650                         # duration of model
+)
+result52 = dataframe_sir52(sol52)
+plot_sir52(result52)
+
+bifdata52 = bifurcationdata_sir52(;
+    S0 = 1 / 17,                            # initial proportion susceptible
+    I0 = 1e-4,                              # initial proportion infectious
+    beta0 = 17 / 13,                        # mean transmission parameter 
+    beta1 = collect(0:.0005:.5),            # amplitude of term-time forcing of transmission
+    gamma = 1/13,                           # recovery rate
+    mu = 1 / (50 * 365),                    # birth and mortality rate 
+    termstarttimes = [6, 115, 251, 307],    # days when term starts each year
+    termendtimes = [100, 200, 300, 356]     # days when term ends each year
+)
+bifurcationplot_sir52(bifdata52)
+
+
+## Programme 5.3
+
+include("src/chapter5/p5.3.jl"); using .MID_53
+
+sol53 = run_sir53(; 
+    S0 = 1 / 17,                    # initial proportion susceptible
+    I0 = 1e-4,                      # initial proportion infectious
+    alpha0 = 1 / (50 * 365),        # mean birth rate
+    alpha1 = .25,                   # amplitude of sinuoidal forcing of births
+    beta = 17 / 13,                 # transmission parameter 
+    gamma = 1 / 13,                 # recovery rate
+    mu = 1 / (50 * 365),            # mortality rate 
+    duration = 60 * 365             # duration of model
+)
+result53 = dataframe_sir53(sol53)
+plot_sir53(result53)
+
+bifdata53 = bifurcationdata_sir53(;
+    S0 = 1 / 17,                    # initial proportion susceptible
+    I0 = 1e-4,                      # initial proportion infectious
+    alpha0 =1 / (50 * 365),         # mean birth rate
+    alpha1 = collect(0:.0005:1),    # amplitude of sinuoidal forcing of births
+    beta = 17/13,                   # transmission parameter 
+    gamma = 1 / 13,                 # recovery rate
+    mu = 1 / (50 * 365),            # mortality rate 
+    alg_hints = [:stiff]            # additional argument for solver
+)
+bifurcationplot_sir53(bifdata53)
+
+
+## Programme 5.4
+
+include("src/chapter5/p5.4.jl"); using .MID_54
+
+sol54 = run_sir54(; 
+    X0 = .5,                # initial number susceptible
+    Y0 = .01,               # initial number infectious
+    N0 = .6,                # initial population size
+    alpha0 = .02,           # mean birth rate
+    alpha1 = .1,            # amplitude of sinuoidal forcing of births
+    beta0 = .936,           # mean transmission parameter 
+    beta1 = .1,             # amplitude of sinuoidal forcing of transmission
+    gamma = .025,           # recovery rate
+    mu = .01,               # mortality rate 
+    m = .475,               # mortality due to infection 
+    K = 10000,              # carrying capacity
+    duration = 20 * 365     # duration of model
+)
+result54 = dataframe_sir54(sol54)
+plot_sir54(result54)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Chapter 6 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
