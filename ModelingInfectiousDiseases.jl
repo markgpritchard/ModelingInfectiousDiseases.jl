@@ -461,6 +461,28 @@ result43 = dataframe_seicr43(sol43, [.5, .5])
 plot_seicr43(result43)
 
 
+## Programme 4.4
+
+include("src/chapter4/p4.4.jl"); using .MID_44
+
+sol44 = run_sir44(; 
+    Xh = 1e3,                           # initial number of susceptible people
+    Yh = 1,                             # initial number of infectious people
+    Xm = 1e4,                           # initial number of susceptible mosquitos
+    Ym = 1,                             # initial number of infectious mosquitos
+    r = 5e-4,                           # rate of humans being bitten
+    gamma = [.033, .0],                 # recovery rates
+    mu = [5.5e-5, 0.143],               # mortality rates
+    nu = [5.5e-2, 1.443e3],             # birth rates 
+    Thm = .5,                           # transmission probability mosquito to human
+    Tmh = .8,                           # transmission probability human to mosquito
+    duration = 200,                     # duration of model
+    saveat = .25                        # frequent saveat to give a smooth plot
+)
+result44 = dataframe_sir44(sol44)
+plot_sir44(result44)
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Chapter 6 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
