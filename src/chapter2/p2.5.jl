@@ -59,7 +59,7 @@ plot_sis25!(any, sol; kwargs...) = plot_sis25!(any, dataframe_sis25(sol); kwargs
 
 function plot_sis25!(fig::Figure, result::DataFrame; kwargs...)
     gl = GridLayout(fig[1, 1])
-    plot_sir22!(gl, result; kwargs...)
+    plot_sis25!(gl, result; kwargs...)
 end 
 
 function plot_sis25!(gl::GridLayout, result::DataFrame; 
@@ -83,7 +83,7 @@ function plot_sis25!(gl::GridLayout, result::DataFrame;
 end 
 
 function plot_sis25!(ax::Axis, result::DataFrame)
-    xs = sol.t ./ 7 # to plot time in weeks
+    xs = result.t ./ 7 # to plot time in weeks
     
     lines!(ax, xs, result.S, label = "Susceptible")
     lines!(ax, xs, result.I, label = "Infectious")

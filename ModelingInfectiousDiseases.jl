@@ -64,7 +64,7 @@ plot_sir22(result22)
 include("src/chapter2/p2.3.jl"); using .MID_23
 
 sol23 = run_sir23(; 
-    N0 = 1,                 # initial population (NB when N0 = 1 then X, Y and Z are proportions)
+    N0 = 1,                 # initial population 
     X0 = .2,                # initial number susceptible 
     Y0 = 1e-6,              # initial number infectious 
     beta = 520 / 365,       # infectiousness parameter 
@@ -83,7 +83,7 @@ plot_sir23(result23)
 include("src/chapter2/p2.4.jl"); using .MID_24
 
 sol24 = run_sir24(; 
-    N0 = 1,                 # initial population (NB when N0 = 1 then X, Y and Z are proportions)
+    N0 = 1,                 # initial population
     X0 = .2,                # initial number susceptible 
     Y0 = 1e-6,              # initial number infectious 
     beta = 520 / 365,       # infectiousness parameter 
@@ -649,7 +649,7 @@ results62_nonoise = run_sir62(;
     beta = 1.,              # infection parameter 
     gamma = .1,             # recovery rate 
     mu = 1 / (50 * 365),    # birth rate (death rate is equal)
-    xi = 0.                 # magnitude of the noise that will be added 
+    xi = 0.,                # magnitude of the noise that will be added 
     duration = 5 * 365      # duration of model
 )
 plot_sir62(results62_nonoise, 0) # xi value
@@ -663,7 +663,7 @@ results62 = run_sir62(;
     beta = 1.,              # infection parameter 
     gamma = .1,             # recovery rate 
     mu = 1 / (50 * 365),    # birth rate (death rate is equal)
-    xi = 1.                 # magnitude of the noise that will be added 
+    xi = 1.,                # magnitude of the noise that will be added 
     duration = 5 * 365,     # duration of model
     seed = 62               # seed for random number generator
 )
@@ -671,14 +671,14 @@ plot_sir62(results62, 1) # xi value
 
 ### Run with a large noise parameter
 
-p_bignoise = run_sir62(;
+results62_bignoise = run_sir62(;
     N0 = 1e6,               # initial size of population 
     X0 = 1e5,               # initial number susceptible
     Y0 = 500,               # initial number infectious
     beta = 1.,              # infection parameter 
     gamma = .1,             # recovery rate 
     mu = 1 / (50 * 365),    # birth rate (death rate is equal)
-    xi = 10.                # magnitude of the noise that will be added 
+    xi = 10.,               # magnitude of the noise that will be added 
     duration = 5 * 365,     # duration of model
     seed = 62               # seed for random number generator
 )
@@ -694,7 +694,7 @@ results63 = run_sis63(;
     X0 = 30,                # initial number susceptible 
     Y0 = 70,                # initial number infectious
     beta = .03,             # infection parameter  
-    gamma = .01             # recovery rate  
+    gamma = .01,            # recovery rate  
     duration = 3650,        # duration of model
     seed = 63               # seed for random number generator
 )
@@ -712,7 +712,7 @@ results64_50 = run_sir64(;
     N0 = 50,                # initial size of population 
     beta = 1.,              # infection parameter  
     gamma = .1,             # recovery rate  
-    mu = 5e-4               # birth and death rate
+    mu = 5e-4,              # birth and death rate
     duration = 2 * 365,     # duration of model
     seed = 64               # seed for random number generator
 )
@@ -720,15 +720,15 @@ plot_sir64(results64_50, 50) # N0 value
 
 ### and with a larger population
 
-results64_50 = run_sir64(;
+results64_5000 = run_sir64(;
     N0 = 5000,              # initial size of population 
     beta = 1.,              # infection parameter  
     gamma = .1,             # recovery rate  
-    mu = 5e-4               # birth and death rate
+    mu = 5e-4,              # birth and death rate
     duration = 2 * 365,     # duration of model
     seed = 64               # seed for random number generator
 )
-plot_sir64(results64, 5000) # N0 value
+plot_sir64(results64_5000, 5000) # N0 value
 
 
 ## Programme 6.5
@@ -932,7 +932,7 @@ p = [               # Model parameters
 duration = 2910     # Duration
 
 sol73 = run_sir73(u0, p, duration; saveat = 4) # saveat = 4 to give approximately 
-    # 30 seconds of video with duration = 2910 and framerate = 24
+    # 30 seconds of video with framerate = 24
 
 # This function will save a video in the folder "outputvideos/" as "video73.mp4"
 video_sir73(
@@ -940,7 +940,7 @@ video_sir73(
     # should the colour scale be constant throughout the video (vs each frame having a separate scale):
     fixmax = true,
     # attempt to find colormap with good differentiation between small values (especially with fixmax = true):
-    colormap = :seaborn_colorblind#:gist_stern
+    colormap = :seaborn_colorblind
 )
 
 ### Repeat with defined starting points (one infectious individual in the middle and one in a corner)
@@ -1185,7 +1185,7 @@ axs = [ Axis(gl[i, 1]) for i ∈ 1:4 ]
 for (i, res) ∈ enumerate([result77_rand, result77_lat, result77_sw, result77_sp])
     plot_sis77!(axs[i], res)
     axs[i].title = titles77[i]
-    if i < 4 hidexdecorations!(axs[i]; ticks = false) end
+    if i < 4 hidexdecorations!(axs[i]; ticks = false, grid = false) end
 end 
 linkxaxes!(axs...)
 leg = Legend(gl[:, 2], axs[1])

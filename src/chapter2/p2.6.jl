@@ -73,7 +73,7 @@ function plot_seir26!(gl::GridLayout, result::DataFrame;
         legend = :right, kwargs...
     )
     ax = Axis(gl[1, 1])
-    plot_sir22!(ax, result; kwargs...)
+    plot_seir26!(ax, result; kwargs...)
 
     Label(gl[0, :], label)
 
