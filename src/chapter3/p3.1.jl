@@ -87,9 +87,9 @@ function plot_sir31!(gl::GridLayout, result::DataFrame;
         legend = :right, kwargs...
     )
     ax1 = Axis(gl[1, 1])
-    plot_sir31!(ax1::Axis, result::DataFrame; ylabel = "Fraction infectious\n(linear scale)")
+    plot_sir31!(ax1, result; ylabel = "Fraction infectious\n(linear scale)")
     ax2 = Axis(gl[2, 1], yscale = log10)
-    plot_sir31!(ax1::Axis, result::DataFrame; ylabel = "Fraction infectious\n(log scale)")
+    plot_sir31!(ax2, result; ylabel = "Fraction infectious\n(log scale)")
     ax2.xlabel = "Time, days"
     hidexdecorations!(ax1; grid = false, ticks = false)
     linkxaxes!(ax1, ax2)
@@ -97,9 +97,9 @@ function plot_sir31!(gl::GridLayout, result::DataFrame;
     Label(gl[0, :], label)
 
     if legend == :right
-        leg = Legend(gl[1:2, 2], ax)
+        leg = Legend(gl[1:2, 2], ax1)
     elseif legend == :below 
-        leg = Legend(gl[3, 1], ax)
+        leg = Legend(gl[3, 1], ax1)
     elseif legend == :none 
         # no legend 
     else 
@@ -108,8 +108,8 @@ function plot_sir31!(gl::GridLayout, result::DataFrame;
 end 
 
 function plot_sir31!(ax::Axis, result::DataFrame; ylabel = "")
-    lines!(ax1, xs, result.Ih, label = "High risk")
-    lines!(ax1, xs, result.Il, label = "Low risk")
+    lines!(ax, result.t, result.Ih, label = "High risk")
+    lines!(ax, result.t, result.Il, label = "Low risk")
     ax.ylabel = ylabel 
 end 
 

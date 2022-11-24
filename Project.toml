@@ -1,7 +1,7 @@
 name = "ModelingInfectiousDiseases"
 uuid = "f781dabf-c6d9-4d5d-8c6d-8371671e0f9d"
 authors = ["Mark Pritchard <mark.pritchard@ndm.ox.ac.uk>"]
-version = "0.2.9"
+version = "0.2.10"
 
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
