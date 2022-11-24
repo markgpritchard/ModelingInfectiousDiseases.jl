@@ -36,6 +36,8 @@ end
 function run_sir44(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: cannot run with negative compartment values"
     @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters"
+    @assert maximum(p.Thm) <= 1 "Input p.Thm = $(p.Thm): is a probability and cannot be > 1"
+    @assert maximum(p.Tmh) <= 1 "Input p.Tmh = $(p.Tmh): is a probability and cannot be > 1"
     @assert duration > 0 "Input duration = $duration: cannot run with zero or negative duration"
 
     tspan = ( 0., Float64(duration) )
