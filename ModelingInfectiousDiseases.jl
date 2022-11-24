@@ -507,7 +507,7 @@ bifdata51 = bifurcationdata_sir51(;
     S0 = 1 / 17,                    # initial proportion susceptible
     I0 = 1e-4,                      # initial proportion infectious
     beta0 = 17 / 13,                # mean transmission parameter 
-    beta1 = collect(0:.0005:.215),   # amplitude of sinuoidal forcing of transmission
+    beta1 = collect(0:.0005:.215),  # amplitude of sinuoidal forcing of transmission
     gamma = 1 / 13,                 # recovery rate
     mu = 1 / (50 * 365),            # birth and mortality rate 
     alg_hints = [:stiff]            # additional argument for solver
@@ -833,80 +833,46 @@ plot_sir71(result71)
 include("src/chapter7/p7.2.jl")
 using .MID_72
 
-# Initial conditions for the model:
-X0 = [
-    800 0   0   0   0
-    0   800 0   0   0
-    0   0   800 0   0
-    0   0   0   800 0
-    0   0   0   0   800.
-]
-Y0 = zeros(5, 5); Y0[1, 1] = 1 
-Z0 = [
-    199 0   0   0   0
-    0   200 0   0   0
-    0   0   200 0   0
-    0   0   0   200 0
-    0   0   0   0   200.
-]
-u0 = zeros(5, 5, 3) 
-u0[:, :, 1] = X0; u0[:, :, 2] = Y0; u0[:, :, 3] = Z0
-
-p = Parameters72(       # Model parameters
-    ones(5),                # beta = vector of infection parameters
-    .3 * ones(5),           # gamma = vector of recovery rates 
-    zeros(5),               # mu = vector of mortality rates
-    zeros(5, 5),            # nu = matrix of birth rates for every population--location combination
-    zeros(5, 5),            # l = matrix of movements from home subpopulation 
-    2 * ones(5, 5)          # r = matrix of movements back to home subpopulation 
+sol72 = run_sir72(;
+    N0 = [ ifelse(i == j, 1000., .0) for i ∈ 1:5, j ∈ 1:5 ], # initial population size 
+    X0 = [ ifelse(i == j, 800., .0) for i ∈ 1:5, j ∈ 1:5 ], # initial number susceptible 
+    Y0 = [ ifelse(i == j == 1, 1., .0) for i ∈ 1:5, j ∈ 1:5 ], # initial number infectious
+    beta = ones(5),                             # vector of infection parameters
+    gamma = .3 * ones(5),                       # vector of recovery rates
+    mu = zeros(5),                              # vector of mortality rates
+    nu = zeros(5, 5),                           # matrix of birth rates for every population--location combination
+    l = [ ifelse(abs(i - j) == 1, .1, .0) for i ∈ 1:5, j ∈ 1:5 ], # matrix of movements from home subpopulation
+    r = 2 * ones(5, 5),                         # matrix of movements back to home subpopulation
+    duration = 60,                              # duration of model
+    saveat = .125                               # frequent saveat to give a smooth plot
 )
-# Formula for p.l from the Python code 
-for i ∈ 1:5, j ∈ 1:5 
-    if abs(i - j) == 1 p.l[i, j] = .1 end 
-end 
-
-duration = 60           # Duration 
-
-sol72 = run_sir72(u0, p, duration; saveat = .125)
 # Note that there are so many compartments in this model we do not display a DataFrame
 # of results
 plot_sir72(sol72) 
 
 ### repeat with more varied parameters 
 
-X0_2 = [
-    999 0   0   0   0
-    0  1000 0   0   0
-    0   0  1000 0   0
-    0   0   0  1000 0
-    0   0   0   0  1000.
-]
-Y0_2 = zeros(5, 5); Y0_2[1, 1] = 1 
-Z0_2 = zeros(5, 5)
-u0_2 = zeros(5, 5, 3) 
-u0_2[:, :, 1] = X0_2; u0_2[:, :, 2] = Y0_2; u0_2[:, :, 3] = Z0_2
-
-p_2 = Parameters72(     # Model parameters
-    .5 * ones(5),               # beta = vector of infection parameters
-    .2 * ones(5),               # gamma = vector of recovery rates 
-    1 / (70 * 365) * ones(5),   # mu = vector of mortality rates
-    zeros(5, 5),                # nu = matrix of birth rates for every population--location combination
-    [                           # l = matrix of movements from home subpopulation 
-        0   .15 0   0   0
-        .15 0   0   0   0
-        0   0   0   0   0 
-        0   .15 .15 0   .15 
-        0   0   0   0   0
-    ],                
-    3 * ones(5, 5)              # r = matrix of movements back to home subpopulation 
+sol72_2 = run_sir72(;
+    N0 = [ ifelse(i == j, 1000., .0) for i ∈ 1:5, j ∈ 1:5 ], # initial population size 
+    X0 = [  999     0     0     0     0         # initial number susceptible  
+              0  1000     0     0     0
+              0     0  1000     0     0
+              0     0     0  1000     0
+              0     0     0     0  1000. ],       
+    Y0 = [ ifelse(i == j == 1, 1., .0) for i ∈ 1:5, j ∈ 1:5 ], # initial number infectious
+    beta = .5 * ones(5),                        # vector of infection parameters
+    gamma = .2 * ones(5),                       # vector of recovery rates
+    mu = 1 / (70 * 365) * ones(5),              # vector of mortality rates
+    nu = [ ifelse(i == j, p_2.nu[i, j] = 1000 / (70 * 365), .0) for i ∈ 1:5, j ∈ 1:5 ], # matrix of birth rates 
+    l = [ 0    .15  0    0    0                 # matrix of movements from home subpopulation
+          .15  0    0    0    0
+          0    0    0    0    0 
+          0    .15  .15  0    .15 
+          0    0    0    0    0   ], 
+    r = 3 * ones(5, 5) ,                        # matrix of movements back to home subpopulation
+    duration = 100,                             # duration of model
+    saveat = .125                               # frequent saveat to give a smooth plot
 )
-for i ∈ 1:5, j ∈ 1:5 
-    if i == j p_2.nu[i, j] = 1000 / (70 * 365) end
-end 
-
-duration_2 = 100        # Duration 
-
-sol72_2 = run_sir72(u0_2, p_2, duration_2; saveat = .125)
 plot_sir72(sol72_2) 
 
 
