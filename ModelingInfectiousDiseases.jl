@@ -430,32 +430,32 @@ plot_spr42(sol42_3)
 include("src/chapter4/p4.3.jl"); using .MID_43
 
 sol43 = run_seicr43(; 
-    S_0 = .88,                          # initial proportion fully susceptible
-    E1_0 = .01,                         # initial proportion exposed to pathogen 1 and susceptible to pathogen 2
-    E2_0 = .05,                         # initial proportion exposed to pathogen 2 and susceptible to pathogen 1
-    I1_0 = .01,                         # initial proportion infectious with pathogen 1 and susceptible to pathogen 2
-    I2_0 = .01,                         # initial proportion infectious with pathogen 2 and susceptible to pathogen 1
-    C1_0 = .0,                          # initial proportion convalesing with pathogen 1 and susceptible to pathogen 2
-    C2_0 = .03,                         # initial proportion convalesing with pathogen 2 and susceptible to pathogen 1
-    R1_0 = .0,                          # initial proportion resistant to pathogen 1 and susceptible to pathogen 2
-    R2_0 = .0,                          # initial proportion resistant to pathogen 2 and susceptible to pathogen 1
-    ε1_0 = .011,                        # initial proportion exposed to pathogen 1 
-    ε2_0 = .055,                        # initial proportion exposed to pathogen 2
-    λ1_0 = .02,                         # initial force of infection for pathogen 1 
-    λ2_0 = .02,                         # initial force of infection for pathogen 2 
-    alpha = [2., 1.6],                  # permanent cross-immunity parameters 
-    beta = [.5, .6],                    # transmission parameters 
-    gamma = [1 / 5, 1 / 14],            # recovery rates 
-    delta = [1 / 7, 1 / 14],            # rate of leaving quarantine 
-    mu = .02 / 365,                     # mortality rate 
-    nu = .02 / 365,                     # birth rate 
-    xi = [1., .5],                      # temporary cross-immunity parameters 
-    rho = [.005, .005],                 # probabilities of infection-induced mortality
-    sigma = [.125, .125],               # rates of movement from exposed to infectious
-    phi = [1., .5],                     # probabilities of co-infection 
-    psi = [.01, .0],                    # differential infection-induced mortality 
-    duration = 100,                     # duration of model
-    saveat = .2                         # frequent saveat to give a smooth plot
+    S_0 = .88,                  # initial proportion fully susceptible
+    E1_0 = .01,                 # initial proportion exposed to pathogen 1 and susceptible to pathogen 2
+    E2_0 = .05,                 # initial proportion exposed to pathogen 2 and susceptible to pathogen 1
+    I1_0 = .01,                 # initial proportion infectious with pathogen 1 and susceptible to pathogen 2
+    I2_0 = .01,                 # initial proportion infectious with pathogen 2 and susceptible to pathogen 1
+    C1_0 = .0,                  # initial proportion convalesing with pathogen 1 and susceptible to pathogen 2
+    C2_0 = .03,                 # initial proportion convalesing with pathogen 2 and susceptible to pathogen 1
+    R1_0 = .0,                  # initial proportion resistant to pathogen 1 and susceptible to pathogen 2
+    R2_0 = .0,                  # initial proportion resistant to pathogen 2 and susceptible to pathogen 1
+    ε1_0 = .011,                # initial proportion exposed to pathogen 1 
+    ε2_0 = .055,                # initial proportion exposed to pathogen 2
+    λ1_0 = .02,                 # initial force of infection for pathogen 1 
+    λ2_0 = .02,                 # initial force of infection for pathogen 2 
+    alpha = [2., 1.6],          # permanent cross-immunity parameters 
+    beta = [.5, .6],            # transmission parameters 
+    gamma = [1 / 5, 1 / 14],    # recovery rates 
+    delta = [1 / 7, 1 / 14],    # rate of leaving quarantine 
+    mu = .02 / 365,             # mortality rate 
+    nu = .02 / 365,             # birth rate 
+    xi = [1., .5],              # temporary cross-immunity parameters 
+    rho = [.005, .005],         # probabilities of infection-induced mortality
+    sigma = [.125, .125],       # rates of movement from exposed to infectious
+    phi = [1., .5],             # probabilities of co-infection 
+    psi = [.01, .0],            # differential infection-induced mortality 
+    duration = 100,             # duration of model
+    saveat = .2                 # frequent saveat to give a smooth plot
 ) 
 result43 = dataframe_seicr43(sol43, [.5, .5])
 plot_seicr43(result43)
@@ -466,18 +466,18 @@ plot_seicr43(result43)
 include("src/chapter4/p4.4.jl"); using .MID_44
 
 sol44 = run_sir44(; 
-    Xh = 1e3,                           # initial number of susceptible people
-    Yh = 1,                             # initial number of infectious people
-    Xm = 1e4,                           # initial number of susceptible mosquitos
-    Ym = 1,                             # initial number of infectious mosquitos
-    r = 5e-4,                           # rate of humans being bitten
-    gamma = [.033, .0],                 # recovery rates
-    mu = [5.5e-5, 0.143],               # mortality rates
-    nu = [5.5e-2, 1.443e3],             # birth rates 
-    Thm = .5,                           # transmission probability mosquito to human
-    Tmh = .8,                           # transmission probability human to mosquito
-    duration = 200,                     # duration of model
-    saveat = .25                        # frequent saveat to give a smooth plot
+    Xh = 1e3,               # initial number of susceptible people
+    Yh = 1,                 # initial number of infectious people
+    Xm = 1e4,               # initial number of susceptible mosquitos
+    Ym = 1,                 # initial number of infectious mosquitos
+    r = 5e-4,               # rate of humans being bitten
+    gamma = [.033, .0],     # recovery rates
+    mu = [5.5e-5, 0.143],   # mortality rates
+    nu = [5.5e-2, 1.443e3], # birth rates 
+    Thm = .5,               # transmission probability mosquito to human
+    Tmh = .8,               # transmission probability human to mosquito
+    duration = 200,         # duration of model
+    saveat = .25            # frequent saveat to give a smooth plot
 )
 result44 = dataframe_sir44(sol44)
 plot_sir44(result44)
@@ -523,53 +523,51 @@ plot_sir61(results61, 10) # xi value
 
 ## Programme 6.2 
 
-include("src/chapter6/p6.2.jl")
-using .MID_62
-
-u0 = [
-    1e5,                # X0 -- initial number susceptible
-    500,                # Y0 -- initial number infectious
-    1e6 - (1e5 + 500)   # Z0 -- initial number recovered
-]
+include("src/chapter6/p6.2.jl"); using .MID_62
 
 ### Run with no noise
 
-p_nonoise = Parameters62(
-    1.,                 # beta -- infection parameter 
-    .1,                 # gamma -- recovery rate 
-    1 / (50 * 365),     # mu -- birth rate 
-    1 / (50 * 365),     # nu -- death rate (recommended to equal birth rate)
-    0.                  # xi -- magnitude of the noise that will be added 
+results62_nonoise = run_sir62(;
+    N0 = 1e6,               # initial size of population 
+    X0 = 1e5,               # initial number susceptible
+    Y0 = 500,               # initial number infectious
+    beta = 1.,              # infection parameter 
+    gamma = .1,             # recovery rate 
+    mu = 1 / (50 * 365),    # birth rate (death rate is equal)
+    xi = 0.                 # magnitude of the noise that will be added 
+    duration = 5 * 365      # duration of model
 )
-
-results62_nonoise = run_sir62(u0, p_nonoise, 5 * 365)
-plot_sir62(results62_nonoise, p_nonoise)
+plot_sir62(results62_nonoise, 0) # xi value
 
 ### Run with noise parameter
 
-p = Parameters62(
-    1.,                 # beta -- infection parameter 
-    .1,                 # gamma -- recovery rate 
-    1 / (50 * 365),     # mu -- birth rate 
-    1 / (50 * 365),     # nu -- death rate
-    1.                  # xi -- magnitude of the noise that will be added 
+results62 = run_sir62(;
+    N0 = 1e6,               # initial size of population 
+    X0 = 1e5,               # initial number susceptible
+    Y0 = 500,               # initial number infectious
+    beta = 1.,              # infection parameter 
+    gamma = .1,             # recovery rate 
+    mu = 1 / (50 * 365),    # birth rate (death rate is equal)
+    xi = 1.                 # magnitude of the noise that will be added 
+    duration = 5 * 365,     # duration of model
+    seed = 62               # seed for random number generator
 )
-
-results62 = run_sir62(u0, p, 5 * 365; seed = 62)
-plot_sir62(results62, p)
+plot_sir62(results62, 1) # xi value
 
 ### Run with a large noise parameter
 
-p_bignoise = Parameters62(
-    1.,                 # beta -- infection parameter 
-    .1,                 # gamma -- recovery rate 
-    1 / (50 * 365),     # mu -- birth rate 
-    1 / (50 * 365),     # nu -- death rate
-    10.                 # xi -- magnitude of the noise that will be added 
+p_bignoise = run_sir62(;
+    N0 = 1e6,               # initial size of population 
+    X0 = 1e5,               # initial number susceptible
+    Y0 = 500,               # initial number infectious
+    beta = 1.,              # infection parameter 
+    gamma = .1,             # recovery rate 
+    mu = 1 / (50 * 365),    # birth rate (death rate is equal)
+    xi = 10.                # magnitude of the noise that will be added 
+    duration = 5 * 365,     # duration of model
+    seed = 62               # seed for random number generator
 )
-
-results62_bignoise = run_sir62(u0, p_bignoise, 5 * 365; seed = 62)
-plot_sir62(results62_bignoise, p_bignoise)
+plot_sir62(results62_bignoise, 10) # xi value
 
 
 ## Programme 6.3 
@@ -577,16 +575,14 @@ plot_sir62(results62_bignoise, p_bignoise)
 include("src/chapter6/p6.3.jl")
 using .MID_63
 
-u0 = [
-    30,                 # X0 -- initial number susceptible 
-    70                  # Y0 -- initial number infectious
-]
-p = [
-    .03,                # beta -- infection parameter  
-    .01                 # gamma -- recovery rate  
-]
-
-results63 = run_sis63(u0, p, 10 * 365; seed = 63)
+results63 = run_sis63(;
+    X0 = 30,                # initial number susceptible 
+    Y0 = 70,                # initial number infectious
+    beta = .03,             # infection parameter  
+    gamma = .01             # recovery rate  
+    duration = 3650,        # duration of model
+    seed = 63               # seed for random number generator
+)
 plot_sis63(results63)
 
 
@@ -595,23 +591,29 @@ plot_sis63(results63)
 include("src/chapter6/p6.4.jl")
 using .MID_64
 
-p = [
-    1.,                 # beta -- infection parameter  
-    .1,                 # gamma -- recovery rate  
-    5e-4                # mu -- birth and death rate
-]
-
 ### Examine model with small population
 
-u0_50 = u0_sir64(50, p)
-results64_50 = run_sir64(u0_50, p, 2 * 365; seed = 64)
-plot_sir64(results64_50, 50)
+results64_50 = run_sir64(;
+    N0 = 50,                # initial size of population 
+    beta = 1.,              # infection parameter  
+    gamma = .1,             # recovery rate  
+    mu = 5e-4               # birth and death rate
+    duration = 2 * 365,     # duration of model
+    seed = 64               # seed for random number generator
+)
+plot_sir64(results64_50, 50) # N0 value
 
 ### and with a larger population
 
-u0 = u0_sir64(5000, p)
-results64 = run_sir64(u0, p, 2 * 365; seed = 64)
-plot_sir64(results64, 5000)
+results64_50 = run_sir64(;
+    N0 = 5000,              # initial size of population 
+    beta = 1.,              # infection parameter  
+    gamma = .1,             # recovery rate  
+    mu = 5e-4               # birth and death rate
+    duration = 2 * 365,     # duration of model
+    seed = 64               # seed for random number generator
+)
+plot_sir64(results64, 5000) # N0 value
 
 
 ## Programme 6.5
