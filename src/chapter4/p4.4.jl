@@ -92,13 +92,6 @@ function plot_sir44!(gl::GridLayout, result::DataFrame;
     axs[2].xlabel = "Time"
     axs[1].ylabel = "Number of people"
     axs[2].ylabel = "Number of mosquitos"
-
- #   for (i, c) ∈ enumerate([:S, :E, :I])
- #       plot_seicr43!(axs[i], result, c)
- #       leg = Legend(gl[i, 2], axs[i])
- #       i < 3 && hidexdecorations!(axs[i]; ticks = false, grid = false)
- #       axs[i].ylabel = "Proportion $(String(c))" 
- #   end 
     axs[2].xlabel = "Time"
     Label(gl[0, 1], label)
 end 
