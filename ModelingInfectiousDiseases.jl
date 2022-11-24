@@ -850,31 +850,6 @@ sol72 = run_sir72(;
 # of results
 plot_sir72(sol72) 
 
-### repeat with more varied parameters 
-
-sol72_2 = run_sir72(;
-    N0 = [ ifelse(i == j, 1000., .0) for i ∈ 1:5, j ∈ 1:5 ], # initial population size 
-    X0 = [  999     0     0     0     0         # initial number susceptible  
-              0  1000     0     0     0
-              0     0  1000     0     0
-              0     0     0  1000     0
-              0     0     0     0  1000. ],       
-    Y0 = [ ifelse(i == j == 1, 1., .0) for i ∈ 1:5, j ∈ 1:5 ], # initial number infectious
-    beta = .5 * ones(5),                        # vector of infection parameters
-    gamma = .2 * ones(5),                       # vector of recovery rates
-    mu = 1 / (70 * 365) * ones(5),              # vector of mortality rates
-    nu = [ ifelse(i == j, p_2.nu[i, j] = 1000 / (70 * 365), .0) for i ∈ 1:5, j ∈ 1:5 ], # matrix of birth rates 
-    l = [ 0    .15  0    0    0                 # matrix of movements from home subpopulation
-          .15  0    0    0    0
-          0    0    0    0    0 
-          0    .15  .15  0    .15 
-          0    0    0    0    0   ], 
-    r = 3 * ones(5, 5) ,                        # matrix of movements back to home subpopulation
-    duration = 100,                             # duration of model
-    saveat = .125                               # frequent saveat to give a smooth plot
-)
-plot_sir72(sol72_2) 
-
 
 ## Programme 7.3
 
