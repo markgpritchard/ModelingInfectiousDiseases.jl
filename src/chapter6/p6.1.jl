@@ -6,7 +6,6 @@ import Base: minimum
 
 export Parameters61, sir61!, run_sir61, plot_sir61, plot_sir61!
 
-
 ## Structures that pass the model parameters to the relevant functions
 
 struct Parameters61 
@@ -56,6 +55,12 @@ noise!(parameters, p, δt) = parameters.Noise = noise(p, δt)
 
 run_sir61(u0, p, duration; δt = 1, seed = nothing) = _run_sir61(u0, p, duration, seed; δt)
 
+function run_sir61(; N0 = 0, X0, Y0, Z0 = N0 - (X0 + Y0), beta, gamma, mu, nu = mu, xi, duration, kwargs...)
+    u0 = [X0, Y0, Z0]
+    p = Parameters61(beta, gamma, mu, nu, xi)
+    return run_sir61(u0, p, duration; kwargs...)
+end 
+
 function _run_sir61(u0, p, duration, seed::Real; δt)
     Random.seed!(seed)
     return _run_sir61(u0, p, duration, nothing; δt)
@@ -67,11 +72,11 @@ _run_sir61(u0, p, duration, seed::Nothing; δt) = __run_sir61(u0, p, duration, �
 __run_sir61(u0, p, duration, δt) = __run_sir61(u0, p, duration, Float64(δt))
 
 function __run_sir61(u0, p, duration, δt::Float64)
-    @assert minimum(u0) >= 0 "Model cannot run with negative starting values in `u0`. Model supplied u0 = $u0."
-    if minimum(p) < 0 @warn "Model may be unreliable with negative parameters. Running with p = $p." end
-    @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
-    @assert δt > 0 "Model needs δt > 0. Model supplied δt = $δt."
-    @assert δt <= duration "Model needs δt <= duration. Model supplied δt = $δt and duration = $duration."
+    @assert minimum(u0) >= 0 "Input u0 = $u0: Cannot run model with negative starting values in any compartment"
+    @assert minimum(p) >= 0 "Input p = $p: Cannot run with negative values for any parameters"
+    @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
+    @assert δt > 0 "Input δt = $δt: model needs δt > 0"
+    @assert δt <= duration "Input δt = $δt, duration = $duration: Model needs δt ≤ duration"
 
     # The model runs deterministically for a period δt, then a new `Noise` is calculated 
     # and the model runs for a further δt until duration is reached 
@@ -129,7 +134,7 @@ function plot_sir61!(gl::GridLayout, results, label)
     axs = [ Axis(gl[i, 1]) for i ∈ 1:3 ]
     for i ∈ 1:3
         lines!(axs[i], results.t ./ 365, results[:, i+1])
-        if i <= 2 hidexdecorations!(axs[i]; ticks = false) end
+        i <= 2 && hidexdecorations!(axs[i]; grid = false, ticks = false)
     end 
     linkxaxes!(axs...)
     axs[3].xlabel = "Time, years"

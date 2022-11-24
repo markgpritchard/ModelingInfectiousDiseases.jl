@@ -57,14 +57,14 @@ function plot_siqr85!(fig::Figure, result::DataFrame; kwargs...)
 end 
 
 function plot_siqr85!(gl::GridLayout, result::DataFrame; 
-        label = "p8.5.jl: SIR model with quarantine", plotr = true)
+        label = "p8.5.jl: SIR model with quarantine")
 
     ax = Axis(gl[1, 1])
     plot_siqr85!(ax, result)
-    ax.xlabel = "Time, years"
+    ax.xlabel = "Time"
     ax.ylabel = "Number"
-
-    leg = Legend(gl[2, 1], ax; orientation = :horizontal);
+    leg = Legend(gl[2, 1], ax; orientation = :horizontal)
+    Label(fig85[0, 1], label)
 end 
 
 function plot_siqr85!(ax::Axis, result::DataFrame)

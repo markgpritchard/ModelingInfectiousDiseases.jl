@@ -74,13 +74,15 @@ function plot_sis78!(gl::GridLayout, result::DataFrame;
     lines!(ax1, result.t, result.Y; label = "Infectious")
     ax1.ylabel = "Individuals"
     leg = Legend(gl[1, 2], ax1)
-    hidexdecorations!(ax1; ticks = false)
+    hidexdecorations!(ax1; grid = false, ticks = false)
 
     ax2 = Axis(gl[2, 1])
     lines!(ax2, result.t, result.XY)
     ax2.ylabel = "XY pairs" 
     ax2.xlabel = "Time"
     linkaxes!(ax1, ax2)
+
+    Label(gl[0, :], label)
 end 
 
 end # module MID_78

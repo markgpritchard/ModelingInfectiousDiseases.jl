@@ -156,8 +156,8 @@ function plot_sir72!(ax::Axis, sol, i, j;
     for lbl ∈ lbls
         lines!(ax, data.t, data[:, lbl]; label = lbl)
     end 
-    if hidex hidexdecorations!(ax; ticks = false) end
-    if hidey hideydecorations!(ax; ticks = false) end
+    hidex && hidexdecorations!(ax; grid = false, ticks = false)
+    hidey && hideydecorations!(ax; grid = false, ticks = false)
 end 
 
 end # module MID_72

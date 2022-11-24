@@ -56,6 +56,16 @@ function run_sir33(u0, p, duration; saveat = 1)
     return sol
 end 
 
+function run_sir33(; S0, I0, R0, beta, gamma, lambda, mu, nu, duration, kwargs...)
+    @assert length(S0) == length(I0) == length(R0) "Must have equal length vectors for S0, I0 and R0"
+    u0 = zeros(3, length(S0))
+    u0[1, :] = S0 
+    u0[2, :] = I0 
+    u0[3, :] = R0 
+    p = Parameters33(beta, gamma, lambda, mu, nu)
+    return run_sir33(u0, p, duration; kwargs...)
+end
+
 function dataframe_sir33(sol)
     result = DataFrame(t = sol.t)
     _dataframe_sir33!(result, sol, :c, 1)
@@ -92,7 +102,6 @@ function plot_sir33!(gl::GridLayout, result::DataFrame;
         label = "p3.3.jl: Susceptible--infectious--recovered model with two age groups", 
         legend = :right
     )
-
     axs = [ Axis(gl[i, 1]) for i ∈ 1:2 ]
     plot_sir33!(axs[1], select(result, :t, :Sc, :Ic, :Rc))
     axs[1].ylabel = "Fraction children"
@@ -100,6 +109,8 @@ function plot_sir33!(gl::GridLayout, result::DataFrame;
     plot_sir33!(axs[2], select(result, :t, :Sa, :Ia, :Ra))
     axs[2].ylabel = "Fraction adults"
 
+    linkxaxes!(axs...)
+    hidexdecorations!(axs[1]; grid = false, ticks = false)
     axs[2].xlabel = "Time"
     Label(gl[0, :], label)
 

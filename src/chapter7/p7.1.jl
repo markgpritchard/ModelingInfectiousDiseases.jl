@@ -90,6 +90,7 @@ function plot_sir71!(gl::GridLayout, result::DataFrame;
     axs = [ Axis(gl[i, 1]) for i ∈ 1:n ]
     for i ∈ 1:n 
         plot_sir71!( axs[i], select(result, :t, Symbol("S$i"), Symbol("I$i"), Symbol("R$i")) )
+        i < n && hidexdecorations!(axs[i]; grid = false, ticks = false)
     end 
     axs[n].xlabel = "Time, years" 
     Label(gl[:, 0], "Counts"; rotation = π/2)
