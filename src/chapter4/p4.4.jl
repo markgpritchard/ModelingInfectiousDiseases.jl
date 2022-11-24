@@ -98,8 +98,7 @@ end
 
 function plot_sir44!(ax::Axis, result::DataFrame)
     xs = result.t
-    lines!(ax, xs, result[:, 2], label = names(result)[2])
-    lines!(ax, xs, result[:, 3], label = names(result)[3])
+    for i ∈ 2:3 lines!(ax, xs, result[:, i], label = names(result)[i]) end 
 end 
 
 end # module MID_44
