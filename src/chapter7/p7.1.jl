@@ -56,6 +56,14 @@ function run_sir71(u0, p, duration; saveat = 1)
     return sol
 end 
 
+function run_sir71(; N0 = nothing, X0, Y0, Z0 = N0 .- X0 .- Y0, beta, gamma, mu, nu, m, duration, kwargs...)
+    @assert length(X0) == length(Y0) == length(Z0)
+    u0 = zeros(3, length(X0))
+    u0[1, :] = X0; u0[2, :] = Y0; u0[3, :] = Z0
+    p = Parameters71(beta, gamma, mu, nu, m)
+    return run_sir71(u0, p, duration; kwargs...)
+end 
+
 function dataframe_sir71(sol)
     result = DataFrame(t = sol.t)
     for i ∈ axes(sol, 2), (j, c) ∈ enumerate(["S", "I", "R"])

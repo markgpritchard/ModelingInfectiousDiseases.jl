@@ -733,26 +733,31 @@ plot_sir64(results64_5000, 5000) # N0 value
 
 ## Programme 6.5
 
-include("src/chapter6/p6.5.jl")
-using .MID_65
-
-p = [
-    1.,                 # beta -- infection parameter  
-    .1,                 # gamma -- recovery rate  
-    5e-4                # mu -- birth and death rate
-]
+include("src/chapter6/p6.5.jl"); using .MID_65
 
 ### Examine model with small population
 
-u0_50 = u0_sir65(50, p)
-results65_50 = run_sir65(u0_50, p, 2 * 365; seed = 65)
-plot_sir65(results65_50, 50)
+results65_50 = run_sir65(
+    N0 = 50,                # initial size of population 
+    beta = 1.,              # infection parameter  
+    gamma = .1,             # recovery rate  
+    mu = 5e-4,              # birth and mortality rate
+    duration = 2 * 365,     # duration of model
+    seed = 65               # seed for random number generator
+)
+plot_sir65(results65_50, 50) # N0 value
 
 ### and with a larger population
 
-u0 = u0_sir65(5000, p)
-results65 = run_sir65(u0, p, 2 * 365; seed = 65)
-plot_sir65(results65, 5000)
+results65_5000 = run_sir65(
+    N0 = 5000,              # initial size of population 
+    beta = 1.,              # infection parameter  
+    gamma = .1,             # recovery rate  
+    mu = 5e-4,              # birth and mortality rate
+    duration = 2 * 365,     # duration of model
+    seed = 65               # seed for random number generator
+)
+plot_sir65(results65_5000, 5000) # N0 value
 
 
 ## Programme 6.6
@@ -806,32 +811,26 @@ plot_sir66(results66_10y_d01, "p6.6.jl: SIR model with τ-leap stochasticity\nδ
 
 ## Programme 7.1
 
-include("src/chapter7/p7.1.jl")
-using .MID_71
+include("src/chapter7/p7.1.jl"); using .MID_71
 
-u0 = [                  # Initial conditions for the model
-    .1      .1  .1  .1  .1  # susceptibles 
-    .0001   .0  .0  .0  .0  # infectious
-    .0      .0  .0  .0  .0  # recovered
-]
-p = Parameters71(       # Model parameters
-    ones(5),                # beta = vector of infection parameters
-    .1 * ones(5),           # gamma = vector of recovery rates 
-    .0001 * ones(5),        # mu = vector of mortality rates
-    .0001 * ones(5),        # nu = vector of birth rates
-    .001 * ones(5, 5)       # m = matrix of migrations between subpopulations
+sol71 = run_sir71(
+    N0 = ones(5),                                   # initial population size 
+    X0 = .1 * ones(5),                              # initial number susceptible 
+    Y0 = [ ifelse(i == 1, 1e-4, .0) for i ∈ 1:5 ],  # initial number infectious 
+    beta = ones(5),                                 # vector of infection parameters
+    gamma = .1 * ones(5),                           # vector of recovery rates 
+    mu = .0001 * ones(5),                           # vector of mortality rates
+    nu = .0001 * ones(5),                           # vector of birth rates
+    m = .001 * ones(5, 5),                          # matrix of migrations between subpopulations
+    duration = 2910                                 # duration of model
 )
-duration = 2910         # Duration
-
-sol71 = run_sir71(u0, p, duration)
 result71 = dataframe_sir71(sol71)
 plot_sir71(result71) 
 
 
 ## Programme 7.2
 
-include("src/chapter7/p7.2.jl")
-using .MID_72
+include("src/chapter7/p7.2.jl"); using .MID_72
 
 sol72 = run_sir72(;
     N0 = [ ifelse(i == j, 1000., .0) for i ∈ 1:5, j ∈ 1:5 ], # initial population size 
@@ -846,34 +845,28 @@ sol72 = run_sir72(;
     duration = 60,                              # duration of model
     saveat = .125                               # frequent saveat to give a smooth plot
 )
-# Note that there are so many compartments in this model we do not display a DataFrame
-# of results
+# There are so many compartments in this model we do not display a DataFrame of results
 plot_sir72(sol72) 
 
 
 ## Programme 7.3
 
-include("src/chapter7/p7.3.jl")
-using .MID_73
+include("src/chapter7/p7.3.jl"); using .MID_73
 
-u0 = sir73_u0(      # Initial conditions for the model
-    25,                 # size of grid 
-    .1,                 # value of x0 in each cell 
-    4,                  # number of cells with non-zero Y0 
-    .001,               # value of Y0 in cells with non-zero Y0
-    1;                  # population size in each cell
-    seed = 73           # seed for random number generator 
+sol73 = run_sir73(;
+    n = 25,                 # size of grid 
+    x0 = .1,                # value of x0 in each cell 
+    ni = 4,                 # number of cells with non-zero Y0 
+    y0 = .001,              # value of Y0 in cells with non-zero Y0
+    n0 = 1,                 # population size in each cell
+    beta = 1.,              # infectiousness parameter 
+    gamma = .1,             # recovery rate 
+    mu = .0001,             # mortality rate
+    rho = .1                # rate at which individuals interact with neighbouring environments
+    duration = 2910         # duration of model
+    seed = 73               # seed for random number generator 
+    saveat = 4              # to give approximately 30 seconds of video with framerate = 24
 )
-p = [               # Model parameters
-    1.,                 # beta = infectiousness parameter 
-    .1,                 # gamma = recovery rate 
-    .0001,              # mu = mortality rate
-    .1                  # rho = rate at which individuals interact with neighbouring environments
-]
-duration = 2910     # Duration
-
-sol73 = run_sir73(u0, p, duration; saveat = 4) # saveat = 4 to give approximately 
-    # 30 seconds of video with framerate = 24
 
 # This function will save a video in the folder "outputvideos/" as "video73.mp4"
 video_sir73(
@@ -886,32 +879,29 @@ video_sir73(
 
 ### Repeat with defined starting points (one infectious individual in the middle and one in a corner)
 
-u0_2 = sir73_u0(    # Initial conditions for the model
-    101,                # size of grid 
-    999,                # value of x0 in each cell 
-    [5101, 9901],       # vector of cells with non-zero Y0 
-    1,                  # value of Y0 in cells with non-zero Y0
-    1000                # population size in each cell
+sol73_2 = run_sir73(;
+    n = 101,                # size of grid 
+    x0 = 999,               # value of x0 in each cell 
+    yvector = [5101, 9901], # vector of cells with non-zero Y0
+    y0 = 1,                 # value of Y0 in cells with non-zero Y0
+    n0 = 1000,              # population size in each cell
+    beta = .4,              # infectiousness parameter 
+    gamma = .2,             # recovery rate 
+    mu = 4e-5,              # mortality rate
+    rho = .1                # rate at which individuals interact with neighbouring environments
+    duration = 500          # duration of model 
+    saveat = 1              # to give approximately 20 seconds of video with framerate = 24
 )
-p_2 = [             # Model parameters
-    .4,                 # beta = infectiousness parameter 
-    .2,                 # gamma = recovery rate 
-    4e-5,               # mu = mortality rate
-    .1                  # rho = rate at which individuals interact with neighbouring environments
-]
-duration_2 = 500    # Duration
-
-sol73_2 = run_sir73(u0_2, p_2, duration_2; saveat = 1) 
 video_sir73(sol73_2; filename = "video73_2.mp4", fixmax = false)
 
 ### A custom addition with a "firebreak" area with resistant population 
 
-u0_3 = sir73_u0(    # Initial conditions for the model
-    101,                # size of grid 
-    1000,               # value of x0 in each cell 
-    0,                  # number of cells with non-zero Y0 
-    0,                  # value of Y0 in cells with non-zero Y0
-    1000                # population size in each cell
+u0 = sir73_u0(;   
+    n = 101,                # size of grid 
+    x0 = 1000,              # value of x0 in each cell 
+    ni = 0,                 # number of cells with non-zero Y0 
+    y0 = 0,                 # value of Y0 in cells with non-zero Y0
+    n0 = 1000               # population size in each cell
 )
 for i ∈ axes(u0_3, 1), j ∈ axes(u0_3, 2)
     if j ∈ [50, 51, 52] && i <= 51 
@@ -922,15 +912,18 @@ for i ∈ axes(u0_3, 1), j ∈ axes(u0_3, 2)
         u0_3[i, j, 2] = 1
     end 
 end 
-p_3 = [             # Model parameters
-    .4,                 # beta = infectiousness parameter 
-    .2,                 # gamma = recovery rate 
-    4e-5,               # mu = mortality rate
-    .1                  # rho = rate at which individuals interact with neighbouring environments
+p = [             
+    .4,                     # beta = infectiousness parameter 
+    .2,                     # gamma = recovery rate 
+    4e-5,                   # mu = mortality rate
+    .1                      # rho = rate at which individuals interact with neighbouring environments
 ]
-duration_3 = 750    # Duration
-
-sol73_3 = run_sir73(u0_3, p_3, duration_3; saveat = 1) 
+sol73_3 = run_sir73(
+    u0,                     # initial conditions for the model
+    p,                      # model parameters
+    750;                    # duration of model 
+    saveat = 1              # to give approximately 30 seconds of video with framerate = 24
+) 
 video_sir73(sol73_3; filename = "video73_3.mp4", fixmax = true, colormap = :gist_stern)
 
 
