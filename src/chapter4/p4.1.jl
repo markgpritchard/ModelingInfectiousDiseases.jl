@@ -79,7 +79,7 @@ function plot_sir41!(fig::Figure, result::DataFrame; kwargs...)
 end 
 
 function plot_sir41!(gl::GridLayout, result::DataFrame; 
-        label = "p1.1.jl: SIR model with partial immunity", kwargs...
+        label = "p4.1.jl: SIR model with partial immunity", kwargs...
     )
     ax = Axis(gl[1, 1])
     plot_sir41!(ax, result; kwargs...)

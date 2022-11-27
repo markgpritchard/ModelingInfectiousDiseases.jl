@@ -153,6 +153,13 @@ end
 run_sis75(u0, p, duration; seed = nothing, tstep = nothing) = 
     _run_sis75(u0, p, duration, seed; tstep)
 
+function run_sis75(; n, Y0, size = 10, alpha, beta, gamma, duration, seed = nothing, kwargs...)
+    u0 = u0_sis75(n, Y0, size; seed)
+    p = [alpha, beta, gamma] 
+    # u0_sis75 has reset the global random number generator seed so does not also need to be passed to _run_sis75
+    return _run_sis75(u0, p, duration, nothing; kwargs...)
+end 
+
 function _run_sis75(u0, p, duration, seed::Int; tstep)
     Random.seed!(seed)
     return _run_sis75(u0, p, duration, nothing; tstep)

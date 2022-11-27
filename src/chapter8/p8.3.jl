@@ -18,17 +18,15 @@ function sir83!(du, u, p, t)
     du[3] = gamma * I - mu * R                  # dR
 end 
 
-function run_sir83(u0, p, duration, vaccinationstarttime, vaccinationfrequency, 
-        vaccinationproportion; saveat = 1)
-    
+function run_sir83(u0, p, duration, vaccinationstarttime, vaccinationfrequency, vaccinationproportion; 
+        saveat = 1
+    )
     @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
     @assert sum(u0) ≈ 1 "Input sum(u0) = $(sum(u0)): compartments are proportions so should sum to 1"
     @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters" 
     @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
-    @assert vaccinationstarttime >= 0 "Input vaccinationstarttime = $vaccinationstarttime: 
-        cannot run with negative vaccination start time"
-    @assert vaccinationfrequency > 0 "Input vaccinationfrequency = $vaccinationfrequency: 
-        cannot run with negative or zero vaccination frequency"
+    @assert vaccinationstarttime >= 0 "Input vaccinationstarttime = $vaccinationstarttime: cannot run with negative vaccination start time"
+    @assert vaccinationfrequency > 0 "Input vaccinationfrequency = $vaccinationfrequency: cannot run with negative or zero vaccination frequency"
     @assert vaccinationproportion >= 0 "Input vaccinationproportion = $vaccinationproportion: cannot run with negative vaccination rate"
     
     tspan = ( 0., Float64(duration) )
@@ -47,6 +45,14 @@ function run_sir83(u0, p, duration, vaccinationstarttime, vaccinationfrequency,
         cb = PresetTimeCallback(vaccinetimes, affect!)
         return solve(prob; callback = cb, saveat)
     end
+end 
+
+function run_sir83(; S0, I0, R0 = 1 - (S0 + I0), beta, gamma, mu, nu = mu, duration, 
+        vaccinationstarttime, vaccinationfrequency, vaccinationproportion, kwargs...
+    )
+    u0 = [S0, I0, R0] 
+    p = [beta, gamma, mu, nu]
+    return run_sir83(u0, p, duration, vaccinationstarttime, vaccinationfrequency, vaccinationproportion; kwargs...)
 end 
 
 function dataframe_sir83(sol)

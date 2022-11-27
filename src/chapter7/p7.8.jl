@@ -44,6 +44,12 @@ function run_sis78(u0, p, duration; saveat = 1)
     return sol
 end 
 
+function run_sis78(; X0, Y0, n, gamma, tau, duration, kwargs...)
+    u0 = u0_sis78(X0, Y0, n)
+    p = [gamma, tau, n]
+    return run_sis78(u0, p, duration; kwargs...)
+end 
+
 function dataframe_sis78(sol)
     result = DataFrame(t = sol.t)
     insertcols!(result, :X => [ sol[i][1] for i ∈ axes(sol, 2) ])

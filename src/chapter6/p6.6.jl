@@ -61,6 +61,12 @@ end
 
 run_sir66(u0, p, duration; δt = 1, seed = nothing) = _run_sir66(u0, p, duration, seed; δt)
 
+function run_sir66(; N0, beta, gamma, delta, epsilon, mu, duration, kwargs...)
+    p = [beta, gamma, delta, epsilon, mu]
+    u0 = u0_sir66(N0, p)
+    return run_sir66(u0, p, duration; kwargs...)
+end
+
 function _run_sir66(u0, p, duration, seed::Int; δt)
     Random.seed!(seed)
     return _run_sir66(u0, p, duration, nothing; δt)

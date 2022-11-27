@@ -136,7 +136,7 @@ function run_sir73(u0, p, duration; saveat = 1)
     return sol
 end 
 
-function run_sir73(n, x0, yvector = nothing, ni = yvector, y0, n0, beta, gamma, 
+function run_sir73(; n, x0, yvector = nothing, ni = yvector, y0, n0, beta, gamma, 
         mu, rho, duration, seed = nothing, kwargs...
     )
     u0 = sir73_u0(n, x0, ni, y0, n0; seed)

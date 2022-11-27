@@ -31,6 +31,12 @@ function run_siqr85(u0, p, duration; saveat = 1)
     return solve(prob; saveat)
 end 
 
+function run_siqr85(; X0, Xq0, Y0, Q0, Z0, b, k, di, q, tauq, gamma, duration, kwargs...)
+    u0 = [X0, Xq0, Y0, Q0, Z0]
+    p = [b, k, di, q, tauq, gamma]
+    return run_siqr85(u0, p, duration; kwargs...)
+end
+
 function dataframe_siqr85(sol)
     return DataFrame(
         t = sol.t,
@@ -57,8 +63,8 @@ function plot_siqr85!(fig::Figure, result::DataFrame; kwargs...)
 end 
 
 function plot_siqr85!(gl::GridLayout, result::DataFrame; 
-        label = "p8.5.jl: SIR model with quarantine")
-
+        label = "p8.5.jl: SIR model with quarantine"
+    )
     ax = Axis(gl[1, 1])
     plot_siqr85!(ax, result)
     ax.xlabel = "Time"

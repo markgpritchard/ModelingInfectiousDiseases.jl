@@ -113,16 +113,26 @@ function searchsortedfirstmat(mat, v)
 end 
 
 function run_sir74(u0, p, duration; seed = nothing)
-    ucopy = deepcopy(u0) # _run_sir74! mutates the u0 input
-    return _run_sir74!(ucopy, p, duration, seed)
+    ucopy = deepcopy(u0) # run_sir74! mutates the u0 input
+    return run_sir74!(ucopy, p, duration, seed)
 end 
 
-function _run_sir74!(u0, p, duration, seed::Int)
+function run_sir74(; n, I0 = 0, R0 = 0, tau, gamma, nu, epsilon, duration, seed = nothing, kwargs...)
+    u0 = u0_sir74(n, I0, R0; seed)
+    p = [tau, gamma, nu, epsilon]
+    # u0_sir74 has reset the global random number generator seed so does not also 
+    # need to be passed to run_sir74!. Pass directly to run_sir74! rather than 
+    # run_sir74(u0, p, duration; seed = nothing) as u0 was created by this function 
+    # so can be safely mutated.
+    return run_sir74!(u0, p, duration, nothing; kwargs...)
+end 
+
+function run_sir74!(u0, p, duration, seed::Int)
     Random.seed!(seed)
-    return _run_sir74!(u0, p, duration, nothing)
+    return run_sir74!(u0, p, duration, nothing)
 end 
 
-function _run_sir74!(u0, p, duration, seed::Nothing)
+function run_sir74!(u0, p, duration, seed::Nothing)
     @assert minimum(p) >= 0 "Model cannot run with negative parameters. Running with p = $p."
     @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
 

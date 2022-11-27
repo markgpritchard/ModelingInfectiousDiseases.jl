@@ -57,7 +57,7 @@ end
 
 run_sir65(u0, p, duration; δt = 1, seed = nothing) = _run_sir65(u0, p, duration, seed; δt)
 
-function run_sir65(; N0, beta, gamma, mu, duration; kwargs...)
+function run_sir65(; N0, beta, gamma, mu, duration, kwargs...)
     p = [beta, gamma, mu]
     u0 = u0_sir65(N0, p)
     return run_sir65(u0, p, duration; kwargs...)
