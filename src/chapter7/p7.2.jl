@@ -79,8 +79,8 @@ function sir72!(du, u, p, t)
                 p.l[i, j] * Z[j, j] -                               # arriving
                 p.r[i, j] * Z[i, j]                                 # returning
         
-        end 
-    end
+        end # if i == j 
+    end # for i ∈ axes(u, 1), j ∈ axes(u, 2) 
 end 
 
 function run_sir72(u0, p, duration; saveat = 1)
@@ -94,6 +94,15 @@ function run_sir72(u0, p, duration; saveat = 1)
     sol = solve(prob; saveat)
 
     return sol
+end 
+
+function run_sir72(; N0 = [0;;], X0, Y0, Z0 = N0 .- X0 .- Y0, beta, gamma, mu, nu, l, r, duration, kwargs...)
+    @assert size(X0, 1) == size(X0,2) == size(Y0, 1) == size(Y0,2) == size(Z0, 1) == size(Z0,2) 
+    
+    u0 = zeros(size(X0)..., 3)
+    u0[:, :, 1] = X0; u0[:, :, 2] = Y0; u0[:, :, 3] = Z0
+    p = Parameters72(beta, gamma, mu, nu, l, r)
+    return run_sir72(u0, p, duration; kwargs...)
 end 
 
 function dataframe_sir72(sol, i, j)
@@ -123,7 +132,6 @@ end
 function plot_sir72!(gl::GridLayout, sol; 
         label = "p7.2.jl: SIR metapopulation model", legend = :below, kwargs...
     )
-
     @assert axes(sol, 1) == axes(sol, 2) 
     solaxs = axes(sol, 1)
     solsz = size(sol, 1)
@@ -151,7 +159,6 @@ end
 function plot_sir72!(ax::Axis, sol, i, j; 
         hidex = false, hidey = false, lbls = [ "Susceptible", "Infectious", "Recovered" ]
     )
-    
     data = dataframe_sir72(sol, i, j)
     for lbl ∈ lbls
         lines!(ax, data.t, data[:, lbl]; label = lbl)

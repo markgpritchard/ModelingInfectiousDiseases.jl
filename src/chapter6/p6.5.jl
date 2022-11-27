@@ -6,34 +6,13 @@ using CairoMakie, DataFrames, Distributions, Random
 export sir65, u0_sir65, run_sir65, plot_sir65
 
 const changematrix =    # how contents of each compartment change for each possible event     
-    [   -1  1   0       # infection 
-        0   -1  1       # recovery
-        1   0   0       # birth 
-        -1  0   0       # susceptible death 
-        0   -1  0       # infectious death 
-        0   0   -1  ]   # recovered death
+    [ -1   1   0        # infection 
+       0  -1   1        # recovery
+       1   0   0        # birth 
+      -1   0   0        # susceptible death 
+       0  -1   0        # infectious death 
+       0   0  -1  ]     # recovered death
 
-"""
-    u0_sir65(N0, p) 
-
-Produce a set of values for `u0` based on the model parameters and the initial population 
-size.
-
-## Example
-```
-julia> p = [1., .1, 5e-4]
-3-element Vector{Float64}:
- 1.0
- 0.1
- 0.0005
-
-julia> u0 = u0_sir65(5000, p)
-3-element Vector{Int64}:
-  500
-   25
- 4475
-```
-"""
 function u0_sir65(N0::Int, p) 
     β, γ, μ = p
     X0 = round(Int, γ * N0 / β, RoundDown)
@@ -76,6 +55,72 @@ function sir65(u, p, t, δt, N0)
     return t, u
 end 
 
+run_sir65(u0, p, duration; δt = 1, seed = nothing) = _run_sir65(u0, p, duration, seed; δt)
+
+function run_sir65(; N0, beta, gamma, mu, duration, kwargs...)
+    p = [beta, gamma, mu]
+    u0 = u0_sir65(N0, p)
+    return run_sir65(u0, p, duration; kwargs...)
+end
+
+function _run_sir65(u0, p, duration, seed::Int; δt)
+    Random.seed!(seed)
+    return _run_sir65(u0, p, duration, nothing; δt)
+end 
+
+_run_sir65(N0::Int, p, duration, seed::Nothing; δt) = 
+    _run_sir65(u0_sir65(N0, p), p, duration, seed; δt)
+
+function _run_sir65(u0::Vector{<:Int}, p, duration, seed::Nothing; δt)
+    @assert minimum(u0) >= 0 "Model cannot run with negative starting values in `u0`. Model supplied u0 = $u0."
+    @assert minimum(p) >= 0 "Model cannot run with negative parameters. Running with p = $p."
+    @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
+    @assert δt <= duration "Cannot run model with δt > duration"
+
+    N0 = sum(u0)
+    t = zero(typeof(δt)) 
+    u = u0
+    results = DataFrame(
+        t = typeof(t)[], X = typeof(u0[1])[], Y = typeof(u0[2])[], Z = typeof(u0[3])[]
+    )
+    push!( results, Dict(:t => t, :X => u[1], :Y => u[2], :Z => u[3]) )
+    while t < duration 
+        t, u = sir65(u, p, t, δt, N0) 
+        push!( results, Dict(:t => t, :X => u[1], :Y => u[2], :Z => u[3]) )
+    end
+
+    return results
+end 
+
+plot_sir65(results) = plot_sir65(results, "p6.5.jl: SIR model with τ-leap method stochasticity")
+
+function plot_sir65(results, population::Real)
+    return plot_sir65(
+        results, 
+        "p6.5.jl: SIR model with τ-leap method stochasticity
+        Initial population = $population"
+    )
+end 
+
+function plot_sir65(results, label::String)
+    fig = Figure()
+    axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
+    for i ∈ 1:3
+        lines!(axs[i], results.t ./ 365, results[:, i+1]) # lines! instead of stairs! 
+            # because we're no longer trying to simulate the instance events occurred
+        i <= 2 && hidexdecorations!(axs[i]; grid = false, ticks = false)
+    end 
+    linkxaxes!(axs...)
+    axs[3].xlabel = "Time, years"
+    axs[1].ylabel = "Susceptible"
+    axs[2].ylabel = "Infected"
+    axs[3].ylabel = "Recovered"
+    Label(fig[0, :], label; justification = :left)
+    
+    return fig
+end 
+
+#=
 """
     run_sir65(N0::Int, p, duration[; δt, seed])
     run_sir65(u0::Vector{<:Int}, p, duration[; δt, seed])
@@ -128,72 +173,6 @@ julia> run_sir65(u0, p, 5; seed = 65)
    6 │     5     35     43    424
 ```
 """
-run_sir65(u0, p, duration; δt = 1, seed = nothing) = _run_sir65(u0, p, duration, seed; δt)
-
-function _run_sir65(u0, p, duration, seed::Int; δt)
-    Random.seed!(seed)
-    return _run_sir65(u0, p, duration, nothing; δt)
-end 
-
-_run_sir65(N0::Int, p, duration, seed::Nothing; δt) = 
-    _run_sir65(u0_sir65(N0, p), p, duration, seed; δt)
-
-function _run_sir65(u0::Vector{<:Int}, p, duration, seed::Nothing; δt)
-    @assert minimum(u0) >= 0 "Model cannot run with negative starting values in `u0`. Model supplied u0 = $u0."
-    @assert minimum(p) >= 0 "Model cannot run with negative parameters. Running with p = $p."
-    @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
-    @assert δt <= duration "Cannot run model with δt > duration"
-
-    N0 = sum(u0)
-    t = zero(typeof(δt)) 
-    u = u0
-    results = DataFrame(
-        t = typeof(t)[], X = typeof(u0[1])[], Y = typeof(u0[2])[], Z = typeof(u0[3])[]
-    )
-    push!( results, Dict(:t => t, :X => u[1], :Y => u[2], :Z => u[3]) )
-    while t < duration 
-        t, u = sir65(u, p, t, δt, N0) 
-        push!( results, Dict(:t => t, :X => u[1], :Y => u[2], :Z => u[3]) )
-    end
-
-    return results
-end 
-
-"""
-    plot_sir65(results[, population])
-    plot_sir65(results, label::String)
-
-Plot the `results` DataFrame output from the function `run_sir65` 
-
-A `label` term can be added which will be printed at the top of the figure. If a 
-`population` term is included, the size of the population is printed on the plot.
-"""
-plot_sir65(results) = plot_sir65(results, "p6.5.jl: SIR model with τ-leap method stochasticity")
-
-function plot_sir65(results, population::Real)
-    return plot_sir65(
-        results, 
-        "p6.5.jl: SIR model with τ-leap method stochasticity
-        Initial population = $population"
-    )
-end 
-
-function plot_sir65(results, label::String)
-    fig = Figure()
-    axs = [ Axis(fig[i, 1]) for i ∈ 1:3 ]
-    for i ∈ 1:3
-        lines!(axs[i], results.t ./ 365, results[:, i+1]) # lines! instead of stairs! 
-            # because we're no longer trying to simulate the instance events occurred
-        i <= 2 && hidexdecorations!(axs[i]; grid = false, ticks = false)
-    end 
-    linkxaxes!(axs...)
-    axs[3].xlabel = "Time, years"
-    axs[1].ylabel = "Susceptible"
-    axs[2].ylabel = "Infected"
-    axs[3].ylabel = "Recovered"
-    Label(fig[0, :], label; justification = :left)
-    
-    return fig
-end 
+=#
 
 end # module MID_65

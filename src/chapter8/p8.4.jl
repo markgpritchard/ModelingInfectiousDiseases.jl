@@ -60,6 +60,19 @@ function run_sir84(u0, p, duration, vaccinationstarttime, vaccinationrate; savea
     end
 end 
 
+function run_sir84(; Sh0 = nothing, Ih0 = nothing, Rh0 = nothing, Sl0 = nothing, 
+        Il0 = nothing, Rl0 = nothing, S0 = [Sh0, Sl0], I0 = [Ih0, Il0], R0 = [Rh0, Rl0], 
+        betahh = nothing, betahl = nothing, betalh = nothing, betall = nothing, 
+        beta = [betahh betahl; betalh betall], gamma, mu, nuh = nothing, nul = nothing, 
+        nu = [nuh, nul], pvh = .0, pvl = .0, pv = [pvh, pvl], duration, 
+        vaccinationstarttime, vaccinationrate, kwargs...
+    )
+    Sh0, Sl0 = S0; Ih0, Il0 = I0; Rh0, Rl0 = R0
+    u0 = [ Sh0 Sl0; Ih0 Il0; Rh0 Rl0 ]
+    p = Parameters84(beta, gamma, mu, nu, pv)
+    return run_sir84(u0, p, duration, vaccinationstarttime, vaccinationrate; kwargs...)
+end 
+
 function dataframe_sir84(sol)
     return DataFrame(
         t = sol.t,
@@ -87,21 +100,17 @@ function plot_sir84!(fig::Figure, result::DataFrame; kwargs...)
 end 
 
 function plot_sir84!(gl::GridLayout, result::DataFrame; 
-        label = "p8.4.jl: SIR model with high and low risk groups", plotr = true)
-
+        label = "p8.4.jl: SIR model with high and low risk groups", plotr = true
+    )
     ax1 = Axis(gl[1, 1])
     lines!(ax1, result.t / 365, result.Sh; label = "Susceptible high risk")
     lines!(ax1, result.t / 365, result.Ih; label = "Infectious high risk")
-    if plotr 
-        lines!(ax1, result.t / 365, result.Rh; label = "Resistant high risk") 
-    end
+    plotr && lines!(ax1, result.t / 365, result.Rh; label = "Resistant high risk") 
 
     ax2 = Axis(gl[2, 1])
     lines!(ax2, result.t / 365, result.Sl; label = "Susceptible low risk")
     lines!(ax2, result.t / 365, result.Il; label = "Infectious low risk")
-    if plotr 
-        lines!(ax2, result.t / 365, result.Rl; label = "Resistant low risk") 
-    end
+    plotr && lines!(ax2, result.t / 365, result.Rl; label = "Resistant low risk") 
     linkxaxes!(ax1, ax2)
     hidexdecorations!(ax1; grid = false, ticks = false)
     ax2.xlabel = "Time, years"

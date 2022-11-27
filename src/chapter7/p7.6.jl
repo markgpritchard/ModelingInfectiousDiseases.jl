@@ -7,7 +7,7 @@ import Base: minimum
 export Parameters76, seirc76, u0_seirc76, run_seirc76, dataframe_seirc76, plot_seirc76, 
     plot_seirc76!, video_seirc76
 
-# Each individual can have one of two states  
+# Each farm can have one of six states  
 @enum State Susceptible Exposed Infectious Reported Culled RingCulled 
 
 mutable struct Farm
@@ -41,7 +41,6 @@ function minimum(v::Vector{Farm})
     end 
     return m 
 end 
-
 minimum(f::Farm) = min(f.x, f.y, f.sheep, f.cows, f.timeinstate, f.sus, f.trans)
 
 function setfarm(size, state, p)
@@ -110,9 +109,6 @@ function _seirc76!(u, p, tstep)
         for farm ∈ farms
     ]
 
-    # Calculate sum of all rates 
-    sumrates = sum(infectionrates)
-
     # Calculate how many events occur during period tstep 
     probs = [ 1 - exp(-rate * tstep) for rate in infectionrates ]
     rands = rand(length(farms))
@@ -142,13 +138,11 @@ function _seirc76!(u, p, tstep)
         end  
     end 
 
-    # Perform ring culling 
+    # Perform ring culling: 
     # First make a vector of farms that could be at the centre of a ring cull 
     cullcentre = Farm[] 
     for X ∈ farms 
-        if X.state == Culled && X.timeinstate == 2
-            push!(cullcentre, X) 
-        end 
+        if X.state == Culled && X.timeinstate == 2 push!(cullcentre, X) end 
     end 
 
     if length(cullcentre) > 0 
@@ -200,6 +194,16 @@ end
 
 run_seirc76(u0, p, duration; seed = nothing, tstep = 1) = 
     _run_seirc76(u0, p, duration, seed; tstep)
+
+function run_seirc76(; n, Y0, size, s_sheep = nothing, s_cows = nothing, t_sheep = nothing, 
+        t_cows = nothing, s = [s_sheep, s_cows], t = [t_sheep, t_cows], ringdiameter, 
+        duration, seed = nothing, kwargs...
+    )
+    p = Parameters76(s, t, ringdiameter)
+    u0 = u0_seirc76(n, Y0, size, p; seed)
+    # u0_seirc76 has reset the global random number generator seed so does not also need to be passed to _run_seirc76
+    return run_seirc76(u0, p, duration; seed = nothing, kwargs...)
+end 
 
 function _run_seirc76(u0, p, duration, seed::Int; tstep)
     Random.seed!(seed)

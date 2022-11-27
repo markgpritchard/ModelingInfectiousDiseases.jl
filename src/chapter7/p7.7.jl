@@ -3,8 +3,8 @@ module MID_77
   
 using CairoMakie, DataFrames, Distributions, GraphMakie, Graphs, Random, StatsBase
 
-export sis77!, u0_sis77, run_sis77, dataframe_sis77, plot_sis77, plot_sis77!, graphplot_sis77!, 
-    video_sis77
+export sis77!, u0_sis77, run_sis77, rundf_sis77, dataframe_sis77, plot_sis77, plot_sis77!, 
+    graphplot_sis77!, video_sis77
 
 mutable struct Environment 
     g           :: SimpleGraph{Int64} 
@@ -43,7 +43,7 @@ function makenetwork_random(N, averageconnections; seed = nothing)
     return __makenetwork(N, averageconnections, distances, seed) 
 end 
 
-makenetwork_lattice(N, averageconnections) = watts_strogatz(N, averageconnections, 0)
+makenetwork_lattice(N, averageconnections; kwargs...) = watts_strogatz(N, averageconnections, 0)
     
 makenetwork_smallworld(N, averageconnections; seed = nothing, beta = .05) = 
     watts_strogatz(N, averageconnections, beta; seed)
@@ -168,8 +168,22 @@ function forceofinfection(i, u, tau)
     return lambda  
 end 
 
-run_sis77(u0, p, duration; seed = nothing, tstep = nothing) = 
+run_sis77(u0, p, duration; seed = nothing, tstep = nothing, kwargs...) = 
     _run_sis77(u0, p, duration, seed; tstep)
+
+function run_sis77(; N, averageconnections, Y0, networktype, gamma, tau, duration, 
+        seed = nothing, tstep = nothing, kwargs...
+    )
+    u0 = u0_sis77(N, averageconnections, Y0, networktype; seed, kwargs...)
+    p = [gamma, tau]
+    return run_sis77(u0, p, duration; seed, tstep)
+end
+
+function rundf_sis77(args...; N, kwargs...)
+    u, times = run_sis77(args...; N, kwargs...)
+    df = dataframe_sis77(u, times, N)
+    return u, times, df
+end 
 
 function _run_sis77(u0, p, duration, seed::Int; tstep)
     Random.seed!(seed)

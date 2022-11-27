@@ -23,6 +23,14 @@ function run_sir81(u0, p, duration, vaccinationstarttime, vaccinationrate; savea
     return run_sir81!(u0, pcopy, duration, vaccinationstarttime, vaccinationrate; saveat)
 end 
 
+function run_sir81(; S0, I0, R0 = 1 - (S0 + I0), beta, gamma, mu, nu = mu, pr = 0, 
+        duration, vaccinationstarttime, vaccinationrate, kwargs...
+    )
+    u0 = [S0, I0, R0]
+    p = [beta, gamma, mu, nu, pr]
+    return run_sir81!(u0, p, duration, vaccinationstarttime, vaccinationrate; kwargs...)
+end 
+
 function run_sir81!(u0, p, duration, vaccinationstarttime, vaccinationrate; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
     @assert sum(u0) ≈ 1 "Input sum(u0) = $(sum(u0)): compartments are proportions so should sum to 1"
