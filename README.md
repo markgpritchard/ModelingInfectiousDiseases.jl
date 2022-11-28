@@ -18,7 +18,7 @@ You are recommended to _clone_ this git repository (see [instructions here](http
 ``` julia 
 ###############################################################################
 # Enter the path to this file here 
-loc = "C:\\Users\\yourname\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
+loc = "C:\\Users\\username\\Documents\\GitHub\\ModelingInfectiousDiseases.jl"
 ###############################################################################
 ```
 
