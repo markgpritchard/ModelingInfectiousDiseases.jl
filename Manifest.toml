@@ -2,7 +2,7 @@
 
 julia_version = "1.8.2"
 manifest_format = "2.0"
-project_hash = "9485b7dbcfea25665f3848469ab615e6da669303"
+project_hash = "08b1bc5cb6bc9f0347c056c0511a4c5cd689deca"
 
 [[deps.AbstractFFTs]]
 deps = ["ChainRulesCore", "LinearAlgebra"]
@@ -1341,12 +1341,6 @@ deps = ["IfElse", "Static", "VectorizationBase"]
 git-tree-sha1 = "938c9ecffb28338a6b8b970bda0f3806a65e7906"
 uuid = "476501e8-09a2-5ece-8869-fb82de89a1fa"
 version = "0.6.36"
-
-[[deps.SafeTestsets]]
-deps = ["Test"]
-git-tree-sha1 = "36ebc5622c82eb9324005cc75e7e2cc51181d181"
-uuid = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
-version = "0.0.1"
 
 [[deps.ScanByte]]
 deps = ["Libdl", "SIMD"]

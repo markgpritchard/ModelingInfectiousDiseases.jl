@@ -34,7 +34,7 @@ function run_sir24(u0, p, duration; reltol = 1e-12, saveat = 1)
     return sol
 end 
 
-function run_sir24(; N0 = 0, X0, Y0, Z0 = N0 - (X0 + Y0), beta, gamma, mu, nu, rho, duration, kwargs...)
+function run_sir24(; N0 = 0, X0, Y0, Z0 = N0 - (X0 + Y0), beta, gamma, mu, nu = mu, rho, duration, kwargs...)
     u0 = [X0, Y0, Z0]
     p = [beta, gamma, mu, nu, rho]
     return run_sir24(u0, p, duration; kwargs...)

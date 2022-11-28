@@ -55,7 +55,7 @@ sol22 = run_sir22(;
     mu = 1 / (70 * 365),    # birth and mortality rate
     duration = 60 * 365     # duration of model
 )
-result22 = dataframe_sir22(sol22); 
+result22 = dataframe_sir22(sol22)
 plot_sir22(result22)
 
 
@@ -69,8 +69,7 @@ sol23 = run_sir23(;
     Y0 = 1e-6,              # initial number infectious 
     beta = 520 / 365,       # infectiousness parameter 
     gamma = 1 / 7,          # recovery rate 
-    mu = 1 / (70 * 365),    # mortality rate not due to the pathogen
-    nu = 1 / (70 * 365),    # birth rate 
+    mu = 1 / (70 * 365),    # mortality rate not due to the pathogen (birth rate is equal)
     rho = .5,               # mortality probability for infecteds 
     duration = 36500        # duration of model
 )
@@ -88,8 +87,7 @@ sol24 = run_sir24(;
     Y0 = 1e-6,              # initial number infectious 
     beta = 520 / 365,       # infectiousness parameter 
     gamma = 1 / 7,          # recovery rate 
-    mu = 1 / (70 * 365),    # mortality rate not due to the pathogen
-    nu = 1 / (70 * 365),    # birth rate 
+    mu = 1 / (70 * 365),    # mortality rate not due to the pathogen (birth rate is equal)
     rho = .5,               # mortality probability for infecteds 
     duration = 36500        # duration of model
 )
@@ -132,7 +130,7 @@ sol26 = run_seir26(;
     I0 = 1e-4,              # initial proportion infectious
     beta = 520 / 365,       # infectiousness parameter 
     gamma = 1 / 7,          # recovery rate 
-    mu = 1 / (70 * 365),    # birth and mortality rate 
+    mu = 1 / (70 * 365),    # mortality rate (birth rate is equal)
     sigma = 1 / 14,         # rate at which exposed individuals become infectious
     duration = 60 * 365     # duration of model
 )
@@ -152,7 +150,7 @@ sol27 = run_sir27(;
     gamma_i = 1 / 100,      # recovery rate from infectious 
     gamma_c = 1 / 1000,     # recovery rate of carriers 
     epsilon = 0.1,          # proportion reduction in transmission from carriers compared to infecteds 
-    mu = 1 / (50 * 365),    # birth and mortality rate 
+    mu = 1 / (50 * 365),    # mortality rate (birth rate is equal)
     q = .4,                 # proportion of infected who become carriers
     duration = 60 * 365     # duration of model
 )
@@ -193,7 +191,7 @@ sol32 = run_sis32(; # for this example we have five risk groups
     I0 = [.0 , .0 , .0 , .0 , 1e-5  ],  # initial proportions infectious in each risk group
     betavector = [0, 3, 10, 60, 100],   # values for beta that will go into the transmission matrix
     betaconstant = .0016,               # constant to reduce values of beta
-    gamma = .2 * ones(5),               # gamma = vector of recovery rates
+    gamma = .2 * ones(5),               # vector of recovery rates
     duration = 30,                      # duration of model
     saveat = .05                        # frequent saveat to give a smooth plot
 )
@@ -257,8 +255,7 @@ sol35_1 = run_seir35(;
     beta = 17 / 5,          # infectiousness parameter 
     sigma = 1 / 13,         # rate of movement into infectious class 
     gamma = 1 / 13,         # recovery rate 
-    mu = 1 / (55 * 365),    # mortality rate 
-    nu = 1 / (55 * 365),    # birth rate
+    mu = 1 / (55 * 365),    # mortality rate (birth rate is equal) 
     duration = 30 * 365     # duration of model
 )
 result35_1 = dataframe_seir35(sol35_1, 8, 13) # values of m and n
@@ -275,8 +272,7 @@ sol35_2 = run_seir35(;
     beta = 1.,              # infectiousness parameter 
     sigma = .0,             # rate of movement into infectious class 
     gamma = .1,             # recovery rate 
-    mu = .0,                # mortality rate 
-    nu = .0,                # birth rate
+    mu = .0,                # mortality rate (birth rate is equal)  
     duration = 60,          # duration of model
     saveat = .1             # frequent saveat to give a smooth plot
 )
@@ -291,8 +287,7 @@ sol35_3 = run_seir35(;
     beta = 1.,              # infectiousness parameter 
     sigma = .0,             # rate of movement into infectious class 
     gamma = .1,             # recovery rate 
-    mu = .0,                # mortality rate 
-    nu = .0,                # birth rate
+    mu = .0,                # mortality rate (birth rate is equal)  
     duration = 60,          # duration of model
     saveat = .1             # frequent saveat to give a smooth plot
 )
@@ -314,8 +309,7 @@ sol35_4 = run_seir35(;
     beta = 1.,              # infectiousness parameter 
     sigma = .1,             # rate of movement into infectious class 
     gamma = .1,             # recovery rate 
-    mu = .0,                # mortality rate 
-    nu = .0,                # birth rate
+    mu = .0,                # mortality rate (birth rate is equal)  
     duration = 150,         # duration of model
     saveat = .2             # frequent saveat to give a smooth plot
 )
@@ -330,8 +324,7 @@ sol35_5 = run_seir35(;
     beta = 1.,              # infectiousness parameter 
     sigma = .1,             # rate of movement into infectious class 
     gamma = .1,             # recovery rate 
-    mu = .0,                # mortality rate 
-    nu = .0,                # birth rate
+    mu = .0,                # mortality rate (birth rate is equal)  
     duration = 150,         # duration of model
     saveat = .2             # frequent saveat to give a smooth plot
 )
@@ -366,8 +359,7 @@ sol41 = run_sir41(;
     alpha = [.5, .4],       # susceptibility to one strain following recovery from the other 
     beta = [.712, 1.42],    # transmission parameters 
     gamma = [1 / 7, 1 / 7], # recovery rates 
-    mu = 1 / (70 * 365),    # mortality rate 
-    nu = 1 / (70 * 365),    # birth rate 
+    mu = 1 / (70 * 365),    # mortality rate (birth rate is equal) 
     duration = 36500        # duration of model
 )
 result41 = dataframe_sir41(sol41)
@@ -385,7 +377,7 @@ sol42 = run_spr42(;
     lambda0 = [.15, .02, .1, .01],      # initial force of infection for each strain
     beta = 40.,                         # infectiousness parameter 
     gamma = 9.98,                       # recovery rate 
-    mu = .02,                           # birth and mortality rate
+    mu = .02,                           # mortality rate (birth rate is equal) 
     a = .4,                             # modified transmission rate due to partial immunity
     duration = 200,                     # duration of model
     saveat = .25                        # frequent saveat to give a smooth plot
@@ -401,7 +393,7 @@ sol42_2 = run_spr42(;
     lambda0 = [.07, 1e-12, .07, 1e-12], # initial force of infection for each strain
     beta = 40.,                         # infectiousness parameter 
     gamma = 9.98,                       # recovery rate 
-    mu = .02,                           # birth and mortality rate
+    mu = .02,                           # mortality rate (birth rate is equal) 
     a = .25,                            # modified transmission rate due to partial immunity
     duration = 200,                     # duration of model
     saveat = .25                        # frequent saveat to give a smooth plot
@@ -417,7 +409,7 @@ sol42_3 = run_spr42(;
     lambda0 = [.05, .04, .03, .02, .01],# initial force of infection for each strain
     beta = 40.,                         # infectiousness parameter 
     gamma = 9.98,                       # recovery rate 
-    mu = .02,                           # birth and mortality rate
+    mu = .02,                           # mortality rate (birth rate is equal) 
     a = .25,                            # modified transmission rate due to partial immunity
     duration = 200,                     # duration of model
     saveat = .25                        # frequent saveat to give a smooth plot
@@ -447,8 +439,7 @@ sol43 = run_seicr43(;
     beta = [.5, .6],            # transmission parameters 
     gamma = [1 / 5, 1 / 14],    # recovery rates 
     delta = [1 / 7, 1 / 14],    # rate of leaving quarantine 
-    mu = .02 / 365,             # mortality rate 
-    nu = .02 / 365,             # birth rate 
+    mu = .02 / 365,             # mortality rate (birth rate is equal) 
     xi = [1., .5],              # temporary cross-immunity parameters 
     rho = [.005, .005],         # probabilities of infection-induced mortality
     sigma = [.125, .125],       # rates of movement from exposed to infectious
@@ -497,7 +488,7 @@ sol51 = run_sir51(;
     beta0 = 17 / 13,                # mean transmission parameter 
     beta1 = .1,                     # amplitude of sinuoidal forcing of transmission
     gamma = 1 / 13,                 # recovery rate
-    mu = 1 / (50 * 365),            # birth and mortality rate 
+    mu = 1 / (50 * 365),            # mortality rate (birth rate is equal) 
     duration = 60 * 365             # duration of model
 )
 result51 = dataframe_sir51(sol51)
@@ -509,7 +500,7 @@ bifdata51 = bifurcationdata_sir51(;
     beta0 = 17 / 13,                # mean transmission parameter 
     beta1 = collect(0:.0005:.215),  # amplitude of sinuoidal forcing of transmission
     gamma = 1 / 13,                 # recovery rate
-    mu = 1 / (50 * 365),            # birth and mortality rate 
+    mu = 1 / (50 * 365),            # mortality rate (birth rate is equal) 
     alg_hints = [:stiff]            # additional argument for solver
 )
 bifurcationplot_sir51(bifdata51)
@@ -525,7 +516,7 @@ sol52 = run_sir52(;
     beta0 = 17 / 13,                        # mean transmission parameter 
     beta1 = .25,                            # amplitude of term-time forcing of transmission
     gamma = 1 / 13,                         # recovery rate
-    mu = 1 / (50 * 365),                    # birth and mortality rate  
+    mu = 1 / (50 * 365),                    # mortality rate (birth rate is equal) 
     termstarttimes = [6, 115, 251, 307],    # days when term starts each year
     termendtimes = [100, 200, 300, 356],    # days when term ends each year
     duration = 3650                         # duration of model
@@ -539,7 +530,7 @@ bifdata52 = bifurcationdata_sir52(;
     beta0 = 17 / 13,                        # mean transmission parameter 
     beta1 = collect(0:.0005:.5),            # amplitude of term-time forcing of transmission
     gamma = 1/13,                           # recovery rate
-    mu = 1 / (50 * 365),                    # birth and mortality rate 
+    mu = 1 / (50 * 365),                    # mortality rate (birth rate is equal) 
     termstarttimes = [6, 115, 251, 307],    # days when term starts each year
     termendtimes = [100, 200, 300, 356]     # days when term ends each year
 )
@@ -1165,7 +1156,7 @@ plot_sir82(result82; plotr = false)
 
 include("src/chapter8/p8.3.jl"); using .MID_83
 
-sol83 = run_sir83(
+sol83 = run_sir83(;
     S0 = .1,                            # initial proportion susceptible 
     I0 = 1e-4,                          # initial proportion infectious 
     beta = 520 / 365,                   # transmission parameter

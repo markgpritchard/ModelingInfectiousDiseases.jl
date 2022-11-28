@@ -10,13 +10,13 @@ function sir52!(du, u, p, t)
     S, I, R = u
 
     # Parameters 
-    β0, β1, γ, μ, term = p
+    β0, β1, γ, μ, nu, term = p
 
     # Seasonal value of β
     β = β0 * (1 + β1 * term)
     
     # the ODEs
-    du[1] = μ - β * S * I - μ * S       # dS
+    du[1] = nu - β * S * I - μ * S      # dS
     du[2] = β * S * I - (γ + μ) * I     # dI
     du[3] = γ * I - μ * R               # dR
 end 
@@ -41,9 +41,9 @@ function run_sir52!(u0, p, termstarttimes, termendtimes, duration; saveat = 1, k
     end 
 
     # Callbacks to switch between term and holiday
-    termaffect!(integrator) = integrator.p[5] = 1
+    termaffect!(integrator) = integrator.p[6] = 1
     termcb = PresetTimeCallback(termstarttimes, termaffect!; save_positions=(false, false))
-    holidayaffect!(integrator) = integrator.p[5] = -1
+    holidayaffect!(integrator) = integrator.p[6] = -1
     holidaycb = PresetTimeCallback(termendtimes, holidayaffect!; save_positions=(false, false))
     cbs = CallbackSet(termcb, holidaycb)
 
@@ -51,7 +51,6 @@ function run_sir52!(u0, p, termstarttimes, termendtimes, duration; saveat = 1, k
 
     prob = ODEProblem(sir52!, u0, tspan, p)
     sol = solve(prob; saveat, callback = cbs)
-
     return sol
 end 
 
@@ -62,14 +61,14 @@ function run_sir52(u0, p, termstarttimes, termendtimes, duration; kwargs...)
     return run_sir52!(u0, parms, ts, te, duration; kwargs...)
 end 
 
-function run_sir52(; S0, I0, R0 = 1 - (S0 + I0), beta0, beta1, gamma, mu, termstarttimes, 
-        termendtimes, duration, kwargs...
+function run_sir52(; S0, I0, R0 = 1 - (S0 + I0), beta0, beta1, gamma, mu, nu = mu, 
+        termstarttimes, termendtimes, duration, kwargs...
     )
     # Do we start in term time or in holiday?
     term = ifelse(termstarttimes[1] < termendtimes[1], -1, 1)
 
     u0 = [S0, I0, R0]
-    p = [beta0, beta1, gamma, mu, term]
+    p = [beta0, beta1, gamma, mu, nu, term]
     return run_sir52(u0, p, termstarttimes, termendtimes, duration; kwargs...)
 end 
 

@@ -9,10 +9,10 @@ function sir22!(du, u, p, t)
     # Compartments 
     S, I, R = u
     # Parameters
-    beta, gamma, mu = p 
+    beta, gamma, mu, nu = p 
 
     # The ODEs
-    du[1] = mu - beta * S * I - mu * S          # dS
+    du[1] = nu - beta * S * I - mu * S          # dS
     du[2] = beta * S * I - gamma * I - mu * I   # dI 
     du[3] = gamma * I - mu * R                  # dR
 end 
@@ -28,13 +28,12 @@ function run_sir22(u0, p, duration; reltol = 1e-12, saveat = 1)
 
     prob = ODEProblem(sir22!, u0, tspan, p)
     sol = solve(prob; reltol, saveat)
-
     return sol
 end 
 
-function run_sir22(; S0, I0, R0 = 1 - (S0 + I0), beta, gamma, mu, duration, kwargs...)
+function run_sir22(; S0, I0, R0 = 1 - (S0 + I0), beta, gamma, mu, nu = mu, duration, kwargs...)
     u0 = [S0, I0, R0]
-    p = [beta, gamma, mu]
+    p = [beta, gamma, mu, nu]
     return run_sir22(u0, p, duration; kwargs...)
 end 
 

@@ -77,8 +77,8 @@ end
 
 function run_seicr43(; S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0, 
         R12_0 = 1 - +(S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0), 
-        ε1_0, ε2_0, λ1_0, λ2_0, alpha, beta, gamma, delta, mu, nu, xi, rho, sigma, 
-        phi, psi, duration, kwargs...
+        ε1_0, ε2_0, λ1_0, λ2_0, alpha, beta, gamma, delta, mu, nu = mu, xi, rho, 
+        sigma, phi, psi, duration, kwargs...
     )
     u0 = [S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0, R12_0, ε1_0, ε2_0, λ1_0, λ2_0]
     p = Parameters43(alpha, beta, gamma, delta, mu, nu, xi, rho, sigma, phi, psi)

@@ -10,6 +10,7 @@ struct Parameters42
     β   :: Float64
     γ   :: Float64
     μ   :: Float64
+    nu  :: Float64
     a   :: Float64
     n   :: Int 
     c   :: Matrix{Int64}
@@ -27,7 +28,7 @@ function spr42!(du, u, p, t)
     λ = u[4, :]     
 
     for i ∈ 1:p.n
-        du[1, i] = p.μ * (1 - S[i]) - S[i] * sum([ p.c[i, j] * λ[j] for j ∈ 1:p.n ])                        # dS
+        du[1, i] = p.nu * (1 - S[i]) - S[i] * sum([ p.c[i, j] * λ[j] for j ∈ 1:p.n ])                       # dS
         du[2, i] = S[i] * sum([ ifelse(i == j, 0, p.c[i, j]) * λ[j] for j ∈ 1:p.n ]) - P[i] * (λ[i] + p.μ)  # dP
         du[3, i] = (S[i] + P[i]) * λ[i] - p.μ * R[i]                                                        # dR
         du[4, i] = (p.β * (S[i] + p.a * P[i]) - p.γ - p.μ) * λ[i]                                           # dλ
@@ -64,7 +65,8 @@ function run_spr42(u0, p::Vector{<:Real}, duration; kwargs...)
         p[1],   # β
         p[2],   # γ
         p[3],   # μ
-        p[4],   # a
+        p[4],   # nu
+        p[5],   # a
         n,      # n
         c       # c
     )
@@ -72,7 +74,7 @@ function run_spr42(u0, p::Vector{<:Real}, duration; kwargs...)
     return run_spr42(u0, parms, duration; kwargs...)
 end 
 
-function run_spr42(; n, S0, P0, R0 = nothing, lambda0, beta, gamma, mu, a, duration, kwargs...)
+function run_spr42(; n, S0, P0, R0 = nothing, lambda0, beta, gamma, mu, nu = mu, a, duration, kwargs...)
     if isnothing(R0) R0 = [ 1 - (S0[i] + P0[i]) for i ∈ eachindex(S0) ] end 
     _em = "Must have equal length vectors for `S0`, `P0`, `R0` and `lambda0`, which must all equal `n`"
     @assert length(S0) == length(P0) == length(R0) == length(lambda0) == n "$_em"
@@ -82,7 +84,7 @@ function run_spr42(; n, S0, P0, R0 = nothing, lambda0, beta, gamma, mu, a, durat
     u0[2, :] = P0
     u0[3, :] = R0
     u0[4, :] = lambda0
-    p = [beta, gamma, mu, a, n]
+    p = [beta, gamma, mu, nu, a, n]
     return run_spr42(u0, p, duration; kwargs...)
 end 
 

@@ -100,7 +100,7 @@ function run_seir35(u0, p, duration; saveat = 1)
     return sol
 end 
 
-function run_seir35(; m, n, S0, E0, I0, R0 = 1 - (S0 + E0 + I0), beta, sigma, gamma, mu, nu, duration, kwargs...)
+function run_seir35(; m, n, S0, E0, I0, R0 = 1 - (S0 + E0 + I0), beta, sigma, gamma, mu, nu = mu, duration, kwargs...)
     u0 = seir35_u0(S0, E0, I0, R0, m, n)
     p = Parameters35(beta, sigma, gamma, mu, nu, m, n)
     return run_seir35(u0, p, duration; kwargs...)

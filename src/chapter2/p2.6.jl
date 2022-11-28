@@ -9,10 +9,10 @@ function seir26!(du, u, p, t)
     # compartments 
     S, E, I = u 
     # parameters 
-    beta, gamma, mu, sigma = p 
+    beta, gamma, mu, nu, sigma = p 
 
     # the ODEs
-    du[1] = mu - beta * S * I - mu * S          # dS
+    du[1] = nu - beta * S * I - mu * S          # dS
     du[2] = beta * S * I - sigma * E - mu * E   # dE
     du[3] = sigma * E - gamma * I - mu * I      # dI
 end 
@@ -32,9 +32,9 @@ function run_seir26(u0, p, duration; reltol = 1e-6, saveat = 1)
     return sol
 end 
 
-function run_seir26(; S0, E0, I0, beta, gamma, mu, sigma, duration, kwargs...)
+function run_seir26(; S0, E0, I0, beta, gamma, mu, nu = mu, sigma, duration, kwargs...)
     u0 = [S0, E0, I0]
-    p = [beta, gamma, mu, sigma]
+    p = [beta, gamma, mu, nu, sigma]
     return run_seir26(u0, p, duration; kwargs...)
 end 
 

@@ -50,7 +50,7 @@ function run_sir41(u0, p, duration; saveat = 1)
     return sol
 end 
 
-function run_sir41(; SS0, IS0, RS0, SI0, RI0, SR0, IR0, RR0, a, alpha, beta, gamma, mu, nu, duration, kwargs...)
+function run_sir41(; SS0, IS0, RS0, SI0, RI0, SR0, IR0, RR0, a, alpha, beta, gamma, mu, nu = mu, duration, kwargs...)
     u0 = [SS0, IS0, RS0, SI0, RI0, SR0, IR0, RR0]
     p = Parameters41(a, alpha, beta, gamma, mu, nu)
     return run_sir41(u0, p, duration; kwargs...)

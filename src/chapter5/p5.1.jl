@@ -10,13 +10,13 @@ function sir51!(du, u, p, t)
     S, I, R = u
 
     # Parameters 
-    β0, β1, γ, μ, ω = p
+    β0, β1, γ, μ, nu, ω = p
 
     # Seasonal value of β
     β = β0 * (1 + β1 * sin(ω * t))
     
     # the ODEs
-    du[1] = μ - β * S * I - μ * S       # dS
+    du[1] = nu - β * S * I - μ * S      # dS
     du[2] = β * S * I - (γ + μ) * I     # dI
     du[3] = γ * I - μ * R               # dR
 end 
@@ -36,9 +36,11 @@ function run_sir51(u0, p, duration; saveat = 1, kwargs...)
     return sol
 end 
 
-function run_sir51(; S0, I0, R0 = 1 - (S0 + I0), beta0, beta1, gamma, mu, omega = 2pi / 365, duration, kwargs...)
+function run_sir51(; S0, I0, R0 = 1 - (S0 + I0), beta0, beta1, gamma, mu, nu = mu, 
+        omega = 2pi / 365, duration, kwargs...
+    )
     u0 = [S0, I0, R0]
-    p = [beta0, beta1, gamma, mu, omega]
+    p = [beta0, beta1, gamma, mu, nu, omega]
     return run_sir51(u0, p, duration; kwargs...)
 end 
 
