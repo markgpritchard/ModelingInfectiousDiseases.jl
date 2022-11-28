@@ -1,5 +1,7 @@
 
 module MID_44
+
+# SIR model for mosquito vectors (page 136)
   
 using CairoMakie, DataFrames, DifferentialEquations
 import Base: minimum
@@ -15,10 +17,8 @@ struct Parameters44
     Tmh     :: Float64
 end
 
-minimum(p::Parameters44) = min(p.r, minimum(p.gamma), minimum(p.mu), minimum(p.nu), p.Thm, p.Tmh)
-
 function sir44!(du, u, p, t) 
-    # compartments (including parameter results that are integrated)
+    # compartments
     (Xh, Yh, Xm, Ym) = u  
     
     # ODEs 
@@ -31,6 +31,13 @@ function sir44!(du, u, p, t)
     # We will use p.gamma[2] = 0 but include the term in the equation to allow it 
     # to be generalised to other settings with mosquito recovery or to represent 
     # increased mortality among infected mosquitos
+end 
+
+function run_sir44(; Xh, Yh, Xm, Ym, r, gamma, mu, nu, Thm, Tmh, duration, kwargs...)
+    u0 = [ Xh Xm
+           Yh Ym ]
+    p = Parameters44(r, gamma, mu, nu, Thm, Tmh)
+    return run_sir44(u0, p, duration; kwargs...)
 end 
 
 function run_sir44(u0, p, duration; saveat = 1)
@@ -46,12 +53,7 @@ function run_sir44(u0, p, duration; saveat = 1)
     return sol
 end 
 
-function run_sir44(; Xh, Yh, Xm, Ym, r, gamma, mu, nu, Thm, Tmh, duration, kwargs...)
-    u0 = [ Xh Xm
-           Yh Ym ]
-    p = Parameters44(r, gamma, mu, nu, Thm, Tmh)
-    return run_sir44(u0, p, duration; kwargs...)
-end 
+minimum(p::Parameters44) = min(p.r, minimum(p.gamma), minimum(p.mu), minimum(p.nu), p.Thm, p.Tmh)
 
 function dataframe_sir44(sol)
     result = DataFrame(t = Float64[], Xh = Float64[], Yh = Float64[], Xm = Float64[], Ym = Float64[])

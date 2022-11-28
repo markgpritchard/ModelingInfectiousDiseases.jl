@@ -1,6 +1,8 @@
 
 module MID_27
 
+# SIR model with carrier state (page 44)
+
 using CairoMakie, DataFrames, DifferentialEquations
 
 export sir27!, run_sir27, dataframe_sir27, plot_sir27, plot_sir27!
@@ -9,14 +11,20 @@ function sir27!(du, u, p, t)
     # compartments 
     S, I, C = u 
     # parameters 
-    beta, gamma_i, gamma_c, epsilon, mu, q = p 
+    beta, gamma_i, gamma_c, epsilon, mu, nu, q = p 
     # Note that gamma (γ) and Gamma (Γ) are described as different parameters for 
     # this model. Within this code we use gamma_i for gamma and gamma_c for Gamma
 
     # the ODEs
-    du[1] = mu - beta * S * (I + epsilon * C) - mu * S              # dS
+    du[1] = nu - beta * S * (I + epsilon * C) - mu * S              # dS
     du[2] = beta * S * (I + epsilon * C) - gamma_i * I - mu * I     # dI
     du[3] = gamma_i * q * I - gamma_c * C - mu * C                  # dC
+end 
+
+function run_sir27(; S0, I0, C0, beta, gamma_i, gamma_c, epsilon, mu, nu = mu, q, duration, kwargs...)
+    u0 = [S0, I0, C0]
+    p = [beta, gamma_i, gamma_c, epsilon, mu, nu, q]
+    return run_sir27(u0, p, duration; kwargs...)
 end 
 
 function run_sir27(u0, p, duration; saveat = 1)
@@ -29,14 +37,7 @@ function run_sir27(u0, p, duration; saveat = 1)
 
     prob = ODEProblem(sir27!, u0, tspan, p)
     sol = solve(prob; saveat)
-
     return sol
-end 
-
-function run_sir27(; S0, I0, C0, beta, gamma_i, gamma_c, epsilon, mu, q, duration, kwargs...)
-    u0 = [S0, I0, C0]
-    p = [beta, gamma_i, gamma_c, epsilon, mu, q]
-    return run_sir27(u0, p, duration; kwargs...)
 end 
 
 function dataframe_sir27(sol)

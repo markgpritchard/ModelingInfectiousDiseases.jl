@@ -1,5 +1,7 @@
 
 module MID_24
+
+# SIR model with disease induced mortality: Frequency-dependent transmission (page 36)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -20,6 +22,12 @@ function sir24!(du, u, p, t)
     du[3] = gamma * Y - mu * Z                                  # dZ
 end 
 
+function run_sir24(; N0 = 0, X0, Y0, Z0 = N0 - (X0 + Y0), beta, gamma, mu, nu = mu, rho, duration, kwargs...)
+    u0 = [X0, Y0, Z0]
+    p = [beta, gamma, mu, nu, rho]
+    return run_sir24(u0, p, duration; kwargs...)
+end 
+
 function run_sir24(u0, p, duration; reltol = 1e-12, saveat = 1)
     # set low tolerance for solver, otherwise oscillations don't converge appropriately
     @assert minimum(u0) >= 0 "Input u0 = $u0: Cannot run model with negative starting values in any compartment"
@@ -30,14 +38,7 @@ function run_sir24(u0, p, duration; reltol = 1e-12, saveat = 1)
 
     prob = ODEProblem(sir24!, u0, tspan, p)
     sol = solve(prob; reltol, saveat)
-
     return sol
-end 
-
-function run_sir24(; N0 = 0, X0, Y0, Z0 = N0 - (X0 + Y0), beta, gamma, mu, nu, rho, duration, kwargs...)
-    u0 = [X0, Y0, Z0]
-    p = [beta, gamma, mu, nu, rho]
-    return run_sir24(u0, p, duration; kwargs...)
 end 
 
 function dataframe_sir24(sol)

@@ -1,5 +1,7 @@
 
 module MID_83
+
+# SIR model with pulsed vaccination (page 302)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -8,7 +10,6 @@ export sir83!, run_sir83, dataframe_sir83, plot_sir83, plot_sir83!
 function sir83!(du, u, p, t) 
     # compartments 
     S, I, R = u
-
     # parameters 
     beta, gamma, mu, nu = p
     
@@ -16,6 +17,14 @@ function sir83!(du, u, p, t)
     du[1] = nu - beta * S * I - mu * S          # dS 
     du[2] = beta * S * I - (gamma + mu) * I     # dI 
     du[3] = gamma * I - mu * R                  # dR
+end 
+
+function run_sir83(; S0, I0, R0 = 1 - (S0 + I0), beta, gamma, mu, nu = mu, duration, 
+        vaccinationstarttime, vaccinationfrequency, vaccinationproportion, kwargs...
+    )
+    u0 = [S0, I0, R0] 
+    p = [beta, gamma, mu, nu]
+    return run_sir83(u0, p, duration, vaccinationstarttime, vaccinationfrequency, vaccinationproportion; kwargs...)
 end 
 
 function run_sir83(u0, p, duration, vaccinationstarttime, vaccinationfrequency, vaccinationproportion; 
@@ -47,14 +56,6 @@ function run_sir83(u0, p, duration, vaccinationstarttime, vaccinationfrequency, 
     end
 end 
 
-function run_sir83(; S0, I0, R0 = 1 - (S0 + I0), beta, gamma, mu, nu = mu, duration, 
-        vaccinationstarttime, vaccinationfrequency, vaccinationproportion, kwargs...
-    )
-    u0 = [S0, I0, R0] 
-    p = [beta, gamma, mu, nu]
-    return run_sir83(u0, p, duration, vaccinationstarttime, vaccinationfrequency, vaccinationproportion; kwargs...)
-end 
-
 function dataframe_sir83(sol)
     return DataFrame(
         t = sol.t,
@@ -79,8 +80,8 @@ function plot_sir83!(fig::Figure, result::DataFrame; kwargs...)
 end 
 
 function plot_sir83!(gl::GridLayout, result::DataFrame; 
-        label = "p8.3.jl: SIR model with pulsed vaccination", kwargs...)
-
+        label = "p8.3.jl: SIR model with pulsed vaccination", kwargs...
+    )
     ax = Axis(gl[1, 1])
     plot_sir83!(ax, result; kwargs...)
     leg = Legend(gl[1, 2], ax)

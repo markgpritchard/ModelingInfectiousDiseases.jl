@@ -1,5 +1,7 @@
 
 module MID_53
+
+# SIR model with sinusoidal births (page 184)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -21,6 +23,19 @@ function sir53!(du, u, p, t)
     du[3] = γ * I - μ * R               # dR
 end 
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Functions for a single value of alpha1 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function run_sir53(; S0, I0, R0 = 1 - (S0 + I0), alpha0, alpha1, beta, gamma, mu = alpha0, 
+        omega = 2pi / 365, duration, kwargs...
+    )
+    u0 = [S0, I0, R0]
+    p = [alpha0, alpha1, beta, gamma, mu, omega]
+    return run_sir53(u0, p, duration; kwargs...)
+end 
+
 function run_sir53(u0, p, duration; saveat = 1, kwargs...)
     @assert minimum(u0) >= 0 "Input u0 = $u0: cannot run with negative compartment values"
     @assert sum(u0) ≈ 1 "Input u0 = $u0: compartments are proportions so should sum to 1"
@@ -36,14 +51,6 @@ function run_sir53(u0, p, duration; saveat = 1, kwargs...)
     return sol
 end 
 
-function run_sir53(; S0, I0, R0 = 1 - (S0 + I0), alpha0, alpha1, beta, gamma, mu = alpha0, 
-        omega = 2pi / 365, duration, kwargs...
-    )
-    u0 = [S0, I0, R0]
-    p = [alpha0, alpha1, beta, gamma, mu, omega]
-    return run_sir53(u0, p, duration; kwargs...)
-end 
-
 function dataframe_sir53(sol)
     result = DataFrame(t = Float64[], S = Float64[], I = Float64[], R = Float64[])
     for i ∈ eachindex(sol.u)
@@ -55,46 +62,6 @@ function dataframe_sir53(sol)
         ) )
     end 
     return result 
-end 
-
-function bifurcationdata_sir53(alpha0, alpha1::Vector{<:Real}, beta, gamma, mu = alpha0, omega = 2pi / 365; 
-        S0 = .5, I0 = 1e-4, R0 = 1 - (S0 + I0), kwargs...
-    )
-    u0 = [S0, I0, R0]
-    p = [alpha0, alpha1[1], beta, gamma, mu, omega]
-    return bifurcationdata_sir53!(alpha1, u0, p; kwargs...)
-end
-
-bifurcationdata_sir53(; alpha0, alpha1, beta, gamma, mu = alpha0, omega = 2pi / 365, kwargs...) = 
-    bifurcationdata_sir53(alpha0, alpha1, beta, gamma, mu, omega; kwargs...)
-
-function bifurcationdata_sir53!(alpha1::Vector{<:Real}, u0, p; kwargs...)
-    data = DataFrame(alpha1 = Float64[], t = Float64[], I = Float64[])
-    bifurcationdata_sir53!(data, alpha1, u0, p; kwargs...) 
-    return data 
-end
-
-function bifurcationdata_sir53!(data, alpha1::Vector{<:Real}, u0, p; kwargs...) 
-    for α1 ∈ alpha1
-        bifurcationdata_sir53!(data, α1, u0, p; kwargs...) 
-    end
-end 
-
-function bifurcationdata_sir53!(data, alpha1::Real, u0, p; runin = 100, plot = 100, kwargs...) 
-    p[2] = alpha1
-    duration = (runin + plot) * 365
-    sol = run_sir53(u0, p, duration; saveat = 365, kwargs...)
-    try
-        for i ∈ runin+1:runin+plot
-            push!(data, Dict(
-                :alpha1 => alpha1,
-                :t => sol.t[i], 
-                :I => sol.u[i][2]
-            ) )
-        end 
-    catch e
-        @warn "Error when alpha1 = $alpha1: $e"
-    end 
 end 
 
 function plot_sir53(result; kwargs...)
@@ -123,7 +90,7 @@ function plot_sir53!(gl::GridLayout, result::DataFrame;
     if legend == :right
         leg = Legend(gl[1, 2], ax)
     elseif legend == :below 
-        leg = Legend(gl[2, 1], ax)
+        leg = Legend(gl[2, 1], ax; orientation = :horizontal)
     elseif legend == :none 
         # no legend 
     else 
@@ -139,6 +106,51 @@ function plot_sir53!(ax::Axis, result::DataFrame; plotR = false)
     plotR && lines!(ax, xs, result.R, label = "Recovered")
     ax.xlabel = "Time, years"
     ax.ylabel = "Fraction of population"
+end 
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Functions to produce a bifurcation diagram (a vector for alpha1)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+bifurcationdata_sir53(; alpha0, alpha1, beta, gamma, mu = alpha0, omega = 2pi / 365, kwargs...) = 
+    bifurcationdata_sir53(alpha0, alpha1, beta, gamma, mu, omega; kwargs...)
+
+function bifurcationdata_sir53(alpha0, alpha1::Vector{<:Real}, beta, gamma, mu = alpha0, omega = 2pi / 365; 
+        S0 = .5, I0 = 1e-4, R0 = 1 - (S0 + I0), kwargs...
+    )
+    u0 = [S0, I0, R0]
+    p = [alpha0, alpha1[1], beta, gamma, mu, omega]
+    return bifurcationdata_sir53!(alpha1, u0, p; kwargs...)
+end
+
+function bifurcationdata_sir53!(alpha1::Vector{<:Real}, u0, p; kwargs...)
+    data = DataFrame(alpha1 = Float64[], t = Float64[], I = Float64[])
+    bifurcationdata_sir53!(data, alpha1, u0, p; kwargs...) 
+    return data 
+end
+
+function bifurcationdata_sir53!(data, alpha1::Vector{<:Real}, u0, p; kwargs...) 
+    for α1 ∈ alpha1
+        bifurcationdata_sir53!(data, α1, u0, p; kwargs...) 
+    end
+end 
+
+function bifurcationdata_sir53!(data, alpha1::Real, u0, p; runin = 100, plot = 100, kwargs...) 
+    p[2] = alpha1
+    duration = (runin + plot) * 365
+    sol = run_sir53(u0, p, duration; saveat = 365, kwargs...)
+    try
+        for i ∈ runin+1:runin+plot
+            push!(data, Dict(
+                :alpha1 => alpha1,
+                :t => sol.t[i], 
+                :I => sol.u[i][2]
+            ) )
+        end 
+    catch e
+        @warn "Error when alpha1 = $alpha1: $e"
+    end 
 end 
 
 function bifurcationplot_sir53(data; label = "p5.3.jl: SIR model with sinusoidal births")

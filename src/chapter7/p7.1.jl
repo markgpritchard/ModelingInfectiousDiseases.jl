@@ -1,5 +1,7 @@
 
 module MID_71
+
+# SIR metapopulation model for animals (page 241)
   
 using CairoMakie, DataFrames, DifferentialEquations
 import Base: minimum
@@ -13,15 +15,6 @@ struct Parameters71
     nu      :: Vector{<:Float64}
     m       :: Matrix{<:Float64}
 end
-
-# Define the Base.minimum for Parameters71
-minimum(p::Parameters71) = min( 
-    minimum(p.beta), 
-    minimum(p.gamma), 
-    minimum(p.mu), 
-    minimum(p.nu), 
-    minimum(p.m) 
-)
 
 function sir71!(du, u, p, t) 
     # compartments 
@@ -43,6 +36,14 @@ function sir71!(du, u, p, t)
     end 
 end 
 
+function run_sir71(; N0 = nothing, X0, Y0, Z0 = N0 .- X0 .- Y0, beta, gamma, mu, nu, m, duration, kwargs...)
+    @assert length(X0) == length(Y0) == length(Z0)
+    u0 = zeros(3, length(X0))
+    u0[1, :] = X0; u0[2, :] = Y0; u0[3, :] = Z0
+    p = Parameters71(beta, gamma, mu, nu, m)
+    return run_sir71(u0, p, duration; kwargs...)
+end 
+
 function run_sir71(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
     @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters" 
@@ -52,17 +53,17 @@ function run_sir71(u0, p, duration; saveat = 1)
 
     prob = ODEProblem(sir71!, u0, tspan, p)
     sol = solve(prob; saveat)
-
     return sol
 end 
 
-function run_sir71(; N0 = nothing, X0, Y0, Z0 = N0 .- X0 .- Y0, beta, gamma, mu, nu, m, duration, kwargs...)
-    @assert length(X0) == length(Y0) == length(Z0)
-    u0 = zeros(3, length(X0))
-    u0[1, :] = X0; u0[2, :] = Y0; u0[3, :] = Z0
-    p = Parameters71(beta, gamma, mu, nu, m)
-    return run_sir71(u0, p, duration; kwargs...)
-end 
+# Define the Base.minimum for Parameters71
+minimum(p::Parameters71) = min( 
+    minimum(p.beta), 
+    minimum(p.gamma), 
+    minimum(p.mu), 
+    minimum(p.nu), 
+    minimum(p.m) 
+)
 
 function dataframe_sir71(sol)
     result = DataFrame(t = sol.t)

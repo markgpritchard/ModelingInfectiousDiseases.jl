@@ -1,5 +1,7 @@
 
 module MID_74
+
+# Forest fire model (page 260)
   
 using CairoMakie, Random
 using StatsBase: sample
@@ -9,36 +11,8 @@ export sir74!, u0_sir74, run_sir74, plot_sir74, video_sir74
 # Each cell can have one of three states  
 @enum States S I R 
 
-u0_sir74(n, I0 = 0, R0 = 0; seed = nothing) = _u0_sir74(n, I0, R0, seed)
-
-function _u0_sir74(n, I0, R0, seed::Real)
-    Random.seed!(seed)
-    return _u0_sir74(n, I0, R0, nothing)
-end 
-
-function _u0_sir74(n, I0, R0, seed::Nothing)
-    @assert I0 + R0 <= n^2 "Cannot have more than all individuals susceptible or recovered"
-
-    # make a square grid of individuals 
-    grid = fill(S, (n, n))
-
-    # which ones are not susceptible 
-    notsusceptible = sample(collect(1:1:n^2), I0 + R0; replace = false)
-
-    # which ones are infectious and which are recovered 
-    if I0 > 0
-        infectious = notsusceptible[1: I0]
-        for i ∈ infectious grid[i] = I end 
-    end  
-    if R0 > 0 
-        recovered  = notsusceptible[I0+1: end]
-        for i ∈ recovered grid[i] = R end 
-    end
-    
-    return grid
-end 
-
 function sir74!(u, p, t, neighbours, rates) 
+    # Parameters
     tau, gamma, nu, epsilon = p 
 
     # Each individual can only do one thing. Therefore, only one rate applies to 
@@ -78,6 +52,78 @@ function sir74!(u, p, t, neighbours, rates)
     end  
 end 
 
+function run_sir74(; n, I0 = 0, R0 = 0, tau, gamma, nu, epsilon, duration, seed = nothing, kwargs...)
+    u0 = u0_sir74(n, I0, R0; seed)
+    p = [tau, gamma, nu, epsilon]
+    # u0_sir74 has reset the global random number generator seed so does not also 
+    # need to be passed to run_sir74!. Pass directly to run_sir74! rather than 
+    # run_sir74(u0, p, duration; seed = nothing) as u0 was created within this function 
+    # and can be safely mutated.
+    return run_sir74!(u0, p, duration, nothing; kwargs...)
+end 
+
+function run_sir74(u0, p, duration; seed = nothing)
+    ucopy = deepcopy(u0) # run_sir74! mutates the u0 input
+    return run_sir74!(ucopy, p, duration, seed)
+end 
+
+function run_sir74!(u0, p, duration, seed::Int)
+    Random.seed!(seed)
+    return run_sir74!(u0, p, duration, nothing)
+end 
+
+function run_sir74!(u0, p, duration, seed::Nothing)
+    @assert minimum(p) >= 0 "Model cannot run with negative parameters. Running with p = $p."
+    @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
+
+    u = u0
+    t = .0
+    neighbours = zeros(Int, size(u0, 1), size(u0, 2))
+    rates = zeros(size(u0, 1), size(u0, 2))
+
+    tvector = [t]
+    ulatest = copy(u)
+    uvector = [ulatest]
+    
+    while t <= duration 
+        sir74!(u, p, tvector, neighbours, rates)
+        ulatest = copy(u)
+        push!(uvector, ulatest)
+        t = last(tvector)
+    end 
+
+    return tvector, uvector 
+end 
+
+u0_sir74(n, I0 = 0, R0 = 0; seed = nothing) = _u0_sir74(n, I0, R0, seed)
+
+function _u0_sir74(n, I0, R0, seed::Real)
+    Random.seed!(seed)
+    return _u0_sir74(n, I0, R0, nothing)
+end 
+
+function _u0_sir74(n, I0, R0, seed::Nothing)
+    @assert I0 + R0 <= n^2 "Cannot have more than all individuals susceptible or recovered"
+
+    # make a square grid of individuals 
+    grid = fill(S, (n, n))
+
+    # which ones are not susceptible 
+    notsusceptible = sample(collect(1:1:n^2), I0 + R0; replace = false)
+
+    # which ones are infectious and which are recovered 
+    if I0 > 0
+        infectious = notsusceptible[1: I0]
+        for i ∈ infectious grid[i] = I end 
+    end  
+    if R0 > 0 
+        recovered  = notsusceptible[I0+1: end]
+        for i ∈ recovered grid[i] = R end 
+    end
+    
+    return grid
+end 
+
 function infectiousneighbours(x, i, j) 
     if x[i, j] != S return 0 end # only need to know about neighbours of susceptibles
     n = 0 
@@ -112,60 +158,18 @@ function searchsortedfirstmat(mat, v)
     end 
 end 
 
-function run_sir74(u0, p, duration; seed = nothing)
-    ucopy = deepcopy(u0) # run_sir74! mutates the u0 input
-    return run_sir74!(ucopy, p, duration, seed)
-end 
-
-function run_sir74(; n, I0 = 0, R0 = 0, tau, gamma, nu, epsilon, duration, seed = nothing, kwargs...)
-    u0 = u0_sir74(n, I0, R0; seed)
-    p = [tau, gamma, nu, epsilon]
-    # u0_sir74 has reset the global random number generator seed so does not also 
-    # need to be passed to run_sir74!. Pass directly to run_sir74! rather than 
-    # run_sir74(u0, p, duration; seed = nothing) as u0 was created by this function 
-    # so can be safely mutated.
-    return run_sir74!(u0, p, duration, nothing; kwargs...)
-end 
-
-function run_sir74!(u0, p, duration, seed::Int)
-    Random.seed!(seed)
-    return run_sir74!(u0, p, duration, nothing)
-end 
-
-function run_sir74!(u0, p, duration, seed::Nothing)
-    @assert minimum(p) >= 0 "Model cannot run with negative parameters. Running with p = $p."
-    @assert duration > 0 "Model needs duration > 0. Model supplied duration = $duration."
-
-    u = u0
-    t = .0
-    neighbours = zeros(Int, size(u0, 1), size(u0, 2))
-    rates = zeros(size(u0, 1), size(u0, 2))
-
-    tvector = [t]
-    ulatest = copy(u)
-    uvector = [ulatest]
-    
-    while t <= duration 
-        sir74!(u, p, tvector, neighbours, rates)
-        ulatest = copy(u)
-        push!(uvector, ulatest)
-        t = last(tvector)
-    end 
-
-    return tvector, uvector 
-end 
-
 function plot_sir74(uvector, i::Int; kwargs...)
     data = values_sir74(uvector, i)
     return plot_sir74(data; kwargs...) 
 end 
 
-function plot_sir74(data; colormap = :viridis)
+function plot_sir74(data; colormap = :viridis, label = "p7.4.jl: Forest fire model")
     fig = Figure()
     ax, hm = heatmap(fig[1, 1][1, 1], data; colormap, colorrange = (0, 2))
     Colorbar(fig[1, 1][1, 2], hm, ticks = ([0, 1, 2], ["S", "I", "R"]))
     hidexdecorations!(ax)
     hideydecorations!(ax)
+    #Label(fig[0, :], label)
     return fig 
 end 
 

@@ -1,5 +1,7 @@
 
 module MID_22
+
+# SIR model with births and deaths (page 27)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -9,12 +11,18 @@ function sir22!(du, u, p, t)
     # Compartments 
     S, I, R = u
     # Parameters
-    beta, gamma, mu = p 
+    beta, gamma, mu, nu = p 
 
     # The ODEs
-    du[1] = mu - beta * S * I - mu * S          # dS
+    du[1] = nu - beta * S * I - mu * S          # dS
     du[2] = beta * S * I - gamma * I - mu * I   # dI 
     du[3] = gamma * I - mu * R                  # dR
+end 
+
+function run_sir22(; S0, I0, R0 = 1 - (S0 + I0), beta, gamma, mu, nu = mu, duration, kwargs...)
+    u0 = [S0, I0, R0]
+    p = [beta, gamma, mu, nu]
+    return run_sir22(u0, p, duration; kwargs...)
 end 
 
 function run_sir22(u0, p, duration; reltol = 1e-12, saveat = 1)
@@ -28,14 +36,7 @@ function run_sir22(u0, p, duration; reltol = 1e-12, saveat = 1)
 
     prob = ODEProblem(sir22!, u0, tspan, p)
     sol = solve(prob; reltol, saveat)
-
     return sol
-end 
-
-function run_sir22(; S0, I0, R0 = 1 - (S0 + I0), beta, gamma, mu, duration, kwargs...)
-    u0 = [S0, I0, R0]
-    p = [beta, gamma, mu]
-    return run_sir22(u0, p, duration; kwargs...)
 end 
 
 function dataframe_sir22(sol)
@@ -94,30 +95,5 @@ function plot_sir22!(ax::Axis, result::DataFrame; plotR = true)
     ax.xlabel = "Time, years"
     ax.ylabel = "Fraction of population"
 end 
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Help text 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-"""
-    run_sir22([; beta, gamma, mu, S0, I0, duration, saveat])
-
-Run the model `sir22`
-
-# Keyword arguments 
-
-All keyword arguments are optional with default values supplied for each. 
-
-* `beta`: The beta parameter in the model (infectiousness of infectives). Default is 520 / 365 (520 per year).
-* `gamma`: The gamma parameter in the model (recovery rate). Default is 1 / 7.
-* `mu`: The model's birth and mortality rate. Defaults is 1 / (70 * 365) 
-    (i.e. mean life duration 70 years and birth rate to match mortality rate).
-* `S0`: Proportion of the population susceptible at time = 0. Default is 0.1.
-* `I0`: Proportion of the population infectious at time = 0. Default is 1e-4.
-* `duration`: How long the model will run (time units are interpretted as days). Default is 60 years.
-* `saveat`: How frequently the model should save values. Default is 1 (day).
-"""
 
 end # module MID_22

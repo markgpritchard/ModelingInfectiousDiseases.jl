@@ -1,5 +1,7 @@
 
 module MID_51
+
+# SIR model with sinusoidal forcing (page 160)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -8,17 +10,28 @@ export sir51!, run_sir51, dataframe_sir51, bifurcationdata_sir51, plot_sir51, pl
 function sir51!(du, u, p, t) 
     # compartments 
     S, I, R = u
-
     # Parameters 
-    β0, β1, γ, μ, ω = p
-
+    β0, β1, γ, μ, nu, ω = p
     # Seasonal value of β
     β = β0 * (1 + β1 * sin(ω * t))
     
     # the ODEs
-    du[1] = μ - β * S * I - μ * S       # dS
+    du[1] = nu - β * S * I - μ * S      # dS
     du[2] = β * S * I - (γ + μ) * I     # dI
     du[3] = γ * I - μ * R               # dR
+end 
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Functions for a single value of beta1 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function run_sir51(; S0, I0, R0 = 1 - (S0 + I0), beta0, beta1, gamma, mu, nu = mu, 
+        omega = 2pi / 365, duration, kwargs...
+    )
+    u0 = [S0, I0, R0]
+    p = [beta0, beta1, gamma, mu, nu, omega]
+    return run_sir51(u0, p, duration; kwargs...)
 end 
 
 function run_sir51(u0, p, duration; saveat = 1, kwargs...)
@@ -36,12 +49,6 @@ function run_sir51(u0, p, duration; saveat = 1, kwargs...)
     return sol
 end 
 
-function run_sir51(; S0, I0, R0 = 1 - (S0 + I0), beta0, beta1, gamma, mu, omega = 2pi / 365, duration, kwargs...)
-    u0 = [S0, I0, R0]
-    p = [beta0, beta1, gamma, mu, omega]
-    return run_sir51(u0, p, duration; kwargs...)
-end 
-
 function dataframe_sir51(sol)
     result = DataFrame(t = Float64[], S = Float64[], I = Float64[], R = Float64[])
     for i ∈ eachindex(sol.u)
@@ -53,46 +60,6 @@ function dataframe_sir51(sol)
         ) )
     end 
     return result 
-end 
-
-function bifurcationdata_sir51(beta0, beta1::Vector{<:Real}, gamma, mu, omega = 2pi / 365; 
-        S0 = .5, I0 = 1e-4, R0 = 1 - (S0 + I0), kwargs...
-    )
-    u0 = [S0, I0, R0]
-    p = [beta0, beta1[1], gamma, mu, omega]
-    return bifurcationdata_sir51!(beta1, u0, p; kwargs...)
-end
-
-bifurcationdata_sir51(; beta0, beta1, gamma, mu, omega = 2pi / 365, kwargs...) = 
-    bifurcationdata_sir51(beta0, beta1, gamma, mu, omega; kwargs...)
-
-function bifurcationdata_sir51!(beta1::Vector{<:Real}, u0, p; kwargs...)
-    data = DataFrame(beta1 = Float64[], t = Float64[], I = Float64[])
-    bifurcationdata_sir51!(data, beta1, u0, p; kwargs...) 
-    return data 
-end
-
-function bifurcationdata_sir51!(data, beta1::Vector{<:Real}, u0, p; kwargs...) 
-    for β1 ∈ beta1
-        bifurcationdata_sir51!(data, β1, u0, p; kwargs...) 
-    end
-end 
-
-function bifurcationdata_sir51!(data, beta1::Real, u0, p; runin = 100, plot = 100, kwargs...) 
-    p[2] = beta1
-    duration = (runin + plot) * 365
-    sol = run_sir51(u0, p, duration; saveat = 365, kwargs...)
-    try
-        for i ∈ runin+1:runin+plot
-            push!(data, Dict(
-                :beta1 => beta1,
-                :t => sol.t[i], 
-                :I => sol.u[i][2]
-            ) )
-        end 
-    catch e
-        @warn "Error when beta1 = $beta1: $e"
-    end 
 end 
 
 function plot_sir51(result; kwargs...)
@@ -137,6 +104,51 @@ function plot_sir51!(ax::Axis, result::DataFrame; plotR = false)
     plotR && lines!(ax, xs, result.R, label = "Recovered")
     ax.xlabel = "Time, years"
     ax.ylabel = "Fraction of population"
+end 
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Functions to produce a bifurcation diagram (a vector for beta1)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+bifurcationdata_sir51(; beta0, beta1, gamma, mu, nu = mu, omega = 2pi / 365, kwargs...) = 
+    bifurcationdata_sir51(beta0, beta1, gamma, mu, nu, omega; kwargs...)
+
+function bifurcationdata_sir51(beta0, beta1::Vector{<:Real}, gamma, mu, nu = mu, 
+        omega = 2pi / 365; S0 = .5, I0 = 1e-4, R0 = 1 - (S0 + I0), kwargs...
+    )
+    u0 = [S0, I0, R0]
+    p = [beta0, beta1[1], gamma, mu, nu, omega]
+    return bifurcationdata_sir51!(beta1, u0, p; kwargs...)
+end
+
+function bifurcationdata_sir51!(beta1::Vector{<:Real}, u0, p; kwargs...)
+    data = DataFrame(beta1 = Float64[], t = Float64[], I = Float64[])
+    bifurcationdata_sir51!(data, beta1, u0, p; kwargs...) 
+    return data 
+end
+
+function bifurcationdata_sir51!(data, beta1::Vector{<:Real}, u0, p; kwargs...) 
+    for β1 ∈ beta1
+        bifurcationdata_sir51!(data, β1, u0, p; kwargs...) 
+    end
+end 
+
+function bifurcationdata_sir51!(data, beta1::Real, u0, p; runin = 100, plot = 100, kwargs...) 
+    p[2] = beta1
+    duration = (runin + plot) * 365
+    sol = run_sir51(u0, p, duration; saveat = 365, kwargs...)
+    try
+        for i ∈ runin+1:runin+plot
+            push!(data, Dict(
+                :beta1 => beta1,
+                :t => sol.t[i], 
+                :I => sol.u[i][2]
+            ) )
+        end 
+    catch e
+        @warn "Error when beta1 = $beta1: $e"
+    end 
 end 
 
 function bifurcationplot_sir51(data; label = "p5.1.jl: SIR model with sinusoidal forcing")

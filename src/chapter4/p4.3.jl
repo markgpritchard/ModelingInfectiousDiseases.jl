@@ -1,5 +1,7 @@
 
 module MID_43
+
+# Full partial immunity model (page 126)
   
 using CairoMakie, DataFrames, DifferentialEquations
 import Base: minimum
@@ -19,20 +21,6 @@ struct Parameters43
     phi     :: Vector{<:Float64}
     psi     :: Vector{<:Float64}
 end
-
-minimum(p::Parameters43) = min( 
-    minimum(p.alpha), 
-    minimum(p.beta), 
-    minimum(p.gamma), 
-    minimum(p.delta), 
-    p.mu, 
-    p.nu, 
-    minimum(p.xi), 
-    minimum(p.rho), 
-    minimum(p.sigma), 
-    minimum(p.phi), 
-    minimum(p.psi) 
-)
 
 function seicr43!(du, u, p, t) 
     # compartments (including parameter results that are integrated)
@@ -60,6 +48,16 @@ function seicr43!(du, u, p, t)
     du[14] = p.beta[2] * p.sigma[2] * ε2 - (p.gamma[2] + p.mu) * λ2                             # dλ2
 end 
 
+function run_seicr43(; S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0, 
+        R12_0 = 1 - +(S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0), 
+        ε1_0, ε2_0, λ1_0, λ2_0, alpha, beta, gamma, delta, mu, nu = mu, xi, rho, 
+        sigma, phi, psi, duration, kwargs...
+    )
+    u0 = [S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0, R12_0, ε1_0, ε2_0, λ1_0, λ2_0]
+    p = Parameters43(alpha, beta, gamma, delta, mu, nu, xi, rho, sigma, phi, psi)
+    return run_seicr43(u0, p, duration; kwargs...)
+end 
+
 function run_seicr43(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: cannot run with negative compartment values"
     @assert sum(u0[1:10]) ≈ 1 "Input u0[1:10] = $(u0[1:10]): Compartment values are proportions so must sum to 1"
@@ -75,15 +73,19 @@ function run_seicr43(u0, p, duration; saveat = 1)
     return sol
 end 
 
-function run_seicr43(; S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0, 
-        R12_0 = 1 - +(S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0), 
-        ε1_0, ε2_0, λ1_0, λ2_0, alpha, beta, gamma, delta, mu, nu, xi, rho, sigma, 
-        phi, psi, duration, kwargs...
-    )
-    u0 = [S_0, E1_0, E2_0, I1_0, I2_0, C1_0, C2_0, R1_0, R2_0, R12_0, ε1_0, ε2_0, λ1_0, λ2_0]
-    p = Parameters43(alpha, beta, gamma, delta, mu, nu, xi, rho, sigma, phi, psi)
-    return run_seicr43(u0, p, duration; kwargs...)
-end 
+minimum(p::Parameters43) = min( 
+    minimum(p.alpha), 
+    minimum(p.beta), 
+    minimum(p.gamma), 
+    minimum(p.delta), 
+    p.mu, 
+    p.nu, 
+    minimum(p.xi), 
+    minimum(p.rho), 
+    minimum(p.sigma), 
+    minimum(p.phi), 
+    minimum(p.psi) 
+)
 
 dataframe_seicr43(sol, p::Parameters43) = dataframe_seicr43(sol, p.beta)
 

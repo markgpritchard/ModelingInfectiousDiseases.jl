@@ -1,5 +1,7 @@
 
 module MID_76
+
+# Individual based FMD model (page 274)
   
 using CairoMakie, DataFrames, Distributions, Random
 import Base: minimum
@@ -32,63 +34,12 @@ struct Parameters76
     Ring            :: Float64
 end
 
-minimum(p::Parameters76) = min(minimum(p.s), minimum(p.t), p.Ring)
-minimum(u::Environment) = min(u.t, minimum(u.farms))
-function minimum(v::Vector{Farm}) 
-    m = Inf
-    for f ∈ v
-        m = min(m, minimum(f))
-    end 
-    return m 
-end 
-minimum(f::Farm) = min(f.x, f.y, f.sheep, f.cows, f.timeinstate, f.sus, f.trans)
-
-function setfarm(size, state, p)
-    @assert minimum(p) >= 0 
-
-    sheep = 350 * exp(rand())
-    cows = 70 * exp(rand())
-
-    return Farm(
-        rand(Uniform(0, size)),
-        rand(Uniform(0, size)),
-        sheep,
-        cows,
-        state,
-        0,
-        p.s[1] * sheep + p.s[2] * cows,
-        p.t[1] * sheep + p.t[2] * cows
-    )
-end 
-
-u0_seirc76(n, Y0, size, p; seed = nothing) = _u0_seirc76(n, Y0, size, p, seed)
-
-function _u0_seirc76(n, Y0, size, p, seed::Real)
-    Random.seed!(seed)
-    return _u0_seirc76(n, Y0, size, p, nothing)
-end 
-
-function _u0_seirc76(n, Y0, size, p, seed::Nothing)
-    @assert Y0 <= n "Cannot have more than all individuals infectious"
-
-    farms = Farm[]
-    for i ∈ 1:n 
-        if i <= Y0 
-            push!(farms, setfarm(size, Infectious, p))
-        else 
-            push!(farms, setfarm(size, Susceptible, p))
-        end 
-    end 
-
-    return Environment(0, farms)
-end 
-
 function seirc76(u, p; tstep = 1)
-    newu = deepcopy(u) # so that _seirc76! does not mutate the original 
-    return _seirc76!(newu, p, tstep)
+    newu = deepcopy(u) # so that seirc76! does not mutate the original 
+    return seirc76!(newu, p, tstep)
 end 
 
-function _seirc76!(u, p, tstep)
+function seirc76!(u, p, tstep)
     farms = u.farms
 
     # First make a vector of infectious farms 
@@ -170,31 +121,6 @@ function _seirc76!(u, p, tstep)
     return Environment(newt, farms)
 end 
 
-function transmissionkernel(A, B)
-    d2 = (A.x - B.x)^2 + (A.y - B.y)^2 
-    if d2 < 0.0138 
-        k = .3093 
-    elseif d2 > 60^2 
-        k = .0 
-    else 
-        k = exp(-9.2123e-5 * d2^6 + 9.5628e-4 * d2^5 + 3.3966e-3 * d2^4 - 3.3687e-2 * d2^3 - 
-            1.30519e-1 * d2^2 - 0.609262 * d2 - 3.231772) 
-    end 
-    return k 
-end 
-
-function forceofinfection(A, infecteds)
-    ksum = .0 
-    for J ∈ infecteds 
-        ksum += transmissionkernel(A, J) * J.trans
-    end 
-    lambda = A.sus * ksum
-    return lambda 
-end 
-
-run_seirc76(u0, p, duration; seed = nothing, tstep = 1) = 
-    _run_seirc76(u0, p, duration, seed; tstep)
-
 function run_seirc76(; n, Y0, size, s_sheep = nothing, s_cows = nothing, t_sheep = nothing, 
         t_cows = nothing, s = [s_sheep, s_cows], t = [t_sheep, t_cows], ringdiameter, 
         duration, seed = nothing, kwargs...
@@ -204,6 +130,9 @@ function run_seirc76(; n, Y0, size, s_sheep = nothing, s_cows = nothing, t_sheep
     # u0_seirc76 has reset the global random number generator seed so does not also need to be passed to _run_seirc76
     return run_seirc76(u0, p, duration; seed = nothing, kwargs...)
 end 
+
+run_seirc76(u0, p, duration; seed = nothing, tstep = 1) = 
+    _run_seirc76(u0, p, duration, seed; tstep)
 
 function _run_seirc76(u0, p, duration, seed::Int; tstep)
     Random.seed!(seed)
@@ -227,6 +156,82 @@ function _run_seirc76(u0, p, duration, seed::Nothing; tstep)
     end 
 
     return results
+end 
+
+minimum(p::Parameters76) = min(minimum(p.s), minimum(p.t), p.Ring)
+
+minimum(u::Environment) = min(u.t, minimum(u.farms))
+
+function minimum(v::Vector{Farm}) 
+    m = Inf
+    for f ∈ v
+        m = min(m, minimum(f))
+    end 
+    return m 
+end 
+
+minimum(f::Farm) = min(f.x, f.y, f.sheep, f.cows, f.timeinstate, f.sus, f.trans)
+
+function setfarm(size, state, p)
+    @assert minimum(p) >= 0 
+
+    sheep = 350 * exp(rand())
+    cows = 70 * exp(rand())
+
+    return Farm(
+        rand(Uniform(0, size)),
+        rand(Uniform(0, size)),
+        sheep,
+        cows,
+        state,
+        0,
+        p.s[1] * sheep + p.s[2] * cows,
+        p.t[1] * sheep + p.t[2] * cows
+    )
+end 
+
+u0_seirc76(n, Y0, size, p; seed = nothing) = _u0_seirc76(n, Y0, size, p, seed)
+
+function _u0_seirc76(n, Y0, size, p, seed::Real)
+    Random.seed!(seed)
+    return _u0_seirc76(n, Y0, size, p, nothing)
+end 
+
+function _u0_seirc76(n, Y0, size, p, seed::Nothing)
+    @assert Y0 <= n "Cannot have more than all individuals infectious"
+
+    farms = Farm[]
+    for i ∈ 1:n 
+        if i <= Y0 
+            push!(farms, setfarm(size, Infectious, p))
+        else 
+            push!(farms, setfarm(size, Susceptible, p))
+        end 
+    end 
+
+    return Environment(0, farms)
+end 
+
+function transmissionkernel(A, B)
+    d2 = (A.x - B.x)^2 + (A.y - B.y)^2 
+    if d2 < 0.0138 
+        k = .3093 
+    elseif d2 > 60^2 
+        k = .0 
+    else 
+        k = exp(-9.2123e-5 * d2^6 + 9.5628e-4 * d2^5 + 3.3966e-3 * d2^4 - 3.3687e-2 * d2^3 - 
+            1.30519e-1 * d2^2 - 0.609262 * d2 - 3.231772) 
+    end 
+    return k 
+end 
+
+function forceofinfection(A, infecteds)
+    ksum = .0 
+    for J ∈ infecteds 
+        ksum += transmissionkernel(A, J) * J.trans
+    end 
+    lambda = A.sus * ksum
+    return lambda 
 end 
 
 function dataframe_seirc76(result)
@@ -267,9 +272,12 @@ function plot_seirc76!(fig::Figure, data, t = nothing)
     plot_seirc76!(gl, data, t)
 end 
 
-function plot_seirc76!(gl::GridLayout, data, t = nothing)
+function plot_seirc76!(gl::GridLayout, data, t = nothing; 
+        label = "p7.6.jl: Individual based FMD model"
+    )
     ax = Axis(gl[1, 1])
     plot_seirc76!(ax, data, t)
+    Label(gl[0, :], label)
     leg = Legend(gl[2, 1], ax; orientation = :horizontal)
 end 
 
@@ -329,9 +337,7 @@ function values_seirc76(farms, state)
     return xs, ys
 end 
 
-function video_seirc76(results, data; 
-        step = 1/24, folder = "outputvideos", filename = "video76.mp4", kwargs...)
-
+function video_seirc76(results, data; folder = "outputvideos", filename = "video76.mp4", kwargs...)
     tvector = [ result.t for result ∈ results]
     s_xs, s_ys, e_xs, e_ys, i_xs, i_ys, r_xs, r_ys, c_xs, c_ys, rc_xs, rc_ys = values_seirc76(results[1])
     oxs = Observable(s_xs)

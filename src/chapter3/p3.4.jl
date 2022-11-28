@@ -1,6 +1,8 @@
 
 module MID_34
   
+# SEIR model with 4 age classes and yearly aging (page 87)
+
 using CairoMakie, DataFrames, DifferentialEquations
 import Base: minimum
 
@@ -14,15 +16,12 @@ struct Parameters34
     nu      :: Float64
 end
 
-minimum(p::Parameters34) = min( minimum(p.beta), p.sigma, p.gamma, p.mu, p.nu )
-
 function seir34!(du, u, p, t)  # model runs for one year at a time
     # compartments 
     S = u[1, :]
     E = u[2, :]
     I = u[3, :]
     R = u[4, :]
-
     # parameters 
     β = p.beta 
     σ = p.sigma
@@ -39,6 +38,17 @@ function seir34!(du, u, p, t)  # model runs for one year at a time
         du[4, i] = γ * I[i] - μ[i] * R[i]                                               # dRi
     end 
 end 
+
+function run_seir34(; S0, E0, I0, R0, beta, sigma, gamma, mu, nu, duration, kwargs...)
+    @assert length(S0) == length(E0) == length(I0) == length(R0) "Must have equal length vectors for S0, E0, I0 and R0"
+    u0 = zeros(4, length(S0))
+    u0[1, :] = S0 
+    u0[2, :] = E0
+    u0[3, :] = I0 
+    u0[4, :] = R0 
+    p = Parameters34(beta, sigma, gamma, mu, nu)
+    return run_seir34(u0, p, duration; kwargs...)
+end
 
 function run_seir34(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
@@ -90,16 +100,7 @@ function run_seir34(u0, p, duration; saveat = 1)
     return result
 end 
 
-function run_seir34(; S0, E0, I0, R0, beta, sigma, gamma, mu, nu, duration, kwargs...)
-    @assert length(S0) == length(E0) == length(I0) == length(R0) "Must have equal length vectors for S0, E0, I0 and R0"
-    u0 = zeros(4, length(S0))
-    u0[1, :] = S0 
-    u0[2, :] = E0
-    u0[3, :] = I0 
-    u0[4, :] = R0 
-    p = Parameters34(beta, sigma, gamma, mu, nu)
-    return run_seir34(u0, p, duration; kwargs...)
-end
+minimum(p::Parameters34) = min( minimum(p.beta), p.sigma, p.gamma, p.mu, p.nu )
 
 function dataframe_seir34!(df, sol)
     df2 = dataframe_seir34(sol)
@@ -173,33 +174,5 @@ function plot_seir34!(ax::Axis, result)
         lines!(ax, result.t ./ 365, result[!, names(result)[i+1]]; label = lbl)
     end 
 end 
-
-
-## Help text
-
-"""
-    run_sir33(u0, p, duration[; saveat])
-    run_seir34(u0, p, duration[; saveat])
-
-Run the model `seir34!`, a susceptible--exposed--infectious--recovered model with 
-four age  groups, and include annual aging between runs of the model.
-
-## Arguments 
-
-`u0` is a `4x4` matrix of starting conditions for the model. There is a column for 
-each age group with values from top to bottom in the order susceptible, exposed, 
-infectious, recovered. 
-
-`p` is the parameters for the model. This is expected in a `Parameters34` type. 
-`p.beta` is an `4x4` matrix of infectiousness parameters between each age group. 
-`p.sigma`is the rate at which exposed individuals become infectious. `p.gamma` is 
-the recovery rate. `p.mu` is the mortality rate. `p.nu` is the birth rate.
-
-`duration` is the length of time that the model should run.
-
-## Optional keyword arguments 
-* `saveat`: how frequently the ODE solver should save results. Default is `1`
-"""
-function run_seir34() end
 
 end # module MID_34

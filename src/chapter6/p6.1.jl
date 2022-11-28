@@ -1,12 +1,17 @@
 
 module MID_61
+
+# SIR model with Constant additive noise (page 194)
   
 using CairoMakie, DataFrames, DifferentialEquations, Distributions, Random
 import Base: minimum
 
 export Parameters61, sir61!, run_sir61, plot_sir61, plot_sir61!
 
-## Structures that pass the model parameters to the relevant functions
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Structures that pass the model parameters to the relevant functions
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 struct Parameters61 
     beta    :: Float64
@@ -27,11 +32,10 @@ mutable struct InputParameters61
     Noise   :: Float64
 end
 
-# Define the Base function minimum for Parameters61
-minimum(p::Parameters61) = min(p.beta, p.gamma, p.mu, p.nu, p.xi)
 
-
-## The function that is passed to the DifferentialEquations solver 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# The function that is passed to the DifferentialEquations solver 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 function sir61!(du, u, p, t) 
     # compartments 
@@ -45,13 +49,9 @@ function sir61!(du, u, p, t)
 end 
 
 
-## Functions that calculate the appropriate `noise` value
-
-noise(p, δt) = p.xi * rand(Normal(0, 1)) / sqrt(δt)
-noise!(parameters, p, δt) = parameters.Noise = noise(p, δt)
-
-
-## Function to run the whole model
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Function to run the whole model
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 run_sir61(u0, p, duration; δt = 1, seed = nothing) = _run_sir61(u0, p, duration, seed; δt)
 
@@ -107,7 +107,23 @@ function __run_sir61(u0, p, duration, δt::Float64)
 end 
 
 
-## Plotting functions
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Accessory functions for sir61! and run_sir61 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## Define the Base function minimum for Parameters61
+
+minimum(p::Parameters61) = min(p.beta, p.gamma, p.mu, p.nu, p.xi)
+
+## Functions that calculate the appropriate `noise` value
+
+noise(p, δt) = p.xi * rand(Normal(0, 1)) / sqrt(δt)
+noise!(parameters, p, δt) = parameters.Noise = noise(p, δt)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plotting functions
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 function plot_sir61(results, noise::Real)
     return plot_sir61(
@@ -143,73 +159,5 @@ function plot_sir61!(gl::GridLayout, results, label)
     axs[3].ylabel = "Recovered"
     Label(gl[0, :], label; justification = :left)
 end 
-
-
-## Help text 
-
-"""
-    run_sir61(u0, p, duration[; δt, seed])
-
-Run the model `sir61!`.
-
-`sir61!` is an ordinary differential equations (ODE) model, but this function is 
-intended to introduce stochastic noise. It does this by introducing a stochastic 
-parameter, which is inversely proportional to the square root of `δt`. The model 
-runs for a duration `δt` before calculating a new, independent, noise parameter. 
-This continues until `duration` has been reached.
-
-## Model parameters 
-Parameters are expected in a `Parameters61` type
-* `beta`: infection parameter
-* `gamma`: recovery rate
-* `mu`: birth rate 
-* `nu`: death rate 
-* `xi`: magnitude of noise to be added
-
-## Function arguments
-* `u0`: The starting conditions for the model, a vector of 3 values (`X0`, `Y0`, `Z0`)
-* `p`: Parameters for the model, expected in a `Parameters61` type
-* `duration`: The time that the model should run for
-### Optional keyword arguments
-* `δt`: How often the random noise parameter should update. Default value is 1.
-* `seed`: Seed for the random number generator. Default is not to supply a seed.
-
-## Example 
-```
-julia> u0 = [1e5, 500, 1e6]
-3-element Vector{Float64}:
- 100000.0
-    500.0
-      1.0e6
-
-julia> p = Parameters61(1., .1, 1 / (50 * 365), 1 / (50 * 365), 10.)
-Parameters61(1.0, 0.1, 5.479452054794521e-5, 5.479452054794521e-5, 10.0)
-
-julia> run_sir61(u0, p, 5; seed = 61)
-6×4 DataFrame
- Row │ t        X               Y        Z
-     │ Float64  Float64         Float64  Float64
-─────┼──────────────────────────────────────────────────
-   1 │     0.0  100000.0        500.0         1.0e6
-   2 │     1.0       1.00008e5  497.192       9.99995e5
-   3 │     2.0       1.00006e5  503.268       9.9999e5
-   4 │     3.0       1.00024e5  491.14        9.99985e5
-   5 │     4.0       1.00041e5  480.24   999979.0
-   6 │     5.0       1.00056e5  471.756       9.99972e5
-```
-"""
-function run_sir61() end
-
-"""
-    plot_sir61(results[, noise])
-    plot_sir61(results, label::String)
-
-Plot the `results` DataFrame output from the function `run_sir61`.
-    
-A `label` term can be added which will be printed at the top of the figure. If a 
-`noise` term is included, the magnitude of the noise is printed on the plot. `noise` 
-can be a value or a `Parameters61` structure.
-"""
-function plot_sir61() end
 
 end # module MID_6_1

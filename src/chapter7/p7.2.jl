@@ -1,6 +1,8 @@
 
 module MID_72
   
+# SIR metapopulation model for humans (page 242)
+
 using CairoMakie, DataFrames, DifferentialEquations
 import Base: minimum
 
@@ -14,16 +16,6 @@ struct Parameters72
     l       :: Matrix{<:Float64}
     r       :: Matrix{<:Float64}
 end
-
-# Define the Base.minimum for Parameters71
-minimum(p::Parameters72) = min( 
-    minimum(p.beta), 
-    minimum(p.gamma), 
-    minimum(p.mu), 
-    minimum(p.nu), 
-    minimum(p.l),
-    minimum(p.r)
-)
 
 function sir72!(du, u, p, t) 
     # compartments 
@@ -83,6 +75,15 @@ function sir72!(du, u, p, t)
     end # for i ∈ axes(u, 1), j ∈ axes(u, 2) 
 end 
 
+function run_sir72(; N0 = [0;;], X0, Y0, Z0 = N0 .- X0 .- Y0, beta, gamma, mu, nu, l, r, duration, kwargs...)
+    @assert size(X0, 1) == size(X0,2) == size(Y0, 1) == size(Y0,2) == size(Z0, 1) == size(Z0,2) 
+    
+    u0 = zeros(size(X0)..., 3)
+    u0[:, :, 1] = X0; u0[:, :, 2] = Y0; u0[:, :, 3] = Z0
+    p = Parameters72(beta, gamma, mu, nu, l, r)
+    return run_sir72(u0, p, duration; kwargs...)
+end 
+
 function run_sir72(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
     @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters" 
@@ -92,18 +93,18 @@ function run_sir72(u0, p, duration; saveat = 1)
 
     prob = ODEProblem(sir72!, u0, tspan, p)
     sol = solve(prob; saveat)
-
     return sol
 end 
 
-function run_sir72(; N0 = [0;;], X0, Y0, Z0 = N0 .- X0 .- Y0, beta, gamma, mu, nu, l, r, duration, kwargs...)
-    @assert size(X0, 1) == size(X0,2) == size(Y0, 1) == size(Y0,2) == size(Z0, 1) == size(Z0,2) 
-    
-    u0 = zeros(size(X0)..., 3)
-    u0[:, :, 1] = X0; u0[:, :, 2] = Y0; u0[:, :, 3] = Z0
-    p = Parameters72(beta, gamma, mu, nu, l, r)
-    return run_sir72(u0, p, duration; kwargs...)
-end 
+# Define the Base.minimum for Parameters71
+minimum(p::Parameters72) = min( 
+    minimum(p.beta), 
+    minimum(p.gamma), 
+    minimum(p.mu), 
+    minimum(p.nu), 
+    minimum(p.l),
+    minimum(p.r)
+)
 
 function dataframe_sir72(sol, i, j)
     result = DataFrame(t = sol.t)

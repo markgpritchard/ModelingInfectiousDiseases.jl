@@ -1,5 +1,7 @@
 
 module MID_54
+
+# Rabbit Hemorrhagic Disease model (page 186)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -8,7 +10,6 @@ export sir54!, run_sir54, dataframe_sir54, plot_sir54, plot_sir54!
 function sir54!(du, u, p, t) 
     # compartments 
     X, Y, N = u
-
     # Parameters 
     α0, α1, β0, β1, γ, μ, ω, m, K = p
 
@@ -21,6 +22,12 @@ function sir54!(du, u, p, t)
     du[2] = β * X * Y - (γ + m + μ + N / K) * Y     # dY
     du[3] = (α - μ - N / K) * N - m * Y             # dN 
     # -γ term removed from dN as these are not deaths and do not reduce the population total
+end 
+
+function run_sir54(; X0, Y0, N0, alpha0, alpha1, beta0, beta1, gamma, mu, omega = 2pi / 365, m, K, duration, kwargs...)
+    u0 = [X0, Y0, N0]
+    p = [alpha0, alpha1, beta0, beta1, gamma, mu, omega, m, K]
+    return run_sir54(u0, p, duration; kwargs...)
 end 
 
 function run_sir54(u0, p, duration; saveat = 1, kwargs...)
@@ -37,12 +44,6 @@ function run_sir54(u0, p, duration; saveat = 1, kwargs...)
     sol = solve(prob; saveat, kwargs...)
 
     return sol
-end 
-
-function run_sir54(; X0, Y0, N0, alpha0, alpha1, beta0, beta1, gamma, mu, omega = 2pi / 365, m, K, duration, kwargs...)
-    u0 = [X0, Y0, N0]
-    p = [alpha0, alpha1, beta0, beta1, gamma, mu, omega, m, K]
-    return run_sir54(u0, p, duration; kwargs...)
 end 
 
 function dataframe_sir54(sol)

@@ -1,5 +1,7 @@
 
 module MID_25
+
+# SIS model (page 39)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -16,6 +18,12 @@ function sis25!(du, u, p, t)
     du[2] = beta * S * I - gamma * I    # dI
 end 
 
+function run_sis25(; I0, S0 = 1 - I0, beta, gamma, duration, kwargs...)
+    u0 = [S0, I0]
+    p = [beta, gamma]
+    return run_sis25(u0, p, duration; kwargs...)
+end 
+
 function run_sis25(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: Cannot run model with negative starting values in any compartment"
     @assert sum(u0) ≈ 1 "Input u0 = $u0: Compartment values are proportions so must sum to 1"
@@ -26,14 +34,7 @@ function run_sis25(u0, p, duration; saveat = 1)
 
     prob = ODEProblem(sis25!, u0, tspan, p)
     sol = solve(prob; saveat)
-
     return sol
-end 
-
-function run_sis25(; I0, S0 = 1 - I0, beta, gamma, duration, kwargs...)
-    u0 = [S0, I0]
-    p = [beta, gamma]
-    return run_sis25(u0, p, duration; kwargs...)
 end 
 
 function dataframe_sis25(sol)

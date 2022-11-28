@@ -1,5 +1,10 @@
 
 module MID_35
+
+# SEIR model with n stages (page 94)
+
+# I am deviating from the example in having a seperate sigma parameter for the exposed 
+# compartments
   
 using CairoMakie, DataFrames, DifferentialEquations
 import Base: minimum
@@ -17,8 +22,56 @@ struct Parameters35
     n       :: Int
 end
 
-# I am deviating from the example in having a seperate sigma parameter for the exposed 
-# compartments
+function seir35!(du, u, p, t)  
+    # Compartments will be referred to only with their location in the vector  
+
+    # Number of compartments 
+    m = p.m; n = p.n
+
+    # Parameters 
+    β = p.beta
+    σ = p.sigma * m         # to keep total time in exposed compartments 1 / p.sigma 
+    γ = p.gamma * (n - m)   # to keep total time in infectious compartments 1 / p.gamma 
+    μ = p.mu    
+    nu = p.nu  
+
+    # ODEs 
+    du[1] = nu - β * u[1] * sum(u[m+2:n+1]) - μ * u[1]                  # dS 
+    if m > 0        # if there is at least one E compartment
+        du[2] = β * u[1] * sum(u[m+2:n+1]) - (σ + μ) * u[2]             # dE1 
+        if m > 1    # if there is more than one E compartment 
+            du[3:m+1] = [ σ * u[i-1] - (σ + μ) * u[i] for i ∈ 3:m+1 ]   # dE2:dEm
+        end 
+                    # if there is at least one E compartment
+        du[m+2] = σ * u[m+1] - (γ + μ) * u[m+2]                         # dI1 
+    else            # if there are no E compartments 
+        du[2] = β * u[1] * sum(u[m+2:n+1]) - (γ + μ) * u[2]             # dI1 
+    end 
+    if n - m > 1
+        du[m+3:n+1] = [ γ * u[i-1] - (γ + μ) * u[i] for i ∈ m+3:n+1 ]   # dI2:dIn
+    end 
+    du[n+2] = γ * u[n+1] - μ * u[n+2]                                   # dR
+end 
+
+function run_seir35(; m, n, S0, E0, I0, R0 = 1 - (S0 + E0 + I0), beta, sigma, gamma, mu, nu = mu, duration, kwargs...)
+    u0 = seir35_u0(S0, E0, I0, R0, m, n)
+    p = Parameters35(beta, sigma, gamma, mu, nu, m, n)
+    return run_seir35(u0, p, duration; kwargs...)
+end
+
+function run_seir35(u0, p, duration; saveat = 1)
+    @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
+    @assert sum(u0) ≈ 1 "Input u0 = $u0: compartment values are proportions and must sum to 1"
+    @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters" 
+    @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
+
+    tspan = ( 0., Float64(duration) )
+
+    prob = ODEProblem(seir35!, u0, tspan, p)
+    sol = solve(prob; saveat)
+
+    return sol
+end 
 
 minimum(p::Parameters35) = min( p.beta, p.sigma, p.gamma, p.mu, p.nu, p.m, p.n )
 
@@ -54,57 +107,6 @@ end
 seir35_u0(S, E, I, R, p::Parameters35) = seir35_u0(S, E, I, R, p.m, p.n)
 seir35_u0(S, E, I, m::Int, n::Int) = seir35_u0(S, E, I, 1 - (S + E + I), m, n) 
 seir35_u0(S, E, I, p::Parameters35) = seir35_u0(S, E, I, 1 - (S + E + I), p)
-
-function seir35!(du, u, p, t)  
-    # Compartments will be referred to only with their location in the vector  
-
-    # Number of compartments 
-    m = p.m; n = p.n
-
-    # Parameters 
-    β = p.beta
-    σ = p.sigma * m         # to keep total time in exposed compartments 1 / p.sigma 
-    γ = p.gamma * (n - m)   # to keep total time in infectious compartments 1 / p.gamma 
-    μ = p.mu    
-    nu = p.nu  
-
-    # ODEs 
-    du[1] = nu - β * u[1] * sum(u[m+2:n+1]) - μ * u[1]                  # dS 
-    if m > 0        # if there is at least one E compartment
-        du[2] = β * u[1] * sum(u[m+2:n+1]) - (σ + μ) * u[2]             # dE1 
-        if m > 1    # if there is more than one E compartment 
-            du[3:m+1] = [ σ * u[i-1] - (σ + μ) * u[i] for i ∈ 3:m+1 ]   # dE2:dEm
-        end 
-                    # if there is at least one E compartment
-        du[m+2] = σ * u[m+1] - (γ + μ) * u[m+2]                         # dI1 
-    else            # if there are no E compartments 
-        du[2] = β * u[1] * sum(u[m+2:n+1]) - (γ + μ) * u[2]             # dI1 
-    end 
-    if n - m > 1
-        du[m+3:n+1] = [ γ * u[i-1] - (γ + μ) * u[i] for i ∈ m+3:n+1 ]   # dI2:dIn
-    end 
-    du[n+2] = γ * u[n+1] - μ * u[n+2]                                   # dR
-end 
-
-function run_seir35(u0, p, duration; saveat = 1)
-    @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
-    @assert sum(u0) ≈ 1 "Input u0 = $u0: compartment values are proportions and must sum to 1"
-    @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters" 
-    @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
-
-    tspan = ( 0., Float64(duration) )
-
-    prob = ODEProblem(seir35!, u0, tspan, p)
-    sol = solve(prob; saveat)
-
-    return sol
-end 
-
-function run_seir35(; m, n, S0, E0, I0, R0 = 1 - (S0 + E0 + I0), beta, sigma, gamma, mu, nu, duration, kwargs...)
-    u0 = seir35_u0(S0, E0, I0, R0, m, n)
-    p = Parameters35(beta, sigma, gamma, mu, nu, m, n)
-    return run_seir35(u0, p, duration; kwargs...)
-end
 
 dataframe_seir35(sol, p) = dataframe_seir35(sol, p.m, p.n)
 
@@ -200,17 +202,5 @@ function plot_seir35!(ax::Axis, result)
         lines!(ax, result.t ./ 365, result[!, i+1]; label = lbl)
     end 
 end 
-
-
-## Help text
-
-#=
-"""
-    run_seir35(u0, p, duration[; saveat])
-
-To do
-"""
-function run_seir35() end
-=#
 
 end # module MID_35
