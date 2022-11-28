@@ -587,7 +587,7 @@ sol53 = run_sir53(;
     duration = 60 * 365             # duration of model
 )
 df53 = dataframe_sir53(sol53)
-plot_sir53(df53)
+plot_sir53(df53; legend = :below)
 
 bifdata53 = bifurcationdata_sir53(;
     S0 = 1 / 17,                    # initial proportion susceptible
@@ -721,8 +721,7 @@ plot_sir62(df62_bignoise, 10) # xi value
 
 # SIS model with demographic stochasticity (page 202)
 
-include("src/chapter6/p6.3.jl")
-using .MID_63
+include("src/chapter6/p6.3.jl"); using .MID_63
 
 df63 = run_sis63(;
     X0 = 30,                # initial number susceptible 
@@ -739,8 +738,7 @@ plot_sis63(df63)
 
 # SIR model with demographic stochasticity (page 203)
 
-include("src/chapter6/p6.4.jl")
-using .MID_64
+include("src/chapter6/p6.4.jl"); using .MID_64
 
 ### Examine model with small population
 
