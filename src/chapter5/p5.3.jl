@@ -90,7 +90,7 @@ function plot_sir53!(gl::GridLayout, result::DataFrame;
     if legend == :right
         leg = Legend(gl[1, 2], ax)
     elseif legend == :below 
-        leg = Legend(gl[2, 1], ax)
+        leg = Legend(gl[2, 1], ax; orientation = :horizontal)
     elseif legend == :none 
         # no legend 
     else 
