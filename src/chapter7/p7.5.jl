@@ -190,7 +190,7 @@ function plot_sis75(s_xs, s_ys, i_xs, i_ys; label = "p7.5.jl: Individual based S
     ax = Axis(fig[1, 1])
     scatter!(ax, s_xs, s_ys; label = "Susceptibles")
     scatter!(ax, i_xs, i_ys; label = "Infecteds")
-    Label(fig[0, :], label)
+    #Label(fig[0, :], label)
     leg = Legend(fig[2, 1], ax; orientation = :horizontal)
     hidexdecorations!(ax)
     hideydecorations!(ax)

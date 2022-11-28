@@ -169,7 +169,7 @@ function plot_sir74(data; colormap = :viridis, label = "p7.4.jl: Forest fire mod
     Colorbar(fig[1, 1][1, 2], hm, ticks = ([0, 1, 2], ["S", "I", "R"]))
     hidexdecorations!(ax)
     hideydecorations!(ax)
-    Label(fig[0, :], label)
+    #Label(fig[0, :], label)
     return fig 
 end 
 

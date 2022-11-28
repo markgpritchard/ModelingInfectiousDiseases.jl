@@ -164,7 +164,7 @@ function plot_sir73(data, sol;
     Colorbar(fig[1, 1][1, 2], hm)
     hidexdecorations!(ax)
     hideydecorations!(ax)
-    Label(fig[0, :], label)
+    #Label(fig[0, :], label)
     return fig 
 end 
 
