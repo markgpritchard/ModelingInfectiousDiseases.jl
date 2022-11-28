@@ -1,6 +1,8 @@
 
 module MID_27
 
+# SIR model with carrier state (page 44)
+
 using CairoMakie, DataFrames, DifferentialEquations
 
 export sir27!, run_sir27, dataframe_sir27, plot_sir27, plot_sir27!
@@ -19,6 +21,12 @@ function sir27!(du, u, p, t)
     du[3] = gamma_i * q * I - gamma_c * C - mu * C                  # dC
 end 
 
+function run_sir27(; S0, I0, C0, beta, gamma_i, gamma_c, epsilon, mu, nu = mu, q, duration, kwargs...)
+    u0 = [S0, I0, C0]
+    p = [beta, gamma_i, gamma_c, epsilon, mu, nu, q]
+    return run_sir27(u0, p, duration; kwargs...)
+end 
+
 function run_sir27(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: Cannot run model with negative starting values in any compartment"
     @assert sum(u0) <= 1 "Input u0 = $u0: Compartment values are proportions so must sum to 1 or less"
@@ -29,14 +37,7 @@ function run_sir27(u0, p, duration; saveat = 1)
 
     prob = ODEProblem(sir27!, u0, tspan, p)
     sol = solve(prob; saveat)
-
     return sol
-end 
-
-function run_sir27(; S0, I0, C0, beta, gamma_i, gamma_c, epsilon, mu, nu = mu, q, duration, kwargs...)
-    u0 = [S0, I0, C0]
-    p = [beta, gamma_i, gamma_c, epsilon, mu, nu, q]
-    return run_sir27(u0, p, duration; kwargs...)
 end 
 
 function dataframe_sir27(sol)

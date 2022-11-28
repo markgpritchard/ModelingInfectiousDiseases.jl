@@ -19,15 +19,14 @@ Pkg.instantiate()
 
 using CairoMakie
 
-# There is an `include` statement for each programme so you do not need to wait 
-# for Julia to read code that you will not be using in this session
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Chapter 2 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## Programme 2.1
+
+# Simple SIR model (page 19)
 
 include("src/chapter2/p2.1.jl"); using .MID_21
 
@@ -45,6 +44,8 @@ plot_sir21(result21)
 
 ## Programme 2.2
 
+# SIR model with births and deaths (page 27)
+
 include("src/chapter2/p2.2.jl"); using .MID_22
 
 sol22 = run_sir22(;
@@ -60,6 +61,8 @@ plot_sir22(result22)
 
 
 ## Programme 2.3
+
+# SIR model with disease induced mortality: Density-dependent transmission (page 35)
 
 include("src/chapter2/p2.3.jl"); using .MID_23
 
@@ -78,6 +81,8 @@ plot_sir23(result23)
 
 
 ## Programme 2.4
+
+# SIR model with disease induced mortality: Frequency-dependent transmission (page 36)
 
 include("src/chapter2/p2.4.jl"); using .MID_24
 
@@ -107,6 +112,8 @@ fig2324
 
 ## Programme 2.5
 
+# SIS model (page 39)
+
 include("src/chapter2/p2.5.jl"); using .MID_25
 
 sol25 = run_sis25(; 
@@ -121,6 +128,8 @@ plot_sis25(result25)
 
 
 ## Programme 2.6 
+
+# SEIR model (page 41)
 
 include("src/chapter2/p2.6.jl"); using .MID_26
 
@@ -139,6 +148,8 @@ plot_seir26(result26)
 
 
 ## Programme 2.7 
+
+# SIR model with carrier state (page 44)
 
 include("src/chapter2/p2.7.jl"); using .MID_27
 
@@ -164,6 +175,8 @@ plot_sir27(result27)
 
 ## Programme 3.1
 
+# SIS model with 2 risk groups (page 58)
+
 include("src/chapter3/p3.1.jl"); using .MID_31
 
 sol31 = run_sir31(;
@@ -184,6 +197,8 @@ plot_sir31(result31)
 
 ## Programme 3.2
 
+# SIS model with multiple risk groups (page 64)
+
 include("src/chapter3/p3.2.jl"); using .MID_32 
 
 sol32 = run_sis32(; # for this example we have five risk groups
@@ -200,6 +215,8 @@ plot_sis32(sol32; legend = :below)
 
 
 ## Programme 3.3
+
+# SIR model with 2 age classes (page 79)
 
 include("src/chapter3/p3.3.jl"); using .MID_33
 
@@ -222,6 +239,8 @@ plot_sir33(result33; legend = :below)
 
 ## Programme 3.4
 
+# SEIR model with 4 age classes and yearly aging (page 87)
+
 include("src/chapter3/p3.4.jl"); using .MID_34
 
 result34 = run_seir34(;
@@ -243,6 +262,8 @@ plot_seir34(result34; legend = :below)
 
 
 ## Programme 3.5
+
+# SEIR model with n stages (page 94)
 
 include("src/chapter3/p3.5.jl"); using .MID_35
 
@@ -344,6 +365,8 @@ fig35_2
 
 ## Programme 4.1
 
+# SIR model with partial immunity (page 118)
+
 include("src/chapter4/p4.1.jl"); using .MID_41
 
 sol41 = run_sir41(;
@@ -367,6 +390,8 @@ plot_sir41(result41)
 
 
 ## Programme 4.2
+
+# Partial immunity model that cycles (page 123)
 
 include("src/chapter4/p4.2.jl"); using .MID_42
 
@@ -419,6 +444,8 @@ plot_spr42(sol42_3)
 
 ## Programme 4.3
 
+# Full partial immunity model (page 126)
+
 include("src/chapter4/p4.3.jl"); using .MID_43
 
 sol43 = run_seicr43(; 
@@ -454,6 +481,8 @@ plot_seicr43(result43)
 
 ## Programme 4.4
 
+# SIR model for mosquito vectors (page 136)
+
 include("src/chapter4/p4.4.jl"); using .MID_44
 
 sol44 = run_sir44(; 
@@ -479,6 +508,8 @@ plot_sir44(result44)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## Programme 5.1 
+
+# SIR model with sinusoidal forcing (page 160)
 
 include("src/chapter5/p5.1.jl"); using .MID_51
 
@@ -507,6 +538,8 @@ bifurcationplot_sir51(bifdata51)
 
 
 ## Programme 5.2
+
+# SIR model with corrected term-time forcing (page 171)
 
 include("src/chapter5/p5.2.jl"); using .MID_52
 
@@ -539,6 +572,8 @@ bifurcationplot_sir52(bifdata52)
 
 ## Programme 5.3
 
+# SIR model with sinusoidal births (page 184)
+
 include("src/chapter5/p5.3.jl"); using .MID_53
 
 sol53 = run_sir53(; 
@@ -569,6 +604,8 @@ bifurcationplot_sir53(bifdata53)
 
 ## Programme 5.4
 
+# Rabbit Hemorrhagic Disease model (page 186)
+
 include("src/chapter5/p5.4.jl"); using .MID_54
 
 sol54 = run_sir54(; 
@@ -594,6 +631,8 @@ plot_sir54(result54)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## Programme 6.1 
+
+# SIR model with Constant additive noise (page 194)
 
 include("src/chapter6/p6.1.jl"); using .MID_61
 
@@ -628,6 +667,8 @@ plot_sir61(results61, 10) # xi value
 
 
 ## Programme 6.2 
+
+# SIR model with scaled additive noise (page 197)
 
 include("src/chapter6/p6.2.jl"); using .MID_62
 
@@ -678,6 +719,8 @@ plot_sir62(results62_bignoise, 10) # xi value
 
 ## Programme 6.3 
 
+# SIS model with demographic stochasticity (page 202)
+
 include("src/chapter6/p6.3.jl")
 using .MID_63
 
@@ -693,6 +736,8 @@ plot_sis63(results63)
 
 
 ## Programme 6.4 
+
+# SIR model with demographic stochasticity (page 203)
 
 include("src/chapter6/p6.4.jl")
 using .MID_64
@@ -724,6 +769,8 @@ plot_sir64(results64_5000, 5000) # N0 value
 
 ## Programme 6.5
 
+# SIR model with tau leap method (page 204)
+
 include("src/chapter6/p6.5.jl"); using .MID_65
 
 ### Examine model with small population
@@ -752,6 +799,8 @@ plot_sir65(results65_5000, 5000) # N0 value
 
 
 ## Programme 6.6
+
+# SIR model with two types of imports (page 210)
 
 include("src/chapter6/p6.6.jl"); using .MID_66
 
@@ -807,6 +856,8 @@ plot_sir66(results66_10y_d01, "p6.6.jl: SIR model with τ-leap stochasticity\nδ
 
 ## Programme 7.1
 
+# SIR metapopulation model for animals (page 241)
+
 include("src/chapter7/p7.1.jl"); using .MID_71
 
 sol71 = run_sir71(;
@@ -825,6 +876,8 @@ plot_sir71(result71)
 
 
 ## Programme 7.2
+
+# SIR metapopulation model for humans (page 242)
 
 include("src/chapter7/p7.2.jl"); using .MID_72
 
@@ -846,6 +899,8 @@ plot_sir72(sol72)
 
 
 ## Programme 7.3
+
+# Coupled lattice model with commuter-like coupling (page 256)
 
 include("src/chapter7/p7.3.jl"); using .MID_73
 
@@ -899,13 +954,13 @@ u0 = sir73_u0(;
     y0 = 0,                 # value of Y0 in cells with non-zero Y0
     n0 = 1000               # population size in each cell
 )
-for i ∈ axes(u0_3, 1), j ∈ axes(u0_3, 2)
+for i ∈ axes(u0, 1), j ∈ axes(u0, 2)
     if j ∈ [50, 51, 52] && i <= 51 
-        u0_3[i, j, 1] = 0 
-        u0_3[i, j, 3] = 1000 
+        u0[i, j, 1] = 0 
+        u0[i, j, 3] = 1000 
     elseif j == 53 && i == 1 
-        u0_3[i, j, 1] = 999
-        u0_3[i, j, 2] = 1
+        u0[i, j, 1] = 999
+        u0[i, j, 2] = 1
     end 
 end 
 p = [             
@@ -924,6 +979,8 @@ video_sir73(sol73_3; filename = "video73_3.mp4", fixmax = true, colormap = :gist
 
 
 ## Programme 7.4
+
+# Forest fire model (page 260)
 
 include("src/chapter7/p7.4.jl"); using .MID_74
 
@@ -956,6 +1013,8 @@ video_sir74(uv_2, tv_2; filename = "video74_2.mp4")
 
 ## Programme 7.5
 
+# Individual based SIR model (page 269)
+
 include("src/chapter7/p7.5.jl"); using .MID_75
 
 result75 = run_sis75(;
@@ -973,6 +1032,8 @@ video_sis75(result75; step = 1/48)
 
 
 ## Programme 7.6
+
+# Individual based FMD model (page 274)
 
 include("src/chapter7/p7.6.jl"); using .MID_76
 
@@ -1024,12 +1085,14 @@ result76_agg = run_seirc76(;
     duration = 400,         # duration of model
     seed = 763              # seed for random number generator
 )
-df76_agg = dataframe_seirc76(result76_agg)       
+df76_agg = dataframe_seirc76(result76_agg) 
 plot_seirc76(df76_agg)
 video_seirc76(result76_agg, df76_agg; filename = "video76_agg.mp4")
 
 
 ## Programme 7.7
+
+# SIS model on a network (page 280)
 
 include("src/chapter7/p7.7.jl"); using .MID_77
 
@@ -1097,6 +1160,8 @@ fig_77
 
 ## Programme 7.8
 
+# Pairwise SIS approximation model (page 285)
+
 include("src/chapter7/p7.8.jl"); using .MID_78
 
 sol78 = run_sis78(;
@@ -1118,6 +1183,8 @@ plot_sis78(result78)
 
 ## Programme 8.1
 
+# SIR model with paediatric vaccination (page 293)
+
 include("src/chapter8/p8.1.jl"); using .MID_81
 
 sol81 = run_sir81(;
@@ -1135,6 +1202,8 @@ plot_sir81(result81; plotr = false)
 
 
 ## Programme 8.2
+
+# SIR model with wildlife vaccination (page 296)
 
 include("src/chapter8/p8.2.jl"); using .MID_82
 
@@ -1154,6 +1223,8 @@ plot_sir82(result82; plotr = false)
 
 ## Programme 8.3
 
+# SIR model with pulsed vaccination (page 302)
+
 include("src/chapter8/p8.3.jl"); using .MID_83
 
 sol83 = run_sir83(;
@@ -1172,6 +1243,8 @@ plot_sir83(result83; plotr = false)
 
 
 ## Programme 8.4
+
+# SIR model with 2 risk classes and targetted vaccination (page 305)
 
 include("src/chapter8/p8.4.jl"); using .MID_84
 
@@ -1195,6 +1268,8 @@ plot_sir84(result84; plotr = false)
 
 
 ## Programme 8.5
+
+# Smallpox control model (page 315)
 
 include("src/chapter8/p8.5.jl"); using .MID_85
 
@@ -1277,7 +1352,7 @@ for (i, result) ∈ enumerate([result85_nq, result85_qc, result85_qco, result85_
     axs[i].title = ["No quarantine", "Quarantine cases", "Quarantine contacts", "Quarantine cases and contacts"][i]
     i < 4 && hidexdecorations!(axs[i]; ticks = false, grid = false)
 end 
-ylbl = Label(fig85[1:4, 0], "Number"; rotation = pi/2)
+ylbl = Label(fig85[1:4, 0], "Number"; rotation = pi / 2)
 axs[4].xlabel = "Time"  
 leg = Legend(fig85[5, :], axs[1]; orientation = :horizontal);
 fig85 

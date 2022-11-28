@@ -1,5 +1,7 @@
 
 module MID_31
+
+# SIS model with 2 risk groups (page 58)
   
 using CairoMakie, DataFrames, DifferentialEquations
 import Base: minimum
@@ -11,12 +13,9 @@ struct Parameters31
     gamma   :: Float64
 end
 
-minimum(p::Parameters31) = min(minimum(p.beta), p.gamma)
-
 function sir31!(du, u, p, t) 
     # compartments 
     Sh, Ih, Sℓ, Iℓ = u
-
     # parameters 
     (βhh, βhl, βlh, βll) = p.beta 
     γ = p.gamma
@@ -26,6 +25,17 @@ function sir31!(du, u, p, t)
     du[2] = (βhh * Ih + βhl * Iℓ) * Sh - γ * Ih     # dIh
     du[3] = -(βlh * Ih + βll * Iℓ) * Sℓ + γ * Iℓ    # dSℓ
     du[4] = (βlh * Ih + βll * Iℓ) * Sℓ - γ * Iℓ     # dIℓ
+end 
+
+function run_sir31(; Nh, Nl = 1 - Nh, Ih0, Il0, Sh0 = Nh - Ih0, Sl0 = Nl - Il0, 
+        beta_hh = nothing, beta_hl = nothing, beta_lh = nothing, beta_ll = nothing, 
+        beta = [beta_hh beta_hl; beta_lh beta_ll], gamma, duration, kwargs...
+    )
+    # This function allows you to enter separate keyword arguments for `beta_hh`, 
+    # `beta_hl`, `beta_lh` and `beta_ll` or a single matrix for `beta`
+    u0 = [Sh0, Ih0, Sl0, Il0]
+    p = Parameters31(beta, gamma)
+    return run_sir31(u0, p, duration; kwargs...)
 end 
 
 function run_sir31(u0, p, duration; saveat = 1)
@@ -38,21 +48,10 @@ function run_sir31(u0, p, duration; saveat = 1)
 
     prob = ODEProblem(sir31!, u0, tspan, p)
     sol = solve(prob; saveat)
-
     return sol
 end 
 
-function run_sir31(; Nh, Nl = 1 - Nh, Ih0, Il0, Sh0 = Nh - Ih0, Sl0 = Nl - Il0, 
-        beta_hh = nothing, beta_hl = nothing, beta_lh = nothing, beta_ll = nothing, 
-        beta = [beta_hh beta_hl; beta_lh beta_ll], gamma, duration, kwargs...
-    )
-    @assert isa(beta, Matrix{Float64}) "Either enter `beta` as a matrix of Float64, 
-    or enter a Float64 for each of `beta_hh`, `beta_hl`, `beta_lh`, `beta_ll`"
-
-    u0 = [Sh0, Ih0, Sl0, Il0]
-    p = Parameters31(beta, gamma)
-    return run_sir31(u0, p, duration; kwargs...)
-end 
+minimum(p::Parameters31) = min(minimum(p.beta), p.gamma)
 
 function dataframe_sir31(sol)
     result = DataFrame(t = Float64[], Sh = Float64[], Ih = Float64[], Sl = Float64[], Il = Float64[])

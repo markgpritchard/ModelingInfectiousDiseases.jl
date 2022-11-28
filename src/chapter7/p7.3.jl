@@ -1,5 +1,7 @@
 
 module MID_73
+
+# Coupled lattice model with commuter-like coupling (page 256)
   
 using CairoMakie, DifferentialEquations, Random
 using StatsBase: sample
@@ -8,6 +10,62 @@ export sir73_u0, sir73!, run_sir73, plot_sir73, video_sir73
  
 # Neighbours can be in one of four directions 
 @enum Directions North East South West
+
+function sir73!(du, u, p, t) 
+    # compartments 
+    X = u[:, :, 1]
+    Y = u[:, :, 2]
+    Z = u[:, :, 3]
+    # parameters
+    beta, gamma, mu, rho = p
+
+    N = .+(X, Y, Z)
+
+    for i ∈ axes(u, 1), j ∈ axes(u, 2) 
+        nu = mu * N[i, j]   # so that births equal deaths
+
+        # ODEs
+
+        # dX
+        du[i, j, 1] = nu - beta * X[i, j] * ( 
+                ( 1 - rho * countneighbours(Y, i, j) ) * Y[i, j] + rho * sumneighbours(Y, i, j) 
+            ) / ( 
+                ( 1 - rho * countneighbours(N, i, j) ) * N[i, j] + rho * sumneighbours(N, i, j) 
+            ) - 
+            mu * X[i, j]
+
+        # dY 
+        du[i, j, 2] = beta * X[i, j] * ( 
+                ( 1 - rho * countneighbours(Y, i, j) ) * Y[i, j] + rho * sumneighbours(Y, i, j) 
+            ) / ( 
+                ( 1 - rho * countneighbours(N, i, j) ) * N[i, j] + rho * sumneighbours(N, i, j) 
+            ) - 
+            (gamma + mu) * Y[i, j]
+
+        # dZ 
+        du[i, j, 3] = gamma * Y[i, j] - mu * Z[i, j]
+    end
+end 
+
+function run_sir73(; n, x0, yvector = nothing, ni = yvector, y0, n0, beta, gamma, 
+        mu, rho, duration, seed = nothing, kwargs...
+    )
+    u0 = sir73_u0(n, x0, ni, y0, n0; seed)
+    p = [beta, gamma, mu, rho]
+    return run_sir73(u0, p, duration; kwargs...)
+end 
+
+function run_sir73(u0, p, duration; saveat = 1)
+    @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
+    @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters" 
+    @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
+
+    tspan = ( 0., Float64(duration) )
+
+    prob = ODEProblem(sir73!, u0, tspan, p)
+    sol = solve(prob; saveat)
+    return sol
+end 
 
 sir73_u0(; n, x0, ni, y0, n0, seed = nothing) = sir73_u0(n, x0, ni, y0, n0; seed)
 sir73_u0(n, x0, ni, y0, n0; seed = nothing) = _sir73_u0(n, x0, ni, y0, n0, seed)
@@ -41,43 +99,6 @@ function _sir73_u0(n::Int, x0, yvector::Vector{<:Int}, y0, n0, seed::Nothing)
     u0 = zeros(n, n, 3) 
     u0[:, :, 1] = X0; u0[:, :, 2] = Y0; u0[:, :, 3] = Z0
     return u0
-end 
-
-function sir73!(du, u, p, t) 
-    # compartments 
-    X = u[:, :, 1]
-    Y = u[:, :, 2]
-    Z = u[:, :, 3]
-
-    # parameters
-    beta, gamma, mu, rho = p
-
-    N = .+(X, Y, Z)
-
-    for i ∈ axes(u, 1), j ∈ axes(u, 2) 
-        nu = mu * N[i, j]   # so that births equal deaths
-
-        # ODEs
-
-        # dX
-        du[i, j, 1] = nu - beta * X[i, j] * ( 
-                ( 1 - rho * countneighbours(Y, i, j) ) * Y[i, j] + rho * sumneighbours(Y, i, j) 
-            ) / ( 
-                ( 1 - rho * countneighbours(N, i, j) ) * N[i, j] + rho * sumneighbours(N, i, j) 
-            ) - 
-            mu * X[i, j]
-
-        # dY 
-        du[i, j, 2] = beta * X[i, j] * ( 
-                ( 1 - rho * countneighbours(Y, i, j) ) * Y[i, j] + rho * sumneighbours(Y, i, j) 
-            ) / ( 
-                ( 1 - rho * countneighbours(N, i, j) ) * N[i, j] + rho * sumneighbours(N, i, j) 
-            ) - 
-            (gamma + mu) * Y[i, j]
-
-        # dZ 
-        du[i, j, 3] = gamma * Y[i, j] - mu * Z[i, j]
-    end
 end 
 
 sumneighbours(x, i, j) = sum( findneighbours(x, i, j) ) # sums the values of all neighbouring cells
@@ -123,33 +144,15 @@ function countneighbours(x, i, j)
     return n 
 end 
 
-function run_sir73(u0, p, duration; saveat = 1)
-    @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
-    @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters" 
-    @assert duration > 0 "Input duration = $duration: cannot run with negative or zero duration"
-
-    tspan = ( 0., Float64(duration) )
-
-    prob = ODEProblem(sir73!, u0, tspan, p)
-    sol = solve(prob; saveat)
-
-    return sol
-end 
-
-function run_sir73(; n, x0, yvector = nothing, ni = yvector, y0, n0, beta, gamma, 
-        mu, rho, duration, seed = nothing, kwargs...
-    )
-    u0 = sir73_u0(n, x0, ni, y0, n0; seed)
-    p = [beta, gamma, mu, rho]
-    return run_sir73(u0, p, duration; kwargs...)
-end 
-
 function plot_sir73(sol, i::Int; forcepositive = false, kwargs...)
     data = values_sir73(sol, i; forcepositive)
     return plot_sir73(data, sol; forcepositive, kwargs...) 
 end 
 
-function plot_sir73(data, sol; fixmax = false, colormap = :viridis)
+function plot_sir73(data, sol; 
+        fixmax = false, colormap = :viridis, 
+        label = "p7.3.jl: Coupled lattice model with commuter-like coupling"
+    )
     fig = Figure()
     if fixmax 
         maxval = maximum([ maximum(sol[i][:, :, 2]) for i ∈ axes(sol, 4) ])
@@ -161,6 +164,7 @@ function plot_sir73(data, sol; fixmax = false, colormap = :viridis)
     Colorbar(fig[1, 1][1, 2], hm)
     hidexdecorations!(ax)
     hideydecorations!(ax)
+    Label(fig[0, :], label)
     return fig 
 end 
 

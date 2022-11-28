@@ -1,5 +1,7 @@
 
 module MID_41
+
+# SIR model with partial immunity (page 118)
   
 using CairoMakie, DataFrames, DifferentialEquations
 import Base: minimum
@@ -14,9 +16,6 @@ struct Parameters41
     mu      :: Float64 
     nu      :: Float64
 end
-
-minimum(p::Parameters41) = min( minimum(p.a), minimum(p.alpha), minimum(p.beta), 
-    minimum(p.gamma), p.mu, p.nu )
 
 function sir41!(du, u, p, t) 
     # compartments 
@@ -36,6 +35,12 @@ function sir41!(du, u, p, t)
     du[8] = p.gamma[1] * IR + p.gamma[2] * RI - p.mu * RR                   # dRR  
 end 
 
+function run_sir41(; SS0, IS0, RS0, SI0, RI0, SR0, IR0, RR0, a, alpha, beta, gamma, mu, nu = mu, duration, kwargs...)
+    u0 = [SS0, IS0, RS0, SI0, RI0, SR0, IR0, RR0]
+    p = Parameters41(a, alpha, beta, gamma, mu, nu)
+    return run_sir41(u0, p, duration; kwargs...)
+end 
+
 function run_sir41(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: cannot run with negative compartment values"
     @assert sum(u0) ≈ 1 "Input u0 = $u0: compartments are proportions so should sum to 1"
@@ -46,15 +51,11 @@ function run_sir41(u0, p, duration; saveat = 1)
 
     prob = ODEProblem(sir41!, u0, tspan, p)
     sol = solve(prob; saveat)
-
     return sol
 end 
 
-function run_sir41(; SS0, IS0, RS0, SI0, RI0, SR0, IR0, RR0, a, alpha, beta, gamma, mu, nu = mu, duration, kwargs...)
-    u0 = [SS0, IS0, RS0, SI0, RI0, SR0, IR0, RR0]
-    p = Parameters41(a, alpha, beta, gamma, mu, nu)
-    return run_sir41(u0, p, duration; kwargs...)
-end 
+minimum(p::Parameters41) = min( minimum(p.a), minimum(p.alpha), minimum(p.beta), 
+    minimum(p.gamma), p.mu, p.nu )
 
 function dataframe_sir41(sol)
     result = DataFrame(t = sol.t)

@@ -1,5 +1,7 @@
 
 module MID_63
+
+# SIS model with demographic stochasticity (page 202)
   
 using CairoMakie, DataFrames, Random
 
@@ -31,14 +33,14 @@ function sis63(u, p, t)
     return t, [X, Y]
 end 
 
-run_sis63(u0::Vector{<:Int}, p, duration; seed = nothing, kwargs...) =
-    _run_sis63(u0, p, duration, seed; kwargs...)
-
 function run_sis63(; X0::Int, Y0::Int, beta, gamma, duration, kwargs...)
     u0 = [X0, Y0] 
     p = [beta, gamma]
     return run_sis63(u0, p, duration; kwargs...)
 end 
+
+run_sis63(u0::Vector{<:Int}, p, duration; seed = nothing, kwargs...) =
+    _run_sis63(u0, p, duration, seed; kwargs...)
 
 function _run_sis63(u0, p, duration, seed::Int; kwargs...)
     Random.seed!(seed)
@@ -80,69 +82,5 @@ function plot_sis63(results, label::String)
     
     return fig
 end 
-
-#=
-"""
-    run_sis63(u0::Vector{<:Int}, p, duration[; seed, pop])
-
-Run the model `sis63`.
-
-This is a susceptible--infectious--susceptible model. It calculates rates of infection 
-and recovery. The model has random step intervals, proportional to these rates, 
-at which an event takes place. The model keeps running until one time step has been 
-taken after `duration` has been reached.
-
-The number of infectious and susceptible individuals will always be integer, and 
-the model has the potential for all infectious individuals to recover and the epidemic 
-ends. In this case, the final time step value will be `Inf` and the final value 
-of `Y` will be `-1`. Therefore, by default the final value from the DataFrame is 
-removed. To avoid this, set `pop = false`
-
-## Model parameters 
-Parameters can be entered as a vector in this order
-* `β`: infection parameter
-* `γ`: recovery rate
-
-## Function arguments
-* `u0`: The starting conditions for the model, a vector of 2 integers  (`X0`, `Y0`)
-* `p`: Parameters for the model, expected as a vector
-* `duration`: The time that the model should run for
-### Optional keyword arguments
-* `seed`: Seed for the random number generator. Default is not to supply a seed.
-* `pop`: Whether the final value of the DataFrame should be removed. Default is `true`
-
-## Example 
-```
-julia> u0 = [30, 70]
-2-element Vector{Int64}:
- 30
- 70
-
-julia> p = [.03, .01]
-2-element Vector{Float64}:
- 0.03
- 0.01
-
-julia> run_sis63(u0, p, 3; seed = 63)
-5×3 DataFrame
- Row │ t         X      Y     
-     │ Float64   Int64  Int64 
-─────┼────────────────────────
-   1 │ 0.0          30     70
-   2 │ 0.841074     29     71
-   3 │ 1.03188      30     70
-   4 │ 2.31459      29     71
-   5 │ 2.8178       28     72
-```
-"""
-
-"""
-    plot_sis63(results[, label])
-
-Plot the `results` DataFrame output from the function `run_sis63` 
-
-A `label` term can be added which will be printed at the top of the figure.
-"""
-=#
 
 end # module MID_63

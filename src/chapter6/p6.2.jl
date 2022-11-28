@@ -1,12 +1,17 @@
 
 module MID_62
+
+# SIR model with scaled additive noise (page 197)
   
 using CairoMakie, DataFrames, DifferentialEquations, Distributions, Random
 import Base: minimum
 
 export Parameters62, sir62!, run_sir62, plot_sir62
 
-## Structures that pass the model parameters to the relevant functions
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Structures that pass the model parameters to the relevant functions
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 struct Parameters62
     beta    :: Float64
@@ -28,19 +33,10 @@ mutable struct InputParameters62
     p       :: Vector{<:Float64} # name of the Noise vector in this model 
 end
 
-# Define the Base function minimum for Parameters61
-minimum(p::Parameters62) = min(p.beta, p.gamma, p.mu, p.nu, p.xi)
 
-## Functions that calculate the appropriate `noise` values
-
-noise(p, δt) = p.xi * rand(Normal(0, 1)) / sqrt(δt)
-function noise!(parameters, p, δt) 
-    for i ∈ 1:6
-        parameters.p[i] = noise(p, δt)
-    end 
-end 
-
-## The function that is passed to the DifferentialEquations solver 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# The function that is passed to the DifferentialEquations solver 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 function sir62!(du, u, p, t) 
     # compartments 
@@ -56,41 +52,18 @@ function sir62!(du, u, p, t)
     du[3] = recovery(p.gamma, Y, p.p[4]) - death(p.mu, Z, p.p[6])               # dZ
 end 
 
-## Function that support `sir62!`
 
-function addnoise(a, p) 
-    # With large magnitudes of noise, negative values can be passed to the functions, 
-    # such that a negative number of people might be born or might be infected. 
-    # In turn, this can lead to negative numbers of individuals in compartments, 
-    # even when tolerance is set very low. 
-
-    # This function is designed 
-    #   1.  to ensure that a negative value is never passed to the function 
-    #   2.  to ensure that if a compartment ever has a negative value, this does 
-    #       not lead to an attempt to square-root a negative value.
-    if a < 0 
-        return 0 
-    elseif a + p * sqrt(a) < 0 
-        return 0 
-    else 
-        return a + p * sqrt(a) 
-    end 
-end 
-
-birth(nu, N, p) = addnoise(nu * N, p)
-infection(beta, X, Y, N, p) = addnoise(beta * X * Y / N, p)
-recovery(gamma, Y, p) = addnoise(gamma * Y, p)
-death(mu, A, p) = addnoise(mu * A, p)
-
-## Function to run the whole model
-
-run_sir62(u0, p, duration; seed = nothing, kwargs...) = _run_sir62(u0, p, duration, seed; kwargs...)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Function to run the whole model
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 function run_sir62(; N0 = 0, X0, Y0, Z0 = N0 - (X0 + Y0), beta, gamma, mu, nu = mu, xi, duration, kwargs...)
     u0 = [X0, Y0, Z0]
     p = Parameters62(beta, gamma, mu, nu, xi)
     return run_sir62(u0, p, duration; kwargs...)
 end 
+
+run_sir62(u0, p, duration; seed = nothing, kwargs...) = _run_sir62(u0, p, duration, seed; kwargs...)
 
 function _run_sir62(u0, p, duration, seed::Real; kwargs...)
     Random.seed!(seed)
@@ -138,6 +111,56 @@ function __run_sir62(u0, p, duration, δt::Float64; kwargs...)
     return results
 end 
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Accessory functions for sir62! and run_sir62 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## Define the Base function minimum for Parameters62
+
+minimum(p::Parameters62) = min(p.beta, p.gamma, p.mu, p.nu, p.xi)
+
+
+## Functions that calculate the appropriate `noise` values
+
+noise(p, δt) = p.xi * rand(Normal(0, 1)) / sqrt(δt)
+function noise!(parameters, p, δt) 
+    for i ∈ 1:6
+        parameters.p[i] = noise(p, δt)
+    end 
+end 
+
+function addnoise(a, p) 
+    # With large magnitudes of noise, negative values can be passed to the functions, 
+    # such that a negative number of people might be born or might be infected. 
+    # In turn, this can lead to negative numbers of individuals in compartments, 
+    # even when tolerance is set very low. 
+
+    # This function is designed 
+    #   1.  to ensure that a negative value is never passed to the function 
+    #   2.  to ensure that if a compartment ever has a negative value, this does 
+    #       not lead to an attempt to square-root a negative value.
+    if a < 0 
+        return 0 
+    elseif a + p * sqrt(a) < 0 
+        return 0 
+    else 
+        return a + p * sqrt(a) 
+    end 
+end 
+
+## Functions for events that occur in sir62!
+
+birth(nu, N, p) = addnoise(nu * N, p)
+infection(beta, X, Y, N, p) = addnoise(beta * X * Y / N, p)
+recovery(gamma, Y, p) = addnoise(gamma * Y, p)
+death(mu, A, p) = addnoise(mu * A, p)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plotting functions
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 function plot_sir62(results)
     return plot_sir62(
         results, 
@@ -170,82 +193,5 @@ function plot_sir62(results, label::String)
     
     return fig
 end 
-
-#=
-
-"""
-    run_sir62(u0, p, duration[; δt, seed, kwargs...])
-
-Run the model `sir62!`.
-
-`sir62!` is an ordinary differential equations (ODE) model, but this function is 
-intended to introduce stochastic noise. It does this by introducing a stochastic 
-parameter to each variable, each inversely proportional to the square root of `δt`. 
-The model runs for a duration `δt` before calculating a new, independent, noise 
-parameter. This continues until `duration` has been reached.
-
-### Warning 
-
-With large values of `xi` (large magnitudes of noise), the ODE solver can generate 
-negative compartment values. This subsequently leads to an error when this value 
-is square-rooted to add noise in a following step. Solver tolerance can be changed 
-by adding abstol or reltol as keyword arguments, but this does not always prevent 
-the problem. The `addnoise` function is therefore modified such that any attempt 
-to move a negative number of individuals will lead to a movement of `0`, and any 
-negative compartments will be increased to `1e-12`.
-
-## Model parameters 
-Parameters are expected in a `Parameters62` type
-* `beta`: infection parameter
-* `gamma`: recovery rate
-* `mu`: birth rate 
-* `nu`: death rate 
-* `xi`: magnitude of noise to be added
-
-## Function arguments
-* `u0`: The starting conditions for the model, a vector of 3 values (`X0`, `Y0`, `Z0`)
-* `p`: Parameters for the model, expected in a `Parameters62` type
-* `duration`: The time that the model should run for
-### Optional keyword arguments
-* `δt`: How often the random noise parameter should update. Default value is 1.
-* `seed`: Seed for the random number generator. Default is not to supply a seed.
-* `kwargs...`: Keyword arguments that get passed to `DifferentialEquations.solve`
-
-## Example 
-```
-julia> u0 = [1e5, 500, 1e6 - (1e5 + 500)]
-3-element Vector{Float64}:
- 100000.0
-    500.0
-
-julia> p = Parameters62(1., .1, 1 / (50 * 365), 1 / (50 * 365), 1.)
-Parameters62(1.0, 0.1, 5.479452054794521e-5, 5.479452054794521e-5, 1.0)
-
-julia> run_sir62(u0, p, 5; seed = 62)
-6×4 DataFrame
- Row │ t        X               Y        Z
-     │ Float64  Float64         Float64  Float64        
-─────┼──────────────────────────────────────────────────
-   1 │     0.0  100000.0        500.0    899500.0       
-   2 │     1.0  100014.0        489.124       8.99508e5 
-   3 │     2.0       1.0001e5   482.236  899509.0       
-   4 │     3.0       1.00028e5  471.35        8.99519e5 
-   5 │     4.0       1.00041e5  466.103       8.99523e5 
-   6 │     5.0       1.00038e5  458.071       8.9953e5
-```
-"""
-
-"""
-    plot_sir62(results[, noise])
-    plot_sir62(results, label::String)
-
-Plot the `results` DataFrame output from the function `run_sir62` 
-        
-A `label` term can be added which will be printed at the top of the figure. If a 
-`noise` term is included, the magnitude of the noise is printed on the plot. `noise` 
-can be a value or a `Parameters62` structure.
-"""
-
-=#
 
 end # module MID_62

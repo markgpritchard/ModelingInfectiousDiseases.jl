@@ -1,5 +1,7 @@
 
 module MID_66
+
+# SIR model with two types of imports (page 210)
   
 using CairoMakie, DataFrames, Distributions, Random
 
@@ -14,14 +16,6 @@ const changematrix = # how contents of each compartment change for each possible
        0   0  -1    # recovered death
        0   1   0    # infectious immigration 
       -1   1   0 ]  # external infection
-
-function u0_sir66(N0::Int, p) 
-    β, γ, δ, ε, μ = p
-    X0 = round(Int, γ * N0 / β, RoundDown)
-    Y0 = round(Int, μ * N0 / γ, RoundUp) 
-    Z0 = N0 - ( X0 + Y0 ) 
-    return [X0, Y0, Z0]
-end 
 
 function sir66(u, p, t, δt, N0) 
     # The model does not enforce a constant population. However, an approximately 
@@ -59,13 +53,13 @@ function sir66(u, p, t, δt, N0)
     return t, u
 end 
 
-run_sir66(u0, p, duration; δt = 1, seed = nothing) = _run_sir66(u0, p, duration, seed; δt)
-
 function run_sir66(; N0, beta, gamma, delta, epsilon, mu, duration, kwargs...)
     p = [beta, gamma, delta, epsilon, mu]
     u0 = u0_sir66(N0, p)
     return run_sir66(u0, p, duration; kwargs...)
 end
+
+run_sir66(u0, p, duration; δt = 1, seed = nothing) = _run_sir66(u0, p, duration, seed; δt)
 
 function _run_sir66(u0, p, duration, seed::Int; δt)
     Random.seed!(seed)
@@ -94,6 +88,14 @@ function _run_sir66(u0::Vector{<:Int}, p, duration, seed::Nothing; δt)
     end
 
     return results
+end 
+
+function u0_sir66(N0::Int, p) 
+    β, γ, δ, ε, μ = p
+    X0 = round(Int, γ * N0 / β, RoundDown)
+    Y0 = round(Int, μ * N0 / γ, RoundUp) 
+    Z0 = N0 - ( X0 + Y0 ) 
+    return [X0, Y0, Z0]
 end 
 
 function plot_sir66(results)
@@ -127,66 +129,5 @@ function plot_sir66(results, label::String)
     
     return fig
 end 
-
-#=
-"""
-    run_sir66(N0::Int, p, duration[; δt, seed])
-    run_sir66(u0::Vector{<:Int}, p, duration[; δt, seed])
-
-Run the model `sir66`.
-
-This is a susceptible--infectious--recovered model, with additional parameters to 
-allow an infectious individual to join the population or a susceptible individual 
-to be infected by an external force of infeciton. It calculates rates of infection, 
-recovery, births and deaths. It has defined step intervals and estimates the number 
-of each event that will occur during each step interval from a Poisson distribution.
-
-## Model parameters 
-Parameters can be entered as a vector in this order
-* `β`: infection parameter
-* `γ`: recovery rate
-* `δ`: rate of immigration of infectious individuals 
-* `ε`: external force of infection 
-* `μ`: birth and death rate 
-
-## Function arguments
-* `u0`: The starting conditions for the model, a vector of 3 integers (`X0`, `Y0`, `Z0`), 
-    or a single integer that will be interpretted as `N0`.
-* `p`: Parameters for the model, expected as a vector
-* `duration`: The time that the model should run for
-### Optional keyword arguments
-* `δt`: Time interval between calculations. Default is 1.
-* `seed`: Seed for the random number generator. Default is not to supply a seed.
-
-## Example 
-```
-julia> p = [1., .1, .01, .00002, 5e-4]
-5-element Vector{Float64}:
- 1.0
- 0.1
- 0.01
- 2.0e-5
- 0.0005
-
-julia> u0 = [500, 25, 4475]
-3-element Vector{Int64}:
-  500
-   25
- 4475
-
-julia> run_sir66(u0, p, 5; seed = 66)
-7×4 DataFrame
- Row │ t      X      Y      Z     
-     │ Int64  Int64  Int64  Int64 
-─────┼────────────────────────────
-   1 │     0    500     25   4475
-   2 │     1    500     22   4474
-   3 │     2    499     19   4477
-   4 │     3    496     21   4477
-   5 │     4    497     22   4476
-   6 │     5    499     22   4477
-```
-"""
-=#
 
 end # module MID_66

@@ -1,5 +1,7 @@
 
 module MID_75
+
+# Individual based SIR model (page 269)
   
 using CairoMakie, Distributions, Random
 
@@ -20,43 +22,12 @@ struct Environment
     individuals     :: Vector{Individual}
 end
 
-function setindividual(size, state)
-    return Individual(
-        rand(Uniform(0, size)),
-        rand(Uniform(0, size)),
-        state,
-        .0
-    )
-end 
-
-u0_sis75(n, Y0, size = 10; seed = nothing) = _u0_sis75(n, Y0, size, seed)
-
-function _u0_sis75(n, Y0, size, seed::Real)
-    Random.seed!(seed)
-    return _u0_sis75(n, Y0, size, nothing)
-end 
-
-function _u0_sis75(n, Y0, size, seed::Nothing)
-    @assert Y0 <= n "Cannot have more than all individuals infectious"
-
-    individuals = Individual[]
-    for i ∈ 1:n 
-        if i <= Y0 
-            push!(individuals, setindividual(size, I))
-        else 
-            push!(individuals, setindividual(size, S))
-        end 
-    end 
-
-    return Environment(.0, individuals)
-end 
-
 function sis75(u, p; tstep = nothing)
-    newu = deepcopy(u) # so that _sis75! does not mutate the original 
-    return _sis75!(newu, p, tstep)
+    newu = deepcopy(u) # so that sis75! does not mutate the original 
+    return sis75!(newu, p, tstep)
 end 
 
-function _sis75!(u, p, tstep)
+function sis75!(u, p, tstep)
     # Parameters 
     alpha, beta, gamma = p 
 
@@ -135,30 +106,15 @@ function __sis75(inds, rates, t, tstep::Real)
     return Environment(newt, inds)
 end 
 
-function transmissionkernel(A, B, alpha)
-    distance = sqrt( (A.x - B.x)^2 + (A.y - B.y)^2 )
-    k = distance^(-alpha) 
-    return k 
-end 
-
-function forceofinfection(A, infecteds, alpha, beta)
-    ksum = .0 
-    for J ∈ infecteds 
-        ksum += transmissionkernel(A, J, alpha)
-    end 
-    lambda = beta * ksum
-    return lambda 
-end 
-
-run_sis75(u0, p, duration; seed = nothing, tstep = nothing) = 
-    _run_sis75(u0, p, duration, seed; tstep)
-
 function run_sis75(; n, Y0, size = 10, alpha, beta, gamma, duration, seed = nothing, kwargs...)
     u0 = u0_sis75(n, Y0, size; seed)
     p = [alpha, beta, gamma] 
     # u0_sis75 has reset the global random number generator seed so does not also need to be passed to _run_sis75
     return _run_sis75(u0, p, duration, nothing; kwargs...)
 end 
+
+run_sis75(u0, p, duration; seed = nothing, tstep = nothing) = 
+    _run_sis75(u0, p, duration, seed; tstep)
 
 function _run_sis75(u0, p, duration, seed::Int; tstep)
     Random.seed!(seed)
@@ -183,11 +139,58 @@ function _run_sis75(u0, p, duration, seed::Nothing; tstep)
     return results
 end 
 
-function plot_sis75(s_xs, s_ys, i_xs, i_ys)
+function setindividual(size, state)
+    return Individual(
+        rand(Uniform(0, size)),
+        rand(Uniform(0, size)),
+        state,
+        .0
+    )
+end 
+
+u0_sis75(n, Y0, size = 10; seed = nothing) = _u0_sis75(n, Y0, size, seed)
+
+function _u0_sis75(n, Y0, size, seed::Real)
+    Random.seed!(seed)
+    return _u0_sis75(n, Y0, size, nothing)
+end 
+
+function _u0_sis75(n, Y0, size, seed::Nothing)
+    @assert Y0 <= n "Cannot have more than all individuals infectious"
+
+    individuals = Individual[]
+    for i ∈ 1:n 
+        if i <= Y0 
+            push!(individuals, setindividual(size, I))
+        else 
+            push!(individuals, setindividual(size, S))
+        end 
+    end 
+
+    return Environment(.0, individuals)
+end 
+
+function transmissionkernel(A, B, alpha)
+    distance = sqrt( (A.x - B.x)^2 + (A.y - B.y)^2 )
+    k = distance^(-alpha) 
+    return k 
+end 
+
+function forceofinfection(A, infecteds, alpha, beta)
+    ksum = .0 
+    for J ∈ infecteds 
+        ksum += transmissionkernel(A, J, alpha)
+    end 
+    lambda = beta * ksum
+    return lambda 
+end 
+
+function plot_sis75(s_xs, s_ys, i_xs, i_ys; label = "p7.5.jl: Individual based SIR model")
     fig = Figure()
     ax = Axis(fig[1, 1])
     scatter!(ax, s_xs, s_ys; label = "Susceptibles")
     scatter!(ax, i_xs, i_ys; label = "Infecteds")
+    Label(fig[0, :], label)
     leg = Legend(fig[2, 1], ax; orientation = :horizontal)
     hidexdecorations!(ax)
     hideydecorations!(ax)
@@ -215,8 +218,8 @@ function values_sis75(individuals, state)
 end 
 
 function video_sis75(results; 
-        step = 1/24, folder = "outputvideos", filename = "video75.mp4", kwargs...)
-
+        step = 1/24, folder = "outputvideos", filename = "video75.mp4", kwargs...
+    )
     tvector = [ result.t for result ∈ results]
     if last(tvector) == Inf
         pop!(tvector) 

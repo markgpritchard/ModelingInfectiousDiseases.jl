@@ -1,5 +1,7 @@
 
 module MID_65
+
+# SIR model with tau leap method (page 204)
   
 using CairoMakie, DataFrames, Distributions, Random
 
@@ -12,14 +14,6 @@ const changematrix =    # how contents of each compartment change for each possi
       -1   0   0        # susceptible death 
        0  -1   0        # infectious death 
        0   0  -1  ]     # recovered death
-
-function u0_sir65(N0::Int, p) 
-    β, γ, μ = p
-    X0 = round(Int, γ * N0 / β, RoundDown)
-    Y0 = round(Int, μ * N0 / γ, RoundUp) 
-    Z0 = N0 - ( X0 + Y0 ) 
-    return [X0, Y0, Z0]
-end 
 
 function sir65(u, p, t, δt, N0) 
     # The model does not enforce a constant population. However, an approximately 
@@ -55,13 +49,13 @@ function sir65(u, p, t, δt, N0)
     return t, u
 end 
 
-run_sir65(u0, p, duration; δt = 1, seed = nothing) = _run_sir65(u0, p, duration, seed; δt)
-
 function run_sir65(; N0, beta, gamma, mu, duration, kwargs...)
     p = [beta, gamma, mu]
     u0 = u0_sir65(N0, p)
     return run_sir65(u0, p, duration; kwargs...)
 end
+
+run_sir65(u0, p, duration; δt = 1, seed = nothing) = _run_sir65(u0, p, duration, seed; δt)
 
 function _run_sir65(u0, p, duration, seed::Int; δt)
     Random.seed!(seed)
@@ -92,6 +86,14 @@ function _run_sir65(u0::Vector{<:Int}, p, duration, seed::Nothing; δt)
     return results
 end 
 
+function u0_sir65(N0::Int, p) 
+    β, γ, μ = p
+    X0 = round(Int, γ * N0 / β, RoundDown)
+    Y0 = round(Int, μ * N0 / γ, RoundUp) 
+    Z0 = N0 - ( X0 + Y0 ) 
+    return [X0, Y0, Z0]
+end 
+
 plot_sir65(results) = plot_sir65(results, "p6.5.jl: SIR model with τ-leap method stochasticity")
 
 function plot_sir65(results, population::Real)
@@ -119,60 +121,5 @@ function plot_sir65(results, label::String)
     
     return fig
 end 
-
-#=
-"""
-    run_sir65(N0::Int, p, duration[; δt, seed])
-    run_sir65(u0::Vector{<:Int}, p, duration[; δt, seed])
-
-Run the model `sir65`.
-
-This is a susceptible--infectious--recovered model. It calculates rates of infection, 
-recovery, births and deaths. It has defined step intervals and estimates the number 
-of each event that will occur during each step interval from a Poisson distribution.
-
-## Model parameters 
-Parameters can be entered as a vector in this order
-* `β`: infection parameter
-* `γ`: recovery rate
-* `μ`: birth and death rate 
-
-## Function arguments
-* `u0`: The starting conditions for the model, a vector of 3 integers (`X0`, `Y0`, `Z0`), 
-    or a single integer that will be interpretted as `N0`.
-* `p`: Parameters for the model, expected as a vector.
-* `duration`: The time that the model should run for
-### Optional keyword arguments
-* `δt`: Time interval between calculations. Default is 1.
-* `seed`: Seed for the random number generator. Default is not to supply a seed.
-
-## Example 
-```
-julia> u0 = [50, 50, 400]
-3-element Vector{Int64}:
-  50
-  50
- 400
-
-julia> p = [1., .1, 5e-4]
-3-element Vector{Float64}:
- 1.0
- 0.1
- 0.0005
-
-julia> run_sir65(u0, p, 5; seed = 65)
-6×4 DataFrame
- Row │ t      X      Y      Z     
-     │ Int64  Int64  Int64  Int64 
-─────┼────────────────────────────
-   1 │     0     50     50    400
-   2 │     1     46     52    401
-   3 │     2     42     47    410
-   4 │     3     37     48    415
-   5 │     4     36     43    423
-   6 │     5     35     43    424
-```
-"""
-=#
 
 end # module MID_65

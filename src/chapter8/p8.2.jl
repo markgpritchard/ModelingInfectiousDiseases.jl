@@ -1,5 +1,7 @@
 
 module MID_82
+
+# SIR model with wildlife vaccination (page 296)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -8,7 +10,6 @@ export sir82!, run_sir82, run_sir82!, dataframe_sir82, plot_sir82, plot_sir82!
 function sir82!(du, u, p, t) 
     # compartments 
     S, I, R = u
-
     # parameters 
     beta, gamma, mu, nu, v = p
     
@@ -18,17 +19,17 @@ function sir82!(du, u, p, t)
     du[3] = gamma * I + v * S - mu * R          # dR
 end 
 
-function run_sir82(u0, p, duration, vaccinationstarttime, vaccinationrate; saveat = 1)
-    pcopy = deepcopy(p)
-    return run_sir82!(u0, pcopy, duration, vaccinationstarttime, vaccinationrate; saveat)
-end 
-
 function run_sir82(; S0, I0, R0 = 1 - (S0 + I0), beta, gamma, mu, nu = mu, v = 0, 
         duration, vaccinationstarttime, vaccinationrate, kwargs...
     )
     u0 = [S0, I0, R0]
     p = [beta, gamma, mu, nu, v]
     return run_sir82!(u0, p, duration, vaccinationstarttime, vaccinationrate; kwargs...)
+end 
+
+function run_sir82(u0, p, duration, vaccinationstarttime, vaccinationrate; saveat = 1)
+    pcopy = deepcopy(p)
+    return run_sir82!(u0, pcopy, duration, vaccinationstarttime, vaccinationrate; saveat)
 end 
 
 function run_sir82!(u0, p, duration, vaccinationstarttime, vaccinationrate; saveat = 1)
@@ -74,8 +75,8 @@ function plot_sir82!(fig::Figure, result::DataFrame; kwargs...)
 end 
 
 function plot_sir82!(gl::GridLayout, result::DataFrame; 
-        label = "p8.2.jl: SIR model with random vaccination", kwargs...)
-
+        label = "p8.2.jl: SIR model with random vaccination", kwargs...
+    )
     ax = Axis(gl[1, 1])
     plot_sir82!(ax, result; kwargs...)
     leg = Legend(gl[1, 2], ax)

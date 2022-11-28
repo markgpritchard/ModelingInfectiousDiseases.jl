@@ -1,5 +1,7 @@
 
 module MID_77
+
+# SIS model on a network (page 280)
   
 using CairoMakie, DataFrames, Distributions, GraphMakie, Graphs, Random, StatsBase
 
@@ -15,6 +17,105 @@ end
 struct SpatialPosition 
     x           :: Float64 
     y           :: Float64 
+end 
+
+function sis77!(u, p, t; tstep = nothing)
+    # Parameters 
+    gamma, tau = p 
+    
+    # Rates of events 
+    rates = [
+        ifelse(
+            i ∈ u.Y, # i.e. is infected 
+            gamma,
+            forceofinfection(i, u, tau)
+        ) for i ∈ vertices(u.g)
+    ]
+
+    return _sis77!(u, t, rates, tstep)
+end 
+
+function _sis77!(u, t, rates, tstep::Nothing)
+    # No tstep is provided so model goes to the time when the next event happens 
+    sumrates = sum(rates)
+
+    # Random numbers to decide what happens 
+    r1 = rand(); r2 = rand() 
+
+    # How soon is something going to happen 
+    timestep = -log(r1) / sumrates
+    newt = t + timestep
+
+    # Who is it going to happen to  
+    cumsumratesratio = cumsum(rates) / sumrates
+    i = searchsortedfirst(cumsumratesratio, r2)
+
+    # Calculate new vector of infected individuals 
+    Y = Int[] 
+    for j ∈ vertices(u.g) 
+        if j ∈ u.Y # i.e. is already infected 
+            if j != i push!(Y, j) end # not changing, remains infectious 
+        else 
+            if j == i push!(Y, j) end # changing, becomes infectious
+        end 
+    end 
+    u.Y = Y 
+    push!(u.historyY, Y)
+
+    return u, newt
+end 
+
+function _sis77!(u, t, rates, tstep::Real)
+    # Calculate how many events occur during period tstep 
+    probs = [ 1 - exp(-rate * tstep) for rate in rates ]
+    rands = rand(length(rates))
+
+    # Calculate new vector of infected individuals 
+    Y = Int[] 
+    for i ∈ vertices(u.g) 
+        if i ∈ u.Y  # i.e. is already infected 
+            if rands[i] >= probs[i] push!(Y, i) end # not changing, remains infectious 
+        else        # not already infected
+            if rands[i] < probs[i] push!(Y, i) end # changing, becomes infectious
+        end 
+    end 
+
+    u.Y = Y 
+    push!(u.historyY, Y)
+
+    return u, t + tstep
+end 
+
+function run_sis77(; N, averageconnections, Y0, networktype, gamma, tau, duration, 
+        seed = nothing, tstep = nothing, kwargs...
+    )
+    u0 = u0_sis77(N, averageconnections, Y0, networktype; seed, kwargs...)
+    p = [gamma, tau]
+    return run_sis77(u0, p, duration; seed, tstep)
+end
+
+run_sis77(u0, p, duration; seed = nothing, tstep = nothing, kwargs...) = 
+    _run_sis77(u0, p, duration, seed; tstep)
+
+function _run_sis77(u0, p, duration, seed::Int; tstep)
+    Random.seed!(seed)
+    return _run_sis77(u0, p, duration, nothing; tstep)
+end 
+
+function _run_sis77(u0, p, duration, seed::Nothing; tstep)
+    @assert minimum(p) >= 0 "Input p = $p. Model cannot run with negative parameters."
+    @assert duration > 0 "Input duration = $duration. Model needs duration > 0."
+
+    u = u0
+    t = .0
+    times = [t]
+
+    while t < duration 
+        u, t = sis77!(u, p, t; tstep)
+        push!(times, t)
+    end 
+
+    return u, times
 end 
 
 function u0_sis77(N, averageconnections, Y0, networktype; kwargs...)
@@ -91,73 +192,6 @@ function calcprobs(distances, i, j)
     end 
 end 
 
-function sis77!(u, p, t; tstep = nothing)
-    # Parameters 
-    gamma, tau = p 
-    
-    # Rates of events 
-    rates = [
-        ifelse(
-            i ∈ u.Y, # i.e. is infected 
-            gamma,
-            forceofinfection(i, u, tau)
-        ) for i ∈ vertices(u.g)
-    ]
-
-    return _sis77!(u, t, rates, tstep)
-end 
-
-function _sis77!(u, t, rates, tstep::Nothing)
-    # No tstep is provided so model goes to the time when the next event happens 
-    sumrates = sum(rates)
-
-    # Random numbers to decide what happens 
-    r1 = rand(); r2 = rand() 
-
-    # How soon is something going to happen 
-    timestep = -log(r1) / sumrates
-    newt = t + timestep
-
-    # Who is it going to happen to  
-    cumsumratesratio = cumsum(rates) / sumrates
-    i = searchsortedfirst(cumsumratesratio, r2)
-
-    # Calculate new vector of infected individuals 
-    Y = Int[] 
-    for j ∈ vertices(u.g) 
-        if j ∈ u.Y # i.e. is already infected 
-            if j != i push!(Y, j) end # not changing, remains infectious 
-        else 
-            if j == i push!(Y, j) end # changing, becomes infectious
-        end 
-    end 
-    u.Y = Y 
-    push!(u.historyY, Y)
-
-    return u, newt
-end 
-
-function _sis77!(u, t, rates, tstep::Real)
-    # Calculate how many events occur during period tstep 
-    probs = [ 1 - exp(-rate * tstep) for rate in rates ]
-    rands = rand(length(rates))
-
-    # Calculate new vector of infected individuals 
-    Y = Int[] 
-    for i ∈ vertices(u.g) 
-        if i ∈ u.Y  # i.e. is already infected 
-            if rands[i] >= probs[i] push!(Y, i) end # not changing, remains infectious 
-        else        # not already infected
-            if rands[i] < probs[i] push!(Y, i) end # changing, becomes infectious
-        end 
-    end 
-
-    u.Y = Y 
-    push!(u.historyY, Y)
-
-    return u, t + tstep
-end 
-
 function forceofinfection(i, u, tau)
     lambda = .0 
     for j ∈ neighbors(u.g, i) 
@@ -166,44 +200,6 @@ function forceofinfection(i, u, tau)
         end 
     end 
     return lambda  
-end 
-
-run_sis77(u0, p, duration; seed = nothing, tstep = nothing, kwargs...) = 
-    _run_sis77(u0, p, duration, seed; tstep)
-
-function run_sis77(; N, averageconnections, Y0, networktype, gamma, tau, duration, 
-        seed = nothing, tstep = nothing, kwargs...
-    )
-    u0 = u0_sis77(N, averageconnections, Y0, networktype; seed, kwargs...)
-    p = [gamma, tau]
-    return run_sis77(u0, p, duration; seed, tstep)
-end
-
-function rundf_sis77(args...; N, kwargs...)
-    u, times = run_sis77(args...; N, kwargs...)
-    df = dataframe_sis77(u, times, N)
-    return u, times, df
-end 
-
-function _run_sis77(u0, p, duration, seed::Int; tstep)
-    Random.seed!(seed)
-    return _run_sis77(u0, p, duration, nothing; tstep)
-end 
-
-function _run_sis77(u0, p, duration, seed::Nothing; tstep)
-    @assert minimum(p) >= 0 "Input p = $p. Model cannot run with negative parameters."
-    @assert duration > 0 "Input duration = $duration. Model needs duration > 0."
-
-    u = u0
-    t = .0
-    times = [t]
-    
-    while t < duration 
-        u, t = sis77!(u, p, t; tstep)
-        push!(times, t)
-    end 
-
-    return u, times
 end 
 
 function dataframe_sis77(u, times, N)
@@ -217,6 +213,12 @@ function dataframe_sis77(u, times, N)
         )
     end 
     return df 
+end 
+
+function rundf_sis77(args...; N, kwargs...)
+    u, times = run_sis77(args...; N, kwargs...)
+    df = dataframe_sis77(u, times, N)
+    return u, times, df
 end 
 
 function plot_sis77(data, t = nothing)
@@ -266,8 +268,8 @@ function videoplot_sis77(g, df, t, colours)
 end 
 
 function video_sis77(u, times, df; 
-        step = 1/24, folder = "outputvideos", filename = "video77.mp4", kwargs...)
-
+        step = 1/24, folder = "outputvideos", filename = "video77.mp4", kwargs...
+    )
     copytimes = deepcopy(times) 
     if last(times) == Inf pop!(copytimes) end 
 

@@ -1,21 +1,15 @@
 
 module MID_78
+
+# Pairwise SIS approximation model (page 285)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
 export sis78!, u0_sis78, run_sis78, dataframe_sis78, plot_sis78, plot_sis78!
 
-function u0_sis78(X0, Y0, n) 
-    N0 = X0 + Y0
-    XY0 = n * Y0 * X0 / N0
-    u0 = [ X0, XY0, N0 ]
-    return u0
-end 
-
 function sis78!(du, u, p, t) 
     # compartments 
     X, XY, N = u
-
     # parameters 
     gamma, tau, n = p
     
@@ -31,6 +25,12 @@ function sis78!(du, u, p, t)
     du[3] = 0
 end 
 
+function run_sis78(; X0, Y0, n, gamma, tau, duration, kwargs...)
+    u0 = u0_sis78(X0, Y0, n)
+    p = [gamma, tau, n]
+    return run_sis78(u0, p, duration; kwargs...)
+end 
+
 function run_sis78(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
     @assert minimum(p) >= 0 "Input p = $p: cannot run with negative parameters" 
@@ -44,10 +44,11 @@ function run_sis78(u0, p, duration; saveat = 1)
     return sol
 end 
 
-function run_sis78(; X0, Y0, n, gamma, tau, duration, kwargs...)
-    u0 = u0_sis78(X0, Y0, n)
-    p = [gamma, tau, n]
-    return run_sis78(u0, p, duration; kwargs...)
+function u0_sis78(X0, Y0, n) 
+    N0 = X0 + Y0
+    XY0 = n * Y0 * X0 / N0
+    u0 = [ X0, XY0, N0 ]
+    return u0
 end 
 
 function dataframe_sis78(sol)
@@ -72,9 +73,7 @@ function plot_sis78!(fig::Figure, result::DataFrame; kwargs...)
     plot_sis78!(gl, result; kwargs...)
 end 
 
-function plot_sis78!(gl::GridLayout, result::DataFrame; 
-        label = "p7.8.jl: Pairwise SIS model")
-
+function plot_sis78!(gl::GridLayout, result::DataFrame; label = "p7.8.jl: Pairwise SIS model")
     ax1 = Axis(gl[1, 1])
     lines!(ax1, result.t, result.X; label = "Susceptible")
     lines!(ax1, result.t, result.Y; label = "Infectious")

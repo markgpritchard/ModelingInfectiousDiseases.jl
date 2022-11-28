@@ -1,5 +1,7 @@
 
 module MID_52
+
+# SIR model with corrected term-time forcing (page 171)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -19,6 +21,29 @@ function sir52!(du, u, p, t)
     du[1] = nu - β * S * I - μ * S      # dS
     du[2] = β * S * I - (γ + μ) * I     # dI
     du[3] = γ * I - μ * R               # dR
+end 
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Functions for a single value of beta1 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function run_sir52(; S0, I0, R0 = 1 - (S0 + I0), beta0, beta1, gamma, mu, nu = mu, 
+        termstarttimes, termendtimes, duration, kwargs...
+    )
+    # Do we start in term time or in holiday?
+    term = ifelse(termstarttimes[1] < termendtimes[1], -1, 1)
+
+    u0 = [S0, I0, R0]
+    p = [beta0, beta1, gamma, mu, nu, term]
+    return run_sir52(u0, p, termstarttimes, termendtimes, duration; kwargs...)
+end 
+
+function run_sir52(u0, p, termstarttimes, termendtimes, duration; kwargs...)
+    parms = deepcopy(p)
+    ts = deepcopy(termstarttimes)
+    te = deepcopy(termendtimes)
+    return run_sir52!(u0, parms, ts, te, duration; kwargs...)
 end 
 
 function run_sir52!(u0, p, termstarttimes, termendtimes, duration; saveat = 1, kwargs...)
@@ -54,24 +79,6 @@ function run_sir52!(u0, p, termstarttimes, termendtimes, duration; saveat = 1, k
     return sol
 end 
 
-function run_sir52(u0, p, termstarttimes, termendtimes, duration; kwargs...)
-    parms = deepcopy(p)
-    ts = deepcopy(termstarttimes)
-    te = deepcopy(termendtimes)
-    return run_sir52!(u0, parms, ts, te, duration; kwargs...)
-end 
-
-function run_sir52(; S0, I0, R0 = 1 - (S0 + I0), beta0, beta1, gamma, mu, nu = mu, 
-        termstarttimes, termendtimes, duration, kwargs...
-    )
-    # Do we start in term time or in holiday?
-    term = ifelse(termstarttimes[1] < termendtimes[1], -1, 1)
-
-    u0 = [S0, I0, R0]
-    p = [beta0, beta1, gamma, mu, nu, term]
-    return run_sir52(u0, p, termstarttimes, termendtimes, duration; kwargs...)
-end 
-
 function dataframe_sir52(sol)
     result = DataFrame(t = Float64[], S = Float64[], I = Float64[], R = Float64[])
     for i ∈ eachindex(sol.u)
@@ -83,53 +90,6 @@ function dataframe_sir52(sol)
         ) )
     end 
     return result 
-end 
-
-function bifurcationdata_sir52(beta0, beta1::Vector{<:Real}, gamma, mu, termstarttimes, termendtimes; 
-        S0 = .5, I0 = 1e-4, R0 = 1 - (S0 + I0), kwargs...
-    )
-    # Do we start in term time or in holiday?
-    term = ifelse(termstarttimes[1] < termendtimes[1], -1, 1)
-
-    u0 = [S0, I0, R0]
-    p = [beta0, beta1[1], gamma, mu, term]
-    return bifurcationdata_sir52!(beta1, u0, p, termstarttimes, termendtimes; kwargs...)
-end
-
-bifurcationdata_sir52(; beta0, beta1, gamma, mu, termstarttimes, termendtimes, kwargs...) = 
-    bifurcationdata_sir52(beta0, beta1, gamma, mu, termstarttimes, termendtimes; kwargs...)
-
-function bifurcationdata_sir52!(beta1::Vector{<:Real}, u0, p, termstarttimes, termendtimes; kwargs...)
-    data = DataFrame(beta1 = Float64[], t = Float64[], I = Float64[])
-    ts = deepcopy(termstarttimes)
-    te = deepcopy(termendtimes)
-    bifurcationdata_sir52!(data, beta1, u0, p, ts, te; kwargs...) 
-    return data 
-end
-
-function bifurcationdata_sir52!(data, beta1::Vector{<:Real}, u0, p, termstarttimes, termendtimes; kwargs...) 
-    for β1 ∈ beta1
-        bifurcationdata_sir52!(data, β1, u0, p, termstarttimes, termendtimes; kwargs...) 
-    end
-end 
-
-function bifurcationdata_sir52!(data, beta1::Real, u0, p, termstarttimes, termendtimes; 
-        runin = 100, plot = 100, kwargs...
-    ) 
-    p[2] = beta1
-    duration = (runin + plot) * 365
-    sol = run_sir52!(u0, p, termstarttimes, termendtimes, duration; saveat = 365, kwargs...)
-    try
-        for i ∈ runin+1:runin+plot
-            push!(data, Dict(
-                :beta1 => beta1,
-                :t => sol.t[i], 
-                :I => sol.u[i][2]
-            ) )
-        end 
-    catch e
-        @warn "Error when beta1 = $beta1: $e"
-    end 
 end 
 
 function plot_sir52(result; kwargs...)
@@ -174,6 +134,58 @@ function plot_sir52!(ax::Axis, result::DataFrame; plotR = false)
     plotR && lines!(ax, xs, result.R, label = "Recovered")
     ax.xlabel = "Time, years"
     ax.ylabel = "Fraction of population"
+end 
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Functions to produce a bifurcation diagram (a vector for beta1)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+bifurcationdata_sir52(; beta0, beta1, gamma, mu, nu = mu, termstarttimes, termendtimes, kwargs...) = 
+    bifurcationdata_sir52(beta0, beta1, gamma, mu, nu, termstarttimes, termendtimes; kwargs...)
+
+function bifurcationdata_sir52(beta0, beta1::Vector{<:Real}, gamma, mu, nu, termstarttimes, termendtimes; 
+        S0 = .5, I0 = 1e-4, R0 = 1 - (S0 + I0), kwargs...
+    )
+    # Do we start in term time or in holiday?
+    term = ifelse(termstarttimes[1] < termendtimes[1], -1, 1)
+
+    u0 = [S0, I0, R0]
+    p = [beta0, beta1[1], gamma, mu, nu, term]
+    return bifurcationdata_sir52!(beta1, u0, p, termstarttimes, termendtimes; kwargs...)
+end
+
+function bifurcationdata_sir52!(beta1::Vector{<:Real}, u0, p, termstarttimes, termendtimes; kwargs...)
+    data = DataFrame(beta1 = Float64[], t = Float64[], I = Float64[])
+    ts = deepcopy(termstarttimes)
+    te = deepcopy(termendtimes)
+    bifurcationdata_sir52!(data, beta1, u0, p, ts, te; kwargs...) 
+    return data 
+end
+
+function bifurcationdata_sir52!(data, beta1::Vector{<:Real}, u0, p, termstarttimes, termendtimes; kwargs...) 
+    for β1 ∈ beta1
+        bifurcationdata_sir52!(data, β1, u0, p, termstarttimes, termendtimes; kwargs...) 
+    end
+end 
+
+function bifurcationdata_sir52!(data, beta1::Real, u0, p, termstarttimes, termendtimes; 
+        runin = 100, plot = 100, kwargs...
+    ) 
+    p[2] = beta1
+    duration = (runin + plot) * 365
+    sol = run_sir52!(u0, p, termstarttimes, termendtimes, duration; saveat = 365, kwargs...)
+    try
+        for i ∈ runin+1:runin+plot
+            push!(data, Dict(
+                :beta1 => beta1,
+                :t => sol.t[i], 
+                :I => sol.u[i][2]
+            ) )
+        end 
+    catch e
+        @warn "Error when beta1 = $beta1: $e"
+    end 
 end 
 
 function bifurcationplot_sir52(data; label = "p5.2.jl: SIR model with corrected term-time forcing")

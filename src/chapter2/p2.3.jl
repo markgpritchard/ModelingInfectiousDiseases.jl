@@ -1,5 +1,7 @@
 
 module MID_23
+
+# SIR model with disease induced mortality: Density-dependent transmission (page 35)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -17,6 +19,12 @@ function sir23!(du, u, p, t)
     du[3] = gamma * Y - mu * Z                              # dZ
 end 
 
+function run_sir23(; N0 = 0, X0, Y0, Z0 = N0 - (X0 + Y0), beta, gamma, mu, nu = mu, rho, duration, kwargs...)
+    u0 = [X0, Y0, Z0]
+    p = [beta, gamma, mu, nu, rho]
+    return run_sir23(u0, p, duration; kwargs...)
+end 
+
 function run_sir23(u0, p, duration; reltol = 1e-12, saveat = 1)
     # set low tolerance for solver, otherwise oscillations don't converge appropriately
     @assert minimum(u0) >= 0 "Input u0 = $u0: Cannot run model with negative starting values in any compartment"
@@ -27,14 +35,7 @@ function run_sir23(u0, p, duration; reltol = 1e-12, saveat = 1)
 
     prob = ODEProblem(sir23!, u0, tspan, p)
     sol = solve(prob; reltol, saveat)
-
     return sol
-end 
-
-function run_sir23(; N0 = 0, X0, Y0, Z0 = N0 - (X0 + Y0), beta, gamma, mu, nu = mu, rho, duration, kwargs...)
-    u0 = [X0, Y0, Z0]
-    p = [beta, gamma, mu, nu, rho]
-    return run_sir23(u0, p, duration; kwargs...)
 end 
 
 function dataframe_sir23(sol)
@@ -95,31 +96,5 @@ function plot_sir23!(ax::Axis, result::DataFrame; plotZ = true, plotN = true)
     ax.xlabel = "Time, years"
     ax.ylabel = "Numbers"
 end 
-
-#="""
-    run_sir23([; beta, gamma, mu, nu, rho, X0, Y0, N0, duration, saveat])
-
-Run the model `sir23`
-
-# Keyword arguments 
-
-All keyword arguments are optional with default values supplied for each. 
-
-* `beta`: The beta parameter in the model (infectiousness of infectives). Default is 520 / 365 (520 per year).
-* `gamma`: The gamma parameter in the model (recovery rate). Default is 1 / 7.
-* `mu`: The model's mortality rate not due to the pathogen. Default is 1 / (70 * 365) 
-    (i.e. mean life duration 70 years).
-* `nu`: The model's birth rate. Default is 1 / (70 * 365) (i.e. match the mortality in the absence of the pathogen).
-* `rho`: The mortality probability for infecteds. Default is 0.5.
-* `X0`: Number susceptible at time = 0. Default is 0.2. Note, we follow the convention 
-    used in the book that {S, I, R} represent proportions and {X, Y, Z} represent 
-    numbers susceptible, infectious and resistant.
-* `Y0`: Number infectious at time = 0. Default is 1e-6.
-* `N0`: The initial total population size. Default is 1.
-* `duration`: How long the model will run (time units are interpretted as days). 
-    Default is 100 years. (The default differs between the programmes in different 
-    languages -- 100 years appears to give a reasonable illustration of the results.)
-* `saveat`: How frequently the model should save values. Default is 1 (day).
-""" =#
 
 end # module MID_23

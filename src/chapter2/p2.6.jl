@@ -1,5 +1,7 @@
 
 module MID_26
+
+# SEIR model (page 41)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -17,6 +19,12 @@ function seir26!(du, u, p, t)
     du[3] = sigma * E - gamma * I - mu * I      # dI
 end 
 
+function run_seir26(; S0, E0, I0, beta, gamma, mu, nu = mu, sigma, duration, kwargs...)
+    u0 = [S0, E0, I0]
+    p = [beta, gamma, mu, nu, sigma]
+    return run_seir26(u0, p, duration; kwargs...)
+end 
+
 function run_seir26(u0, p, duration; reltol = 1e-6, saveat = 1)
     # set a low tolerance for the solver, otherwise the oscillations don't converge appropriately
     @assert minimum(u0) >= 0 "Input u0 = $u0: Cannot run model with negative starting values in any compartment"
@@ -28,14 +36,7 @@ function run_seir26(u0, p, duration; reltol = 1e-6, saveat = 1)
 
     prob = ODEProblem(seir26!, u0, tspan, p)
     sol = solve(prob; reltol, saveat)
-
     return sol
-end 
-
-function run_seir26(; S0, E0, I0, beta, gamma, mu, nu = mu, sigma, duration, kwargs...)
-    u0 = [S0, E0, I0]
-    p = [beta, gamma, mu, nu, sigma]
-    return run_seir26(u0, p, duration; kwargs...)
 end 
 
 function dataframe_seir26(sol)

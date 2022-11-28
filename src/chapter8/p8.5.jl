@@ -1,5 +1,7 @@
 
 module MID_85
+
+# Smallpox control model (page 315)
   
 using CairoMakie, DataFrames, DifferentialEquations
 
@@ -8,18 +10,24 @@ export siqr85!, run_siqr85, dataframe_siqr85, plot_siqr85, plot_siqr85!
 function siqr85!(du, u, p, t) 
     # compartments 
     X, Xq, Y, Q, Z = u
-    N = +(X, Xq, Y, Q, Z)
-
     # parameters 
     b, k, di, q, tauq, gamma = p 
 
+    N = +(X, Xq, Y, Q, Z)
+
     # the ODEs
-    du[1] = - (k * b * Y + q * k * (1 - b) * Y) * X / N + tauq * Xq     # dX 
-    du[2] = q * k * (1 - b) * Y * X / N - tauq * Xq                     # dXq 
-    du[3] = k * b * Y * (1 - q) * X / N - (di + gamma) * Y              # dY 
-    du[4] = q * k * b * X * Y / N + di * Y - tauq * Q                   # dQ 
-    du[5] = gamma * Y + tauq * Q                                        # dZ
+    du[1] = -(k * b * Y + q * k * (1 - b) * Y) * X / N + tauq * Xq  # dX 
+    du[2] = q * k * (1 - b) * Y * X / N - tauq * Xq                 # dXq 
+    du[3] = k * b * Y * (1 - q) * X / N - (di + gamma) * Y          # dY 
+    du[4] = q * k * b * X * Y / N + di * Y - tauq * Q               # dQ 
+    du[5] = gamma * Y + tauq * Q                                    # dZ
 end 
+
+function run_siqr85(; X0, Xq0, Y0, Q0, Z0, b, k, di, q, tauq, gamma, duration, kwargs...)
+    u0 = [X0, Xq0, Y0, Q0, Z0]
+    p = [b, k, di, q, tauq, gamma]
+    return run_siqr85(u0, p, duration; kwargs...)
+end
 
 function run_siqr85(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
@@ -30,12 +38,6 @@ function run_siqr85(u0, p, duration; saveat = 1)
     prob = ODEProblem(siqr85!, u0, tspan, p)
     return solve(prob; saveat)
 end 
-
-function run_siqr85(; X0, Xq0, Y0, Q0, Z0, b, k, di, q, tauq, gamma, duration, kwargs...)
-    u0 = [X0, Xq0, Y0, Q0, Z0]
-    p = [b, k, di, q, tauq, gamma]
-    return run_siqr85(u0, p, duration; kwargs...)
-end
 
 function dataframe_siqr85(sol)
     return DataFrame(
@@ -70,7 +72,7 @@ function plot_siqr85!(gl::GridLayout, result::DataFrame;
     ax.xlabel = "Time"
     ax.ylabel = "Number"
     leg = Legend(gl[2, 1], ax; orientation = :horizontal)
-    Label(fig85[0, 1], label)
+    Label(gl[0, 1], label)
 end 
 
 function plot_siqr85!(ax::Axis, result::DataFrame)

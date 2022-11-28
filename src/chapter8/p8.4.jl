@@ -1,5 +1,7 @@
 
 module MID_84
+
+# # SIR model with 2 risk classes and targetted vaccination (page 305)
   
 using CairoMakie, DataFrames, DifferentialEquations
 import Base: minimum
@@ -14,12 +16,9 @@ mutable struct Parameters84
     pv      :: Vector{<:Float64}
 end
 
-minimum(p::Parameters84) = min(minimum(p.beta), p.gamma, p.mu, minimum(p.nu), minimum(p.pv))
-
 function sir84!(du, u, p, t) 
     # compartments 
     Sh, Ih, Rh, Sℓ, Iℓ, Rℓ = u
-
     # parameters 
     (βhh, βhl, βlh, βll) = p.beta 
     γ = p.gamma
@@ -37,6 +36,19 @@ function sir84!(du, u, p, t)
     du[4] = nul * (1 - pl) - (βlh * Ih + βll * Iℓ) * Sℓ - μ * Sℓ    # dSℓ
     du[5] = (βlh * Ih + βll * Iℓ) * Sℓ - (γ + μ) * Iℓ               # dIℓ
     du[6] = nul * pl + γ * Iℓ - μ * Rℓ                              # dRℓ
+end 
+
+function run_sir84(; Sh0 = nothing, Ih0 = nothing, Rh0 = nothing, Sl0 = nothing, 
+        Il0 = nothing, Rl0 = nothing, S0 = [Sh0, Sl0], I0 = [Ih0, Il0], R0 = [Rh0, Rl0], 
+        betahh = nothing, betahl = nothing, betalh = nothing, betall = nothing, 
+        beta = [betahh betahl; betalh betall], gamma, mu, nuh = nothing, nul = nothing, 
+        nu = [nuh, nul], pvh = .0, pvl = .0, pv = [pvh, pvl], duration, 
+        vaccinationstarttime, vaccinationrate, kwargs...
+    )
+    Sh0, Sl0 = S0; Ih0, Il0 = I0; Rh0, Rl0 = R0
+    u0 = [ Sh0 Sl0; Ih0 Il0; Rh0 Rl0 ]
+    p = Parameters84(beta, gamma, mu, nu, pv)
+    return run_sir84(u0, p, duration, vaccinationstarttime, vaccinationrate; kwargs...)
 end 
 
 function run_sir84(u0, p, duration, vaccinationstarttime, vaccinationrate; saveat = 1)
@@ -60,18 +72,7 @@ function run_sir84(u0, p, duration, vaccinationstarttime, vaccinationrate; savea
     end
 end 
 
-function run_sir84(; Sh0 = nothing, Ih0 = nothing, Rh0 = nothing, Sl0 = nothing, 
-        Il0 = nothing, Rl0 = nothing, S0 = [Sh0, Sl0], I0 = [Ih0, Il0], R0 = [Rh0, Rl0], 
-        betahh = nothing, betahl = nothing, betalh = nothing, betall = nothing, 
-        beta = [betahh betahl; betalh betall], gamma, mu, nuh = nothing, nul = nothing, 
-        nu = [nuh, nul], pvh = .0, pvl = .0, pv = [pvh, pvl], duration, 
-        vaccinationstarttime, vaccinationrate, kwargs...
-    )
-    Sh0, Sl0 = S0; Ih0, Il0 = I0; Rh0, Rl0 = R0
-    u0 = [ Sh0 Sl0; Ih0 Il0; Rh0 Rl0 ]
-    p = Parameters84(beta, gamma, mu, nu, pv)
-    return run_sir84(u0, p, duration, vaccinationstarttime, vaccinationrate; kwargs...)
-end 
+minimum(p::Parameters84) = min(minimum(p.beta), p.gamma, p.mu, minimum(p.nu), minimum(p.pv))
 
 function dataframe_sir84(sol)
     return DataFrame(

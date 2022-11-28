@@ -1,6 +1,8 @@
 
 module MID_32
   
+# SIS model with multiple risk groups (page 64)
+
 using CairoMakie, DataFrames, DifferentialEquations
 import Base: minimum
 
@@ -10,8 +12,6 @@ struct Parameters32
     beta    :: Matrix{<:Float64} 
     gamma   :: Vector{<:Float64}
 end
-
-minimum(p::Parameters32) = min( minimum(p.beta), minimum(p.gamma) )
 
 function sis32!(du, u, p, t) 
     # parameters 
@@ -29,6 +29,20 @@ function sis32!(du, u, p, t)
     end 
 end 
 
+function run_sis32(; S0, I0, betavector = nothing, betaconstant = 1, beta = nothing, gamma, duration, kwargs...)
+    @assert length(S0) == length(I0) "Must have equal length vectors for S0 and I0"
+    u0 = zeros(2, length(S0))
+    u0[1, :] = S0 
+    u0[2, :] = I0 
+    # This function allows you to provide a matrix for `beta`, or a vector and constant 
+    # (`betavector` and `betaconstant`) to calculate `beta`. If calculating `beta` 
+    # we use an intermediary step when creating the transmission factor so that 
+    # all βᵢⱼ == βⱼᵢ 
+    if isnothing(beta) beta = betaconstant .* betavector * betavector' end 
+    p = Parameters32(beta, gamma)
+    run_sis32(u0, p, duration; kwargs...)
+end
+
 function run_sis32(u0, p, duration; saveat = 1)
     @assert minimum(u0) >= 0 "Input u0 = $u0: no compartments can contain negative proportions"
     @assert sum(u0) ≈ 1 "Input u0 = $u0: compartment values are proportions and must approximately sum to 1"
@@ -39,35 +53,25 @@ function run_sis32(u0, p, duration; saveat = 1)
 
     prob = ODEProblem(sis32!, u0, tspan, p)
     sol = solve(prob; saveat)
-
     return sol
 end 
 
-function run_sis32(; S0, I0, betavector = nothing, betaconstant = 1, beta = nothing, gamma, duration, kwargs...)
-    @assert length(S0) == length(I0) "Must have equal length vectors for S0 and I0"
-    u0 = zeros(2, length(S0))
-    u0[1, :] = S0 
-    u0[2, :] = I0 
-    # We use an intermediary step when creating the transmission factor so that all βᵢⱼ == βⱼᵢ 
-    if isnothing(beta) beta = betaconstant .* betavector * betavector' end 
-    p = Parameters32(beta, gamma)
-    run_sis32(u0, p, duration; kwargs...)
-end
+minimum(p::Parameters32) = min( minimum(p.beta), minimum(p.gamma) )
 
 function dataframe_sis32(sol; type = :both)
     result = DataFrame(t = sol.t)
     if type == :both    # susceptible and infectious to be included in DataFrame 
-        _dataframe_sis32!(result, sol, :S)
-        _dataframe_sis32!(result, sol, :I)
+        dataframe_sis32!(result, sol, :S)
+        dataframe_sis32!(result, sol, :I)
     else 
-        _dataframe_sis32!(result, sol, type)
+        dataframe_sis32!(result, sol, type)
     end 
     return result 
 end 
 
-function _dataframe_sis32!(result, sol, type)
-    row = _dataframerow(type)
-    if isnothing(row) return end    # for when _dataframerow returns an error
+function dataframe_sis32!(result, sol, type)
+    row = dataframerow(type)
+    if isnothing(row) return end    # for when dataframerow returns an error
     categories = axes(sol[1], 2)
     for i ∈ categories
         rs = zeros( size(sol, 3) )
@@ -78,7 +82,7 @@ function _dataframe_sis32!(result, sol, type)
     end 
 end 
 
-function _dataframerow(type)
+function dataframerow(type)
     if type == :S 
         return 1 
     elseif type == :I 
@@ -87,7 +91,6 @@ function _dataframerow(type)
         @error "Unrecognised type entered. Recognised options are :S, :I and :both"
     end 
 end 
-
 
 function plot_sis32(result; kwargs...)
     fig = Figure()
@@ -107,7 +110,6 @@ function plot_sis32!(gl::GridLayout, result::DataFrame;
         label = "p3.2.jl: Susceptible--infectious--susceptible model with multiple risk groups", 
         legend = :right
     )
-
     # Plot on a linear scale 
     ax1 = Axis(gl[1, 1])
     plot_sis32!(ax1, result)
@@ -155,7 +157,7 @@ function plot_sis32!(ax::Axis, result::DataFrame, f = plotvalue)
 end 
 
 
-## A set of functions to choose which values to plot 
+## Functions to choose which values to plot 
 
 plotvalue(result, col) = result[!, col]
 function plotvalue_dividen(result, col) # proportion within group rather than within population
@@ -169,76 +171,5 @@ end
 value_nozero(vals) = [ ifelse(v == 0, NaN, v) for v ∈ vals ]
 plotvalue_nozero(result, col) = value_nozero(plotvalue(result, col))
 plotvalue_dividen_nozero(result, col) = value_nozero(plotvalue_dividen(result, col))
-
-
-## Help text
-
-"""
-    run_sis32(u0, p, duration[; saveat])
-
-Run the model `sis32!`, a susceptible--infectious--susceptible model with multiple 
-risk group categories.
-
-## Arguments 
-
-`u0` is a `2xn` matrix of starting conditions for the model. There is a column for 
-each risk group. The upper value is the proportion of the whole population that 
-is susceptible and in that risk group, and the lower value is the proportion of 
-the whole population that is infectious and in that risk group. 
-
-`p` is the parameters for the model. This is expected in a `Parameters32` type. 
-`p.beta` is an `nxn` matrix of infectiousness parameters between each risk group. 
-`p.gamma` is an n-element vector of recovery rates for each risk group.
-
-`duration` is the length of time that the model should run.
-
-## Optional keyword arguments 
-* `saveat`: how frequently the ODE solver should save results. Default is `1`
-
-## Example 
-```
-julia> u0 = [ .06 .31 .52 .08 .02999; .0 .0 .0 .0 1e-5 ]    
-2×5 Matrix{Float64}:
- 0.06  0.31  0.52  0.08  0.02999
- 0.0   0.0   0.0   0.0   1.0e-5
-
-julia> betavector = [ 0, 3, 10, 60, 100 ]
-5-element Vector{Int64}:
-   0
-   3
-  10
-  60
- 100
-
-julia> betamatrix = .0016 .* betavector * betavector'       
-5×5 Matrix{Float64}:
- 0.0  0.0     0.0    0.0     0.0
- 0.0  0.0144  0.048  0.288   0.48
- 0.0  0.048   0.16   0.96    1.6
- 0.0  0.288   0.96   5.76    9.6
- 0.0  0.48    1.6    9.6    16.0
-
-julia> p = Parameters32( betamatrix, [.2, .2, .2, .2, .2] ) 
-Parameters32([0.0 0.0 … 0.0 0.0; 0.0 0.0144 … 
-0.288 0.48; … ; 0.0 0.288 … 5.76 9.6; 0.0 0.48 … 9.6 16.0], [0.2, 0.2, 0.2, 0.2, 0.2])
-
-julia> run_sis32(u0, p, 8; saveat = 2)
-retcode: Success
-Interpolation: 1st order linear
-t: 5-element Vector{Float64}:
- 0.0
- 2.0
- 4.0
- 6.0
- 8.0
-u: 5-element Vector{Matrix{Float64}}:
- [0.06 0.31 … 0.08 0.02999; 0.0 0.0 … 0.0 1.0e-5]
- [0.06 0.30999 … 0.07997 0.02997; 0.0 6.6124e-6 … 3.4121e-5 2.802e-5]
- [0.06 0.30996 … 0.07980 0.02987; 0.0 3.9027e-5 … 0.0002 0.00013]
- [0.06 0.30979 … 0.07895 0.02934; 0.0 0.00021 … 0.00105 0.00066]
- [0.06 0.30897 … 0.07487 0.02687; 0.0 0.00102 … 0.00513 0.00313]
-```
-"""
-function run_sis32() end
 
 end # module MID_31
